@@ -5,3 +5,50 @@
 @media(max-width:760px){.height-review-band{padding:24px 7%;grid-template-columns:1fr;gap:13px}.height-review-score{min-height:125px;padding:18px}.height-review-score>b{font-size:29px}.height-review-scroll article{flex-basis:84vw;padding:17px}.growth-infographic{padding:55px 7%}.growth-steps-visual{grid-template-columns:1fr;gap:9px;margin-top:25px}.growth-steps-visual article{min-height:0;padding:18px}.growth-connector{transform:rotate(90deg);line-height:24px}.growth-quote{align-items:flex-start;flex-direction:column;gap:9px;padding:17px}.growth-quote>span{font-size:16px}.growth-quote small{font-size:7px;line-height:1.5}.ayurveda-reading{padding:54px 7%}.reading-cards{grid-template-columns:1fr}.reading-cards>a{min-height:139px}.reading-cards h3{font-size:18px}}
 .height-hero{padding-right:43%;min-height:475px}.height-hero>p{max-width:540px}.height-doctor-photo{position:absolute;right:11.5%;top:68px;width:29%;height:338px;border-radius:46% 46% 13px 13px;overflow:hidden;background:#e7e9df;box-shadow:0 20px 55px rgb(35 51 34 / .16)}.height-doctor-photo img{width:100%;height:100%;object-fit:cover;object-position:center 42%}.height-photo-caption{position:absolute;left:14px;right:14px;bottom:14px;padding:15px 16px;border:1px solid #ffffff80;border-radius:11px;background:#fdfbf7dc;backdrop-filter:blur(12px)}.height-photo-caption span{display:block;font-size:7px;letter-spacing:1.2px;color:#9a7957}.height-photo-caption b{display:block;margin-top:6px;font:400 16px/1.25 Georgia,serif;color:#1B3B22}.height-review-band{grid-template-columns:190px 1fr;align-items:start}.height-review-area{min-width:0}.height-review-topline{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px}.height-review-topline>span{font-size:8px;letter-spacing:1.2px;color:#8d806b;font-weight:700}.height-review-topline>div{display:flex;gap:7px}.height-review-topline button{width:40px;height:40px;border:1px solid #e5e2d8;border-radius:50%;background:#fff;color:#1B3B22;font-size:18px;cursor:pointer}.height-review-topline button:hover{background:#1B3B22;color:#fff}.height-review-scroll{padding:1px 2px 12px}.height-review-card{flex-basis:340px!important;min-height:225px!important;display:flex;flex-direction:column}.height-review-card-head{display:flex;align-items:center;gap:10px}.height-review-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e7ede2;color:#436144;font:500 16px Georgia,serif}.height-review-card-head>span:nth-child(2){display:flex;flex-direction:column;gap:4px;min-width:0}.height-review-card-head b{font-size:11px;color:#263e2c}.height-review-card-head small{font-size:8px;color:#88877c}.height-review-stars{margin-left:auto;align-self:flex-start;color:#D4A373;font-size:12px;letter-spacing:1px;white-space:nowrap}.height-review-card p{font-size:11px;line-height:1.75;color:#606b5e;margin:16px 0;min-height:0;flex:1}.height-review-card a{font-size:9px}.reviews-disclaimer{font-size:9px!important;line-height:1.6!important;color:#77786d!important;margin:5px 0 0!important;max-width:850px}.growth-art{display:none}
 @media(max-width:760px){.height-hero{padding-right:7%;padding-bottom:30px}.height-doctor-photo{position:relative;top:auto;right:auto;width:86%;height:285px;margin:28px auto 0}.height-review-band{grid-template-columns:1fr;gap:14px}.height-review-score{min-height:110px}.height-review-topline button{width:44px;height:44px}.height-review-card{flex-basis:83vw!important;min-height:238px!important}}
+
+/* Accreditation, insurer and growth-education refinements */
+.nabh-badge>img{width:54px;height:54px;object-fit:contain;flex:0 0 auto}
+.insurer-tile{align-items:center;justify-content:center;gap:10px;text-align:center;min-height:112px}
+.insurer-tile img{width:50px;height:50px;object-fit:contain}
+.insurer-wordmark{font:700 13px/1.25 Arial,sans-serif;color:#1B3B22;filter:none}
+.growth-intro-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;margin-bottom:38px}
+.growth-intro-layout .growth-intro{margin-bottom:0}
+.height-spine-graphic{padding:20px 22px 18px;border:1px solid rgba(27,59,34,.1);border-radius:46% 46% 16px 16px;background:linear-gradient(155deg,#edf0e7,#dce4d6);box-shadow:0 18px 45px rgba(27,59,34,.08)}
+.height-spine-graphic svg{display:block;width:100%;height:auto;overflow:visible}
+.spine-halo{fill:none;stroke:rgba(27,59,34,.13);stroke-width:1.5}
+.spine-silhouette{fill:none;stroke:rgba(27,59,34,.32);stroke-width:10;stroke-linecap:round}
+.spine-path{fill:none;stroke:url(#spineGradient);stroke-width:4;stroke-linecap:round}
+.vertebrae circle{fill:#f7f0e4;stroke:#9f805b;stroke-width:1.5}
+.measure-line,.growth-arrow{fill:none;stroke:#60795b;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.height-spine-graphic text{fill:#687767;font:700 9px Arial,sans-serif;letter-spacing:1.7px}
+.height-spine-graphic>div{display:grid;gap:6px;padding:0 8px 6px}
+.height-spine-graphic b{font:500 18px/1.25 Georgia,serif;color:#1B3B22}
+.height-spine-graphic span{font-size:10px;line-height:1.65;color:#677267}
+.height-doctor-photo img{object-position:center 23%}
+@media(max-width:760px){.nabh-badge{position:relative;right:auto;bottom:auto;margin-top:24px;width:max-content;max-width:100%}.insurer-grid{grid-template-columns:repeat(2,1fr)}.growth-intro-layout{grid-template-columns:1fr;gap:24px}.height-spine-graphic{max-width:430px;margin:auto}.height-doctor-photo img{object-position:center 20%}}
+
+/* Accessibility, font consistency and reading comfort */
+.subpage{font-family:'DM Sans',Arial,sans-serif}
+.sub-overline,.therapy-label,.growth-steps-visual article>b,.reading-cards>a>span{color:#6D5239}
+.back-link,.directory-side p,.network-list p,.height-copy>p,.therapy-detail p,.steps-grid p,.insurance-callout p,.growth-intro>p,.ayurveda-reading>p,.height-review-card p,.reviews-disclaimer,.reading-cards small,.growth-caveat p,.session-card>p,.session-success p,.height-spine-graphic span{color:#566057}
+.reviews-disclaimer,.growth-steps-visual article p,.reading-cards small,.form-privacy,.clinical-note,.steps-grid p,.insurance-callout p,.growth-caveat p,.session-card>p,.session-success p,.height-review-card p{font-size:12px!important;line-height:1.65!important}
+.sub-overline,.therapy-label,.growth-steps-visual article>b,.reading-cards>a>span,.session-pill,.session-card-head>span:first-child,.height-review-topline>span{font-size:10px}
+.form-privacy{color:#566057}
+.session-pill{color:#4F684B}
+.height-review-scroll:focus-visible{outline:3px solid #9A6337;outline-offset:4px}
+.therapy-number{color:#6D5A43}
+.treatment-disclaimer{color:#485448}
+.height-review-score small{color:#E2E9DE!important}
+.steps-grid article>span{color:#6D5239}
+body main section .height-review-score small{color:#E2E9DE!important}
+body main section .height-review-topline>span{color:#55493B!important}
+
+/* Mobile subpage header and form alignment */
+@media(max-width:760px){
+  .sub-header{height:172px;position:relative;align-items:flex-start;padding-top:10px}
+  .sub-header nav{top:67px}
+}
+.session-card .consent-line{flex-direction:row;align-items:center}
+.consent-line input{flex:0 0 18px}
+.consent-line span{flex:1}
+@media(max-width:360px){.sub-header nav .sub-book{font-size:10px;padding:0 10px;gap:5px;white-space:nowrap}}

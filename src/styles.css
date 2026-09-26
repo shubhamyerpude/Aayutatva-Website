@@ -5,4 +5,24 @@
 @media(max-width:380px){.phone-head{padding:0 10px}.phone-head span{font-size:10px}.hero-actions{align-items:flex-start;flex-direction:column;gap:8px}.hero-visual{height:330px}.visit-details{grid-template-columns:1fr;gap:15px}.footer-main{grid-template-columns:1fr}.footer-book{grid-column:auto}.footer-bottom{grid-template-columns:1fr}.footer-bottom span:nth-child(2),.footer-bottom a{grid-column:1;grid-row:auto}.footer-bottom a{justify-self:start}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+/* Carousel, accreditation and portrait refinements */
+.hero-dots{position:absolute;right:24px;top:24px;z-index:4;display:flex;gap:2px;padding:4px;border-radius:99px;background:rgba(253,251,247,.78);backdrop-filter:blur(8px)}
+.hero-dots button{position:relative;width:44px;height:44px;padding:0;border:0;background:transparent;cursor:pointer}
+.hero-dots button:after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#869182;transform:translate(-50%,-50%);transition:width .3s,background .3s}
+.hero-dots button.active:after{width:20px;border-radius:99px;background:#1B3B22}
+.nabh-logo{width:39px;height:39px;object-fit:contain;flex:0 0 auto}
+.doctor-profile-card:first-child .doctor-portrait img{object-position:center 23%}
+.doctor-profile-card:nth-child(2) .doctor-portrait img{object-position:center 20%}
+@media(max-width:760px){.hero-dots{right:12px;top:12px}.doctor-profile-card:first-child .doctor-portrait img{object-position:center 20%}.doctor-profile-card:nth-child(2) .doctor-portrait img{object-position:center 18%}}
 
+
+
+/* Accessibility and readability refinements */
+:focus-visible{outline:3px solid #9A6337;outline-offset:3px}
+.review-rail:focus-visible{outline-offset:7px}
+.eyebrow,.section-kicker,.hero-proof p,.hero-caption,.scroll-cue,.hero-vertical,.trust-intro,.trust-item small{color:#566057}
+.hero-proof p,.trust-item b{font-size:11px}
+.hero-caption,.scroll-cue,.hero-vertical,.trust-intro,.trust-item small{font-size:10px}
+
+/* Allow narrow mobile viewports without scrollbar-induced overflow */
+body{min-width:0}
