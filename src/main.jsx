@@ -7,6 +7,7 @@ import './sections.css';
 import { TreatmentsPage, InsurancePage, HeightSessionPage } from './subpages.jsx';
 
 const phonePrimary = '+918856031282';
+const whatsappPhone = '+917758816074';
 const heroSlides = [
   { image: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1300&q=85', label: 'THE WISDOM OF WELLNESS' },
   { image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1300&q=85', label: 'HEALING ROOTED IN NATURE' },
@@ -49,7 +50,7 @@ function App() {
       `Preferred date: ${form.date}`,
       `Notes: ${form.note || 'Not provided'}`,
     ].join('\n');
-    window.open(`https://wa.me/${phonePrimary.replace('+', '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    window.open(`https://wa.me/${whatsappPhone.replace('+', '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
     setSubmitted(true);
   };
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -91,7 +92,7 @@ function App() {
       <section className="visit-band"><div className="visit-text"><span>WE’D LOVE TO WELCOME YOU</span><h2>Find your way<br/><em>to feeling better.</em></h2><a href="https://maps.google.com/?q=1st+Floor+Bawankar+Bhavan+Khat+Road+Bhandara+Maharashtra+441904" target="_blank" rel="noreferrer" className="map-link"><MapPin size={17}/> Get directions <ArrowUpRight size={15}/></a></div><div className="visit-details"><div><small>COME SEE US</small><p>1st Floor, Bawankar Bhavan<br/>Khat Road, near Ganesh Marble<br/>Shiv Nagari, Bhandara<br/>Maharashtra 441904</p></div><div><small>OPEN DAILY</small><p>Monday to Sunday<br/>10:00 AM – 8:00 PM</p></div></div><div className="visit-decoration"><Flower2 size={145}/></div></section>
     </main>
     <footer className="footer"><div className="footer-main"><a href="#home" className="brand footer-brand"><img className="brand-logo" src="/media/aayutatva-logo.png" alt="Dr. Yerpude’s AayuTatva Ayurved Hospital & Panchakarma Centre"/></a><p>Rooted in nature.<br/>Guided by care.</p><div className="footer-phones"><a href="tel:+918856031282"><Phone size={16}/> +91 88560 31282</a><a href="tel:+917758816074"><Phone size={16}/> +91 77588 16074</a></div><a className="footer-book" href="#booking">Book your consultation <ArrowUpRight size={16}/></a></div><div className="footer-bottom"><span>© 2026 AayuTatva Ayurvedic Hospital & Panchakarma Centre</span><span>DR. MANISH SANTOSH YERPUDE · BHANDARA</span><a href="#home">BACK TO TOP ↑</a></div></footer>
-    <a href="https://wa.me/918856031282" target="_blank" rel="noreferrer" className="whatsapp" aria-label="Chat with AayuTatva on WhatsApp"><MessageCircle size={22}/><span>WhatsApp us</span></a>
+    <a href="https://wa.me/917758816074" target="_blank" rel="noreferrer" className="whatsapp" aria-label="Chat with AayuTatva on WhatsApp at +91 77588 16074"><MessageCircle size={22}/><span>WhatsApp us</span></a>
   </>;
 }
 
