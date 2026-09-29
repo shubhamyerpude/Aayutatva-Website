@@ -6,8 +6,8 @@ import {
   AlertCircle, Lock, Users, ChevronRight, CheckCircle2, RefreshCw
 } from 'lucide-react';
 
-const DEFAULT_UPI_ID = 'yerpudeabhilasha@okhdfcbank';
-const RECIPIENT_NAME = 'SHUBHAM SANTOSH YERPUDE';
+const DEFAULT_UPI_ID = 'paytm.s1j7ydq@pty';
+const RECIPIENT_NAME = 'DR YERPUDES AYUTATVA';
 const REGISTRATION_FEE = 9;
 const SESSION_DATE = '20th October 2026';
 
@@ -173,18 +173,18 @@ export function HeightCampaignBanner({ onOpenModal }) {
 }
 
 /* =========================================================================
-   2. PHONEPE QR DISPLAY CARD (Matches user uploaded image)
+   2. PAYTM MERCHANT QR DISPLAY CARD (Matches user uploaded Paytm QR)
    ========================================================================= */
-export function PhonePePaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME, amount = REGISTRATION_FEE }) {
+export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME, amount = REGISTRATION_FEE }) {
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Standard UPI URI format
+  // Standard UPI URI format accepted across all UPI apps (Paytm, GPay, PhonePe, BHIM, Cred)
   const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass')}`;
 
   useEffect(() => {
     QRCode.toDataURL(upiUri, {
-      width: 260,
+      width: 280,
       margin: 1,
       color: {
         dark: '#000000',
@@ -204,33 +204,60 @@ export function PhonePePaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NA
   };
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-[#5f259f]/30 shadow-xl overflow-hidden max-w-sm mx-auto text-center font-sans">
+    <div className="bg-[#002970] rounded-2xl border-2 border-[#00b9f5] shadow-2xl overflow-hidden max-w-sm mx-auto text-center font-sans">
       
-      {/* PhonePe Header */}
-      <div className="bg-[#5f259f] text-white pt-4 pb-3 px-4 relative">
-        <div className="w-12 h-12 bg-white text-[#5f259f] rounded-full flex items-center justify-center font-bold text-2xl mx-auto shadow-md mb-1.5">
-          पे
+      {/* Top Paytm Se UPI Branding */}
+      <div className="bg-white pt-3 pb-2 px-4 border-b border-stone-100">
+        <div className="flex items-center justify-center gap-1.5 mb-1">
+          <span className="font-extrabold text-base tracking-tight">
+            <span className="text-[#002970]">pay</span>
+            <span className="text-[#00b9f5]">tm</span>
+          </span>
+          <span className="text-[11px] font-bold text-stone-500">से</span>
+          <span className="text-xs font-black tracking-wider text-[#002970] italic">UPI ❯</span>
         </div>
-        <div className="text-xl font-bold tracking-tight">PhonePe</div>
-        <div className="text-[11px] uppercase tracking-widest font-semibold text-purple-200 mt-0.5">
-          ACCEPTED HERE
+
+        {/* Merchant Name */}
+        <div className="text-base sm:text-lg font-black text-stone-900 tracking-tight uppercase truncate">
+          {name}
         </div>
       </div>
 
-      {/* Subtext */}
-      <div className="pt-3 pb-1 text-xs font-semibold text-stone-600">
-        Scan & Pay Using Any UPI App
+      {/* Yellow Cashback Banner from Paytm Standee */}
+      <div className="bg-gradient-to-r from-[#ffd800] via-[#ffea40] to-[#ffd800] py-2 px-3 relative border-t-2 border-b-2 border-[#00b9f5]">
+        <div className="text-[10px] font-bold text-stone-800 tracking-wider uppercase mb-0.5">
+          Get Assured
+        </div>
+        <div className="inline-block bg-[#002970] text-[#ffea40] font-black text-xs px-3 py-0.5 rounded shadow tracking-wide">
+          CASHBACK
+        </div>
+        <div className="mt-1">
+          <span className="inline-block bg-white text-stone-800 font-bold text-[9px] px-2.5 py-0.5 rounded-full shadow-xs">
+            Scan with Any UPI App
+          </span>
+        </div>
       </div>
 
-      {/* QR Code Container */}
-      <div className="p-3 flex justify-center items-center">
-        <div className="relative p-2 bg-white border border-stone-200 rounded-xl shadow-inner inline-block">
+      {/* White QR Area */}
+      <div className="bg-white p-3.5 mx-2.5 my-2.5 rounded-xl border border-stone-200 shadow-inner">
+        {/* Paytm Logo above QR */}
+        <div className="mb-1 text-center font-black text-lg">
+          <span className="text-[#002970]">pay</span>
+          <span className="text-[#00b9f5]">tm</span>
+        </div>
+
+        {/* QR Code */}
+        <div className="relative p-1 bg-white inline-block">
           {qrDataUrl ? (
             <div className="relative">
-              <img src={qrDataUrl} alt="PhonePe UPI QR Code" className="w-48 h-48 sm:w-52 sm:h-52 object-contain mx-auto" />
-              {/* Center PhonePe mini logo */}
-              <div className="absolute inset-0 m-auto w-9 h-9 rounded-full bg-[#5f259f] text-white flex items-center justify-center font-bold text-sm shadow-md border-2 border-white pointer-events-none">
-                पे
+              <img 
+                src={qrDataUrl} 
+                alt="Paytm UPI QR Code for Dr. Yerpude's Ayutatva" 
+                className="w-48 h-48 sm:w-52 sm:h-52 object-contain mx-auto" 
+              />
+              {/* Center UPI Mini Logo */}
+              <div className="absolute inset-0 m-auto w-8 h-8 rounded-full bg-white text-[#002970] flex items-center justify-center font-bold text-[9px] shadow border border-stone-200 pointer-events-none">
+                UPI
               </div>
             </div>
           ) : (
@@ -239,52 +266,61 @@ export function PhonePePaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NA
             </div>
           )}
         </div>
-      </div>
 
-      {/* Name and Fee Display */}
-      <div className="px-4 pb-2">
-        <div className="text-sm font-bold text-stone-900 tracking-wide uppercase">
-          {name}
+        {/* UPI ID display */}
+        <div className="mt-2 text-xs font-bold text-stone-800 tracking-wide font-mono">
+          UPI ID: {upiId}
         </div>
-        <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold px-3 py-1 rounded-full mt-1.5">
+
+        {/* Amount Pill */}
+        <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border border-emerald-300 text-xs font-bold px-3 py-1 rounded-full mt-2">
           <span>Amount to Pay:</span>
-          <strong className="text-sm font-bold">₹{amount}</strong>
+          <strong className="text-sm font-black text-emerald-700">₹{amount}</strong>
+        </div>
+
+        {/* Copy UPI Button */}
+        <div className="mt-2 flex items-center justify-center">
+          <button 
+            type="button" 
+            onClick={copyUpiId}
+            className="text-[11px] font-semibold text-[#002970] hover:text-[#00b9f5] flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-3 py-1 rounded-full transition-colors cursor-pointer"
+          >
+            {copied ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
+            <span>{copied ? 'UPI ID Copied!' : 'Copy UPI ID'}</span>
+          </button>
+        </div>
+
+        {/* Bottom Badges matching Paytm Standee (Postpaid, UPI, UPI Lite) */}
+        <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-center gap-3 text-[10px] text-stone-600 font-bold">
+          <span className="flex items-center gap-1 text-[#002970]">
+            <span className="bg-[#002970] text-white text-[8px] font-bold px-1 rounded">₹</span>
+            paytm Postpaid
+          </span>
+          <span className="text-stone-300">|</span>
+          <span className="text-stone-700">UPI</span>
+          <span className="text-stone-300">|</span>
+          <span className="text-stone-700">UPI LITE</span>
         </div>
       </div>
 
-      {/* UPI ID quick copy */}
-      <div className="px-4 pb-3 pt-1 flex items-center justify-center gap-1 text-[11px] text-stone-500">
-        <span>UPI ID: <code className="text-stone-700 font-mono font-medium">{upiId}</code></span>
-        <button 
-          type="button" 
-          onClick={copyUpiId}
-          className="text-[#5f259f] hover:underline flex items-center gap-0.5 font-medium ml-1"
-        >
-          {copied ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
-          <span>{copied ? 'Copied!' : 'Copy'}</span>
-        </button>
-      </div>
-
-      {/* Mobile Direct Pay Buttons */}
-      <div className="bg-purple-50/70 p-3 border-t border-purple-100 sm:hidden">
-        <p className="text-[11px] text-purple-900 font-medium mb-1.5">Paying on this phone? Tap below:</p>
+      {/* Mobile Direct Pay Button */}
+      <div className="bg-[#00205b] p-3 border-t border-[#00b9f5]/30">
+        <p className="text-[11px] text-cyan-200 font-medium mb-1.5">Paying on your smartphone? Tap below:</p>
         <a 
           href={upiUri} 
-          className="w-full inline-flex items-center justify-center gap-2 bg-[#5f259f] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow hover:bg-[#4d1d82] active:scale-98 transition-transform"
+          className="w-full inline-flex items-center justify-center gap-2 bg-[#00b9f5] hover:bg-[#00a2d6] text-[#002970] text-xs font-black py-2.5 px-4 rounded-xl shadow-md transition-transform active:scale-98"
         >
-          <span>Open UPI App (Pay ₹{amount})</span>
+          <span>Open Any UPI App (Pay ₹{amount})</span>
           <ExternalLink size={13} />
         </a>
-      </div>
-
-      {/* PhonePe Footer note */}
-      <div className="bg-stone-50 py-2 px-3 text-[9px] text-stone-400 border-t border-stone-100">
-        © 2026, All rights reserved, PhonePe Ltd
       </div>
 
     </div>
   );
 }
+
+// Backward compatibility alias
+export const PhonePePaymentCard = PaytmPaymentCard;
 
 /* =========================================================================
    3. REGISTRATION FORM & DIALOG COMPONENT
@@ -870,7 +906,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Total Collected (₹9 / Seat)</span>
                 <div className="text-2xl font-bold text-emerald-700 mt-0.5">₹{records.length * 9}</div>
-                <span className="text-[10px] text-stone-500">Paid via Direct PhonePe UPI</span>
+                <span className="text-[10px] text-stone-500">Paid via Direct Paytm UPI</span>
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Broadcast Date</span>

@@ -6,6 +6,7 @@ import {
 import './subpages.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
 import { 
+  PaytmPaymentCard,
   PhonePePaymentCard, 
   saveMasterclassRegistration, 
   exportRegistrationsToCSV, 
@@ -338,7 +339,7 @@ export function HeightSessionPage() {
 
           <div className="growth-caveat">
             <ShieldCheck size={17}/>
-            <p>100% direct hospital settlement via PhonePe UPI. Transparent, doctor-led clinical education.</p>
+            <p>100% direct hospital settlement via Paytm UPI (paytm.s1j7ydq@pty). Transparent, doctor-led clinical education.</p>
           </div>
         </div>
 
@@ -473,9 +474,9 @@ export function HeightSessionPage() {
                 </h4>
               </div>
 
-              <PhonePePaymentCard 
-                upiId="yerpudeabhilasha@okhdfcbank"
-                name="SHUBHAM SANTOSH YERPUDE"
+              <PaytmPaymentCard 
+                upiId="paytm.s1j7ydq@pty"
+                name="DR YERPUDES AYUTATVA"
                 amount={9}
               />
 
