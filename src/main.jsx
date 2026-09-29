@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
 import { motion } from 'framer-motion';
 import { 
   ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3, Flower2, 
@@ -502,4 +503,9 @@ function RootRouter() {
   return <App />;
 }
 
-createRoot(document.getElementById('root')).render(<RootRouter />);
+createRoot(document.getElementById('root')).render(
+  <>
+    <RootRouter />
+    <Analytics />
+  </>
+);
