@@ -11,6 +11,7 @@ const DEFAULT_UPI_ID = 'paytm.s1j7ydq@pty';
 const RECIPIENT_NAME = 'DR YERPUDES AYUTATVA';
 const REGISTRATION_FEE = 9;
 const SESSION_DATE = '20th October 2026';
+export const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
 
 // Helper to save registration locally and attempt server sync
 export async function saveMasterclassRegistration(data) {
@@ -47,9 +48,9 @@ export async function saveMasterclassRegistration(data) {
     console.warn('Backend sync failed, saved locally in browser:', err);
   }
 
-  // 3. Optional Google Sheet Webhook sync (if configured in localStorage)
+  // 3. Google Sheet Webhook sync (real-time automated row append)
   try {
-    const webhookUrl = localStorage.getItem('aayutatva_gsheet_webhook_url');
+    const webhookUrl = localStorage.getItem('aayutatva_gsheet_webhook_url') || DEFAULT_GSHEET_WEBHOOK_URL;
     if (webhookUrl && webhookUrl.startsWith('http')) {
       fetch(webhookUrl, {
         method: 'POST',
@@ -864,8 +865,9 @@ export function HeightAdminModal({ isOpen, onClose }) {
   const [passcode, setPasscode] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [records, setRecords] = useState([]);
-  const [webhookUrl, setWebhookUrl] = useState(localStorage.getItem('aayutatva_gsheet_webhook_url') || '');
+  const [webhookUrl, setWebhookUrl] = useState(localStorage.getItem('aayutatva_gsheet_webhook_url') || DEFAULT_GSHEET_WEBHOOK_URL);
   const [webhookSaved, setWebhookSaved] = useState(false);
+  const [testSent, setTestSent] = useState(false);
   const [copiedNumbers, setCopiedNumbers] = useState(false);
 
   useEffect(() => {
@@ -919,6 +921,36 @@ export function HeightAdminModal({ isOpen, onClose }) {
     localStorage.setItem('aayutatva_gsheet_webhook_url', webhookUrl);
     setWebhookSaved(true);
     setTimeout(() => setWebhookSaved(false), 2000);
+  };
+
+  const sendTestPing = async () => {
+    if (!webhookUrl) return;
+    setTestSent(true);
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: 'TEST-AAYU-' + Math.floor(1000 + Math.random() * 9000),
+          name: 'Test Attendee (Dr. Yerpude)',
+          whatsapp: '917758816074',
+          age: '21',
+          gender: 'Male',
+          currentHeight: '5 ft 7 in',
+          city: 'Bhandara',
+          fee: 9,
+          upiRef: 'LIVE-SYNC-TEST',
+          status: 'Confirmed',
+          submittedAt: new Date().toISOString()
+        })
+      });
+      alert('✅ Test row sent to your Google Sheet! Please check your Google Sheet to verify the new row.');
+    } catch (e) {
+      alert('Error sending test ping: ' + e);
+    } finally {
+      setTimeout(() => setTestSent(false), 2000);
+    }
   };
 
   return (
@@ -1096,29 +1128,56 @@ export function HeightAdminModal({ isOpen, onClose }) {
               </table>
             </div>
 
-            {/* Optional Google Sheets Webhook Configuration */}
-            <div className="mt-6 bg-stone-50 border border-stone-200 p-4 rounded-xl text-xs">
-              <h4 className="font-bold text-stone-800 mb-1 flex items-center gap-1.5">
-                <span>🔗 Live Google Sheets Auto-Sync (Optional Webhook)</span>
-              </h4>
-              <p className="text-[11px] text-stone-500 mb-2">
-                If you have a Google Apps Script Web App URL, paste it here. Every registration will automatically append a new row to your Google Sheet in real time.
+            {/* Live Google Sheets Webhook Configuration */}
+            <div className="mt-6 bg-emerald-50/70 border border-emerald-200 p-4 rounded-xl text-xs">
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-1.5">
+                <h4 className="font-bold text-stone-900 flex items-center gap-1.5">
+                  <span>🔗 Live Google Sheets Real-Time Webhook</span>
+                </h4>
+                <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                  Active & Connected
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-600 mb-2.5">
+                Every attendee registration automatically dispatches to this Google Apps Script URL and appends a new row to your live Google Sheet in real time.
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="url"
                   placeholder="https://script.google.com/macros/s/.../exec"
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
-                  className="flex-1 text-xs px-3 py-1.5 border rounded border-stone-300 bg-white"
+                  className="flex-1 text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white font-mono"
                 />
-                <button
-                  type="button"
-                  onClick={saveWebhook}
-                  className="bg-[#1B3B22] text-white text-xs font-bold px-3 py-1.5 rounded"
-                >
-                  {webhookSaved ? 'Saved!' : 'Save URL'}
-                </button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={saveWebhook}
+                    className="bg-[#1B3B22] hover:bg-[#255230] text-white text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer"
+                  >
+                    {webhookSaved ? 'Saved!' : 'Save URL'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={sendTestPing}
+                    disabled={testSent}
+                    className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer flex items-center gap-1 shadow-sm"
+                  >
+                    <RefreshCw size={12} className={testSent ? 'animate-spin' : ''} />
+                    <span>{testSent ? 'Sending...' : 'Send Test Row to Sheet'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Crucial Google Apps Script Setup Notice */}
+              <div className="mt-3 bg-white p-2.5 rounded-lg border border-stone-200 text-[11px] text-stone-600 space-y-1">
+                <div className="font-bold text-stone-800">⚠️ Quick Google Sheets Check:</div>
+                <p>
+                  In your Google Apps Script, make sure under <strong>Deploy &gt; Manage deployments &gt; Edit</strong>:
+                  <br />• <strong>Execute as:</strong> <code>Me (your Google account)</code>
+                  <br />• <strong>Who has access:</strong> <code>Anyone</code> (This allows your website to write rows without requiring visitors to log in).
+                </p>
               </div>
             </div>
 

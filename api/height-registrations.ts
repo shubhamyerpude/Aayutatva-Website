@@ -17,6 +17,8 @@ interface MasterclassRegistration {
   submittedAt: string;
 }
 
+const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
+
 // In-memory cache for serverless environment
 let inMemoryRegistrations: MasterclassRegistration[] = [];
 
@@ -149,6 +151,20 @@ export default async function handler(req: any, res: any) {
     }
 
     saveRegistrations(list);
+
+    // Forward asynchronously to Google Sheets Webhook
+    const gsheetUrl = process.env.GSHEET_WEBHOOK_URL || DEFAULT_GSHEET_WEBHOOK_URL;
+    if (gsheetUrl && gsheetUrl.startsWith('http')) {
+      fetch(gsheetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntry),
+        redirect: 'follow',
+      }).catch((err) => {
+        console.warn('Google Sheet auto-forward error:', err);
+      });
+    }
+
     return res.status(201).json({ success: true, entry: newEntry, count: list.length });
   }
 
