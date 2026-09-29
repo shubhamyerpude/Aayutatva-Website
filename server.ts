@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { generateInternalAyurvedicResponse } from './src/ayurvedicInternalEngine.ts';
+import heightRegistrationsHandler from './api/height-registrations.ts';
 
 dotenv.config();
 
@@ -260,6 +261,11 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
     const errResult = generateInternalAyurvedicResponse(req.body?.message || 'general');
     res.status(200).json(errResult);
   }
+});
+
+// Height Growth Masterclass Registrations & Excel CSV export API
+app.all('/api/height-registrations*', (req: Request, res: Response) => {
+  return heightRegistrationsHandler(req, res);
 });
 
 async function startServer() {

@@ -1,27 +1,63 @@
-import React, { useState } from 'react';
-import { ShieldCheck, Phone, ArrowUpRight, Menu, X, ChevronRight, Home } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, Phone, ArrowUpRight, Menu, X, ChevronRight, Home, Sparkles } from 'lucide-react';
+import { 
+  HeightCampaignBanner, 
+  HeightMasterclassModal, 
+  HeightAdminModal 
+} from './HeightMasterclassCampaign.jsx';
 
 export const phonePrimary = '+917758816074';
 export const whatsappPhone = '917758816074';
 
 export function SiteHeader({ breadcrumb = null }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenModal = () => setModalOpen(true);
+    const handleOpenAdmin = () => setAdminOpen(true);
+
+    window.addEventListener('open-height-masterclass', handleOpenModal);
+    window.addEventListener('open-height-admin', handleOpenAdmin);
+
+    // If URL has #register-height or ?campaign=height, open automatically
+    if (window.location.hash === '#register-height' || window.location.search.includes('campaign=height')) {
+      setModalOpen(true);
+    }
+
+    return () => {
+      window.removeEventListener('open-height-masterclass', handleOpenModal);
+      window.removeEventListener('open-height-admin', handleOpenAdmin);
+    };
+  }, []);
 
   return (
     <>
-      {/* Top Portal Status Bar */}
+      {/* 1. Dynamic Campaign Banner for Height Masterclass */}
+      <HeightCampaignBanner onOpenModal={() => setModalOpen(true)} />
+
+      {/* 2. Top Portal Status Bar */}
       <div className="top-portal-bar">
         <div className="top-portal-bar-left">
           <span className="top-portal-chip">NABH ACCREDITED</span>
           <span>AayuTatva Ayurvedic Hospital · Bhandara, Maharashtra</span>
         </div>
         <div className="top-portal-bar-right">
+          <button 
+            type="button" 
+            onClick={() => setModalOpen(true)}
+            className="text-[11px] font-semibold text-[#D4A373] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0"
+          >
+            <Sparkles size={12} className="text-[#D4A373]"/>
+            <span>Height Masterclass (20 Oct - ₹9)</span>
+          </button>
           <a href="/insurance.html"><ShieldCheck size={13}/> 100% Cashless Mediclaim</a>
           <a href={`tel:${phonePrimary}`}><Phone size={13}/> +91 77588 16074</a>
         </div>
       </div>
 
-      {/* Main Header Title Bar (Uniform across all pages) */}
+      {/* 3. Main Header Title Bar */}
       <header className="header">
         <a href="/" className="brand" aria-label="AayuTatva Ayurvedic Hospital Home">
           <img 
@@ -36,13 +72,25 @@ export function SiteHeader({ breadcrumb = null }) {
           <a href="/treatments.html" onClick={() => setMenuOpen(false)}>Our Specialities</a>
           <a href="/facilities.html" onClick={() => setMenuOpen(false)}>Hospital & IPD</a>
           <a href="/insurance.html" onClick={() => setMenuOpen(false)}>Cashless Insurance</a>
-          <a href="/height-session.html" onClick={() => setMenuOpen(false)}>Height & Growth</a>
+          <a href="/height-session.html" onClick={() => setMenuOpen(false)}>
+            Height Masterclass
+            <span className="ml-1.5 px-1.5 py-0.5 text-[9px] font-bold bg-[#D4A373] text-[#1B3B22] rounded-full uppercase">
+              20 Oct
+            </span>
+          </a>
           <a href="/#booking" className="nav-book" onClick={() => setMenuOpen(false)}>
             Book Appointment <ArrowUpRight size={15}/>
           </a>
         </nav>
 
         <div className="header-right">
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="hidden sm:inline-flex items-center gap-1.5 bg-[#1B3B22] text-[#E7C697] hover:bg-[#284e31] border border-[#D4A373]/40 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition-transform hover:scale-105 cursor-pointer"
+          >
+            <span>Height Session (₹9)</span>
+          </button>
           <a href={`tel:${phonePrimary}`} className="phone-head" aria-label="Call clinic at +91 77588 16074">
             <Phone size={16}/><span>Call Clinic</span>
           </a>
@@ -69,6 +117,18 @@ export function SiteHeader({ breadcrumb = null }) {
           </div>
         </nav>
       )}
+
+      {/* Registration Modal Dialog */}
+      <HeightMasterclassModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+      />
+
+      {/* Admin Leads & Excel Export Dialog */}
+      <HeightAdminModal 
+        isOpen={adminOpen} 
+        onClose={() => setAdminOpen(false)} 
+      />
     </>
   );
 }

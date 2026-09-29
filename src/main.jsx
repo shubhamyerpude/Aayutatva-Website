@@ -393,6 +393,13 @@ function App() {
       <div className="footer-bottom">
         <span>© 2026 AayuTatva Ayurvedic Hospital & Panchakarma Centre</span>
         <span>DR. MANISH SANTOSH YERPUDE · BHANDARA</span>
+        <button 
+          type="button" 
+          onClick={() => window.dispatchEvent(new CustomEvent('open-height-admin'))} 
+          style={{ background: 'none', border: 'none', color: '#d5aa7c', cursor: 'pointer', fontSize: '10px', textDecoration: 'underline' }}
+        >
+          📊 Staff: 20 Oct Leads & Excel Export
+        </button>
         <a href="#home">BACK TO TOP ↑</a>
       </div>
     </footer>
@@ -483,7 +490,12 @@ function RootRouter() {
   const p = currentPath.replace(/\/$/, '') || '/';
   if (p === '/treatments.html' || p === '/treatments') return <><TreatmentsPage /><AayuVaidyaWidget /></>;
   if (p === '/insurance.html' || p === '/insurance') return <><InsurancePage /><AayuVaidyaWidget /></>;
-  if (p === '/height-session.html' || p === '/height-session') return <><HeightSessionPage /><AayuVaidyaWidget /></>;
+  if (
+    p === '/height-session.html' || p === '/height-session' ||
+    p === '/height-growth.html' || p === '/height-growth' ||
+    p === '/masterclass.html' || p === '/masterclass' ||
+    p === '/height-campaign.html' || p === '/height-campaign'
+  ) return <><HeightSessionPage /><AayuVaidyaWidget /></>;
   if (p === '/facilities.html' || p === '/facilities') return <><FacilitiesPage /><AayuVaidyaWidget /></>;
   if (
     p === '/vaidya-ai.html' || p === '/vaidya-ai' ||

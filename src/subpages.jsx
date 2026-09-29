@@ -5,6 +5,13 @@ import {
 } from 'lucide-react';
 import './subpages.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
+import { 
+  PhonePePaymentCard, 
+  saveMasterclassRegistration, 
+  exportRegistrationsToCSV, 
+  getAllRegistrations,
+  HeightAdminModal 
+} from './HeightMasterclassCampaign.jsx';
 
 const phone = phonePrimary;
 const googleMaps = 'https://www.google.com/maps/place/Dr.+Yerpude%27s+AayuTatva+Ayurvedic+Hospital+%26+Panchakarma+Centre/@21.1741166,79.6442647,17z/data=!4m6!3m5!1s0x3a2b39df27db6025:0xee597cf866c04adf!8m2!3d21.1741166!4d79.6442647!16s%2Fg%2F11lz6hdbmr';
@@ -166,157 +173,386 @@ export function InsurancePage() {
 }
 
 export function HeightSessionPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', ageBand: '' });
+  const [step, setStep] = useState(1); // 1 = Form, 2 = Payment QR, 3 = Confirmed
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [confirmedData, setConfirmedData] = useState(null);
 
-  function submit(e) {
-    e.preventDefault();
-    const records = JSON.parse(localStorage.getItem('aayutatva-height-session-interest') || '[]');
-    records.push({ ...form, submittedAt: new Date().toISOString() });
-    localStorage.setItem('aayutatva-height-session-interest', JSON.stringify(records));
-    setSubmitted(true);
-  }
+  const [form, setForm] = useState({
+    name: '',
+    whatsapp: '',
+    email: '',
+    age: '',
+    gender: 'Male',
+    currentHeight: '',
+    goal: '',
+    city: '',
+    upiRef: '',
+  });
+
+  const [errors, setErrors] = useState({});
 
   function update(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  function validateStep1() {
+    const errs = {};
+    if (!form.name.trim()) errs.name = 'Please enter your full name';
+    if (!form.whatsapp.trim()) {
+      errs.whatsapp = 'WhatsApp number is required to receive meeting link';
+    } else if (form.whatsapp.replace(/\D/g, '').length < 10) {
+      errs.whatsapp = 'Enter a valid 10-digit WhatsApp number';
+    }
+    if (!form.age) errs.age = 'Please enter your age';
+    if (!form.city.trim()) errs.city = 'Please enter your location/city';
+    if (!form.currentHeight.trim()) errs.currentHeight = 'Please enter current height (e.g. 5 ft 3 in or 160 cm)';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  function handleStep1Submit(e) {
+    e.preventDefault();
+    if (validateStep1()) {
+      setStep(2);
+      const el = document.getElementById('register');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  async function handleStep2Submit(e) {
+    e.preventDefault();
+    if (!form.upiRef.trim() || form.upiRef.trim().length < 6) {
+      setErrors({ upiRef: 'Please enter the 12-digit UPI UTR / Transaction Reference ID' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const saved = await saveMasterclassRegistration(form);
+      setConfirmedData(saved);
+      setStep(3);
+    } catch (err) {
+      alert('Could not complete registration. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <PageShell breadcrumb="Height & Growth Care">
+    <PageShell breadcrumb="Height Growth Masterclass (20 Oct)">
+      {/* Masterclass Hero Section */}
       <section className="sub-hero height-hero">
         <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
-        <div className="sub-overline">HEIGHT & GROWTH CARE · BHANDARA · CLINICAL EVALUATION</div>
-        <h1>Every growth journey<br/>deserves <em>careful attention.</em></h1>
-        <p>If you’re exploring height increase care, start with an individual growth assessment and a clear conversation about what may be appropriate. Children grow on different timelines; no height gain is guaranteed.</p>
-        <a className="sub-cta" href="#register"><Video size={16}/> Register your interest <ArrowDownIcon/></a>
+        <div className="sub-overline">
+          🔴 LIVE CAMPAIGN · 20TH OCTOBER 2026 · ONLINE (ZOOM / MEET) · FEE: ₹9 ONLY
+        </div>
+        <h1>Unlock Your Natural Height:<br/><em>60-Minute Ayurvedic Growth Masterclass</em></h1>
+        <p>
+          Discover how authentic Ayurvedic <strong>Asthi Dhatu nourishment</strong>, spinal decompression yoga, 
+          and pituitary growth hormone stimulation help you unlock your natural height potential safely without harmful chemicals or pills.
+        </p>
+
+        <div className="insurance-hero-actions">
+          <a className="sub-cta" href="#register">
+            <Video size={16}/> Register Now (₹9) <ArrowDownIcon/>
+          </a>
+          <button 
+            type="button" 
+            onClick={() => setAdminOpen(true)}
+            className="sub-secondary cursor-pointer"
+          >
+            Hospital Leads & Excel Export <ArrowUpRight size={15}/>
+          </button>
+        </div>
+
         <div className="height-doctor-photo">
           <img src="/media/dr-manish-yerpude.jpg" alt="Dr. Manish Santosh Yerpude"/>
           <div className="height-photo-caption">
-            <span>PERSONALIZED CARE</span>
-            <b>Growth is a journey.<br/>Let’s understand yours.</b>
+            <span>CLINICAL MENTORSHIP</span>
+            <b>Dr. Manish Santosh Yerpude<br/>[B.A.M.S., MD (AM), P.G.P.P.]</b>
           </div>
         </div>
       </section>
 
-      {/* Note: Screenshot review band removed per instructions */}
-
+      {/* Campaign Clinical Overview: How We Help Increase Height */}
       <section className="growth-infographic">
         <div className="growth-intro-layout">
           <div className="growth-intro">
-            <div className="sub-overline">A VISUAL GUIDE FOR FAMILIES</div>
-            <h2>Support the conditions<br/><em>for healthy growth.</em></h2>
-            <p>Height is influenced by many factors. Use this simple guide to prepare for a conversation with a qualified clinician—not as a diagnosis or promise of added height.</p>
+            <div className="sub-overline">THE AYURVEDIC SCIENCE OF BONE GROWTH</div>
+            <h2>How Ayurveda stimulates<br/><em>natural height gain.</em></h2>
+            <p>
+              In Ayurveda, skeletal growth is governed by <strong>Asthi Dhatu</strong> (bone tissue metabolism) 
+              and <strong>Majja Dhatu</strong> (bone marrow). When metabolic fire (Agni) is stimulated, vital micronutrients 
+              and growth factors directly nourish the epiphyseal plates of long bones.
+            </p>
           </div>
           <HeightSpineGraphic/>
         </div>
+
         <div className="growth-steps-visual">
           <article>
+            <span className="growth-step-icon"><Leaf size={22}/></span>
+            <b>01 · ASTHI NUTRITION</b>
+            <h3>Nourish Bone Matrix</h3>
+            <p>Classical herbal formulations (Ashwagandha, Shatavari, Asthishrinkhala, Praval) enhance bone density and calcium absorption.</p>
+          </article>
+          <div className="growth-connector">→</div>
+          <article>
             <span className="growth-step-icon"><RulerIcon/></span>
-            <b>01 · NOTICE</b>
-            <h3>Track the pattern</h3>
-            <p>Record measurements and dates. A series over time is more useful than a single number.</p>
+            <b>02 · SPINAL DECOMPRESSION</b>
+            <h3>Posture & Disc Hydration</h3>
+            <p>Specific asanas decompress the 33 spinal vertebrae, releasing 1–2 inches compressed by poor posture and gravity.</p>
           </article>
           <div className="growth-connector">→</div>
           <article>
             <span className="growth-step-icon chart-icon"><GrowthChart/></span>
-            <b>02 · REVIEW</b>
-            <h3>Look at the whole picture</h3>
-            <p>Discuss age, family growth history, wellbeing, and any concerns with a clinician.</p>
-          </article>
-          <div className="growth-connector">→</div>
-          <article>
-            <span className="growth-step-icon"><Leaf size={22}/></span>
-            <b>03 · PLAN</b>
-            <h3>Choose the next step</h3>
-            <p>Ask what assessment or supportive care is suitable, and when follow-up is needed.</p>
+            <b>03 · HORMONAL TIMING</b>
+            <h3>Pituitary HGH Activation</h3>
+            <p>Ayurvedic sleep protocols maximize Human Growth Hormone (HGH) surge released between 10 PM and 2 AM.</p>
           </article>
         </div>
+
         <div className="growth-quote">
-          <span>“You can support healthy growth with informed, individualized care.”</span>
-          <small>GROWTH IS PERSONAL · RESULTS VARY · NO HEIGHT INCREASE GUARANTEED</small>
+          <span>“Safe, non-surgical bone stimulation rooted in 5,000 years of clinical wisdom.”</span>
+          <small>ONLINE MASTERCLASS ON 20 OCT 2026 · MEETING LINK SHARED 7 DAYS PRIOR VIA WHATSAPP</small>
         </div>
       </section>
 
-      <section className="ayurveda-reading">
-        <div className="sub-overline">FURTHER READING · AYURVEDA & CHILD GROWTH</div>
-        <h2>Read beyond the <em>claims.</em></h2>
-        <p>These Ayurveda-related papers discuss child development and growth. They are research reading, not proof that a therapy can increase height.</p>
-        <div className="reading-cards">
-          <a href="https://jaims.in/jaims/article/view/1148" target="_blank" rel="noreferrer">
-            <span>JOURNAL ARTICLE</span>
-            <h3>Role of Agni in growth and development in children</h3>
-            <small>Journal of Ayurveda and Integrated Medical Sciences <ArrowUpRight size={13}/></small>
-          </a>
-          <a href="https://ijam.co.in/index.php/ijam/article/view/05382014" target="_blank" rel="noreferrer">
-            <span>RESEARCH PAPER · 2014</span>
-            <h3>Swarna Prashan and physical growth parameters in children</h3>
-            <small>International Journal of Ayurvedic Medicine <ArrowUpRight size={13}/></small>
-          </a>
-          <a href="https://www.who.int/publications/i/item/9789240042674" target="_blank" rel="noreferrer">
-            <span>WHO · PRACTICE BENCHMARKS</span>
-            <h3>WHO benchmarks for the practice of Ayurveda</h3>
-            <small>Safety and practice guidance <ArrowUpRight size={13}/></small>
-          </a>
-        </div>
-      </section>
-
-      <section className="height-content">
+      {/* Registration Section with Direct ₹9 PhonePe UPI Payment */}
+      <section className="height-content" id="register">
         <div className="height-copy">
-          <div className="sub-overline">A GENTLE START</div>
-          <h2>Ask about your child’s<br/><em>growth, with care.</em></h2>
-          <p>Growth is different for every child. The session will share general information, help parents prepare useful questions, and explain why individual assessment matters.</p>
+          <div className="sub-overline">OCTOBER 20TH MASTERCLASS DETAILS</div>
+          <h2>Join the live session<br/><em>for just ₹9.</em></h2>
+          <p>
+            We are charging a nominal commitment fee of <strong>₹9</strong> to ensure serious participants. 
+            The session link (Zoom / Google Meet) will be shared directly to your WhatsApp and Email <strong>7 days before the session</strong>.
+          </p>
+          
           <div className="growth-points">
-            <div><Check size={15}/><span>How to notice and record growth patterns</span></div>
-            <div><Check size={15}/><span>Questions to discuss with a qualified clinician</span></div>
-            <div><Check size={15}/><span>How to arrange a personal consultation</span></div>
+            <div><Check size={15}/><span><strong>Date:</strong> Sunday, 20th October 2026 (Live 60-Min Session)</span></div>
+            <div><Check size={15}/><span><strong>Platform:</strong> Online Zoom / Google Meet</span></div>
+            <div><Check size={15}/><span><strong>Meeting Link:</strong> Shared 7 days prior directly on WhatsApp</span></div>
+            <div><Check size={15}/><span><strong>Who Should Attend:</strong> Ages 12 to 25 & concerned parents</span></div>
+            <div><Check size={15}/><span><strong>Live Doctor Q&A:</strong> Ask your personal growth questions</span></div>
           </div>
+
           <div className="growth-caveat">
             <ShieldCheck size={17}/>
-            <p>No fixed height gain can be promised. Persistent growth concerns should be assessed by an appropriate paediatric clinician.</p>
+            <p>100% direct hospital settlement via PhonePe UPI. Transparent, doctor-led clinical education.</p>
           </div>
         </div>
 
-        <div className="session-card" id="register">
+        {/* Dynamic Multi-Step Card */}
+        <div className="session-card">
           <div className="session-card-head">
-            <span><CalendarDays size={17}/> LIVE ONLINE SESSION</span>
-            <span className="session-pill">FREE · ZOOM</span>
+            <span><CalendarDays size={17}/> 20 OCT MASTERCLASS</span>
+            <span className="session-pill">₹9 REGISTRATION FEE</span>
           </div>
-          {submitted ? (
-            <div className="session-success">
-              <span><Check size={22}/></span>
-              <h3>Interest saved.</h3>
-              <p>Your request is stored in this browser preview. This demo has not sent your details to the clinic.</p>
-              <button onClick={() => setSubmitted(false)} className="session-reset">Submit another interest form</button>
-            </div>
-          ) : (
+
+          {/* STEP 1: FORM */}
+          {step === 1 && (
             <>
-              <h3>Save your place<br/><em>when dates open.</em></h3>
-              <p>Leave a contact number and we’ll note your interest for the next session announcement.</p>
-              <form onSubmit={submit}>
-                <label>Your name<input name="name" value={form.name} onChange={update} placeholder="Your name" required autoComplete="name"/></label>
-                <label>Phone number<input name="phone" type="tel" value={form.phone} onChange={update} placeholder="+91 00000 00000" required pattern="[+0-9 ()-]{10,}" autoComplete="tel"/></label>
-                <label>Age group of the person you’re asking for
-                  <span className="sub-select-wrap">
-                    <select name="ageBand" value={form.ageBand} onChange={update} required>
-                      <option value="" disabled>Select an age group</option>
-                      <option>Under 10</option>
-                      <option>10–13</option>
-                      <option>14–17</option>
-                      <option>18 or older</option>
-                    </select>
-                  </span>
+              <h3>Reserve your place<br/><em>on 20th October.</em></h3>
+              <p>Enter your details below to receive the meeting link 7 days before the session.</p>
+              
+              <form onSubmit={handleStep1Submit} className="space-y-3">
+                <label>
+                  Full Name of Attendee *
+                  <input 
+                    name="name" 
+                    value={form.name} 
+                    onChange={update} 
+                    placeholder="e.g. Aryan Sharma" 
+                    required
+                  />
+                  {errors.name && <span className="text-[10px] text-red-600">{errors.name}</span>}
                 </label>
-                <label className="consent-line">
-                  <input type="checkbox" required/>
-                  <span>I am the parent/guardian or an adult registering myself.</span>
+
+                <label>
+                  WhatsApp Number (To receive Zoom/Meet link) *
+                  <input 
+                    name="whatsapp" 
+                    type="tel" 
+                    value={form.whatsapp} 
+                    onChange={update} 
+                    placeholder="e.g. 9876543210" 
+                    required
+                  />
+                  {errors.whatsapp && <span className="text-[10px] text-red-600">{errors.whatsapp}</span>}
                 </label>
-                <button className="sub-cta form-cta" type="submit">Register interest <ArrowUpRight size={16}/></button>
-                <small className="form-privacy">Prototype note: submissions stay on this device until a clinic registration inbox is connected.</small>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label>
+                    Age *
+                    <input 
+                      name="age" 
+                      value={form.age} 
+                      onChange={update} 
+                      placeholder="e.g. 17" 
+                      required
+                    />
+                    {errors.age && <span className="text-[10px] text-red-600">{errors.age}</span>}
+                  </label>
+
+                  <label>
+                    Gender
+                    <span className="sub-select-wrap">
+                      <select name="gender" value={form.gender} onChange={update}>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label>
+                    Current Height *
+                    <input 
+                      name="currentHeight" 
+                      value={form.currentHeight} 
+                      onChange={update} 
+                      placeholder="e.g. 5 ft 3 in" 
+                      required
+                    />
+                    {errors.currentHeight && <span className="text-[10px] text-red-600">{errors.currentHeight}</span>}
+                  </label>
+
+                  <label>
+                    City / Location *
+                    <input 
+                      name="city" 
+                      value={form.city} 
+                      onChange={update} 
+                      placeholder="e.g. Bhandara" 
+                      required
+                    />
+                    {errors.city && <span className="text-[10px] text-red-600">{errors.city}</span>}
+                  </label>
+                </div>
+
+                <label>
+                  Email Address (Optional)
+                  <input 
+                    name="email" 
+                    type="email" 
+                    value={form.email} 
+                    onChange={update} 
+                    placeholder="aryan@gmail.com" 
+                  />
+                </label>
+
+                <label>
+                  Specific Question for the Doctor (Optional)
+                  <input 
+                    name="goal" 
+                    value={form.goal} 
+                    onChange={update} 
+                    placeholder="e.g. Can I still grow at age 20?" 
+                  />
+                </label>
+
+                <button className="sub-cta form-cta cursor-pointer" type="submit">
+                  Proceed to Pay ₹9 Fee <ArrowUpRight size={16}/>
+                </button>
+                <small className="form-privacy">Nominal fee of ₹9 ensures dedicated attendees. Meeting link sent via WhatsApp.</small>
               </form>
             </>
           )}
+
+          {/* STEP 2: PHONEPE UPI PAYMENT */}
+          {step === 2 && (
+            <div className="py-2">
+              <div className="text-center mb-3">
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full uppercase">
+                  Step 2 of 2: Pay ₹9 Fee
+                </span>
+                <h4 className="text-sm font-bold text-[#1B3B22] mt-1">
+                  Scan & Pay ₹9 to Confirm Seat
+                </h4>
+              </div>
+
+              <PhonePePaymentCard 
+                upiId="yerpudeabhilasha@okhdfcbank"
+                name="SHUBHAM SANTOSH YERPUDE"
+                amount={9}
+              />
+
+              <form onSubmit={handleStep2Submit} className="mt-4 bg-stone-100/80 p-3.5 rounded-xl border border-stone-200">
+                <label>
+                  Enter 12-Digit UPI Ref / UTR No *
+                  <input
+                    name="upiRef"
+                    value={form.upiRef}
+                    onChange={update}
+                    placeholder="e.g. 427819384920"
+                    required
+                    className="font-mono text-center tracking-wider text-xs"
+                  />
+                </label>
+                {errors.upiRef && <span className="text-[10px] text-red-600 block">{errors.upiRef}</span>}
+
+                <div className="flex gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="w-1/3 bg-stone-200 text-stone-700 text-xs font-bold py-2 rounded"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-2/3 bg-emerald-700 text-white text-xs font-bold py-2 rounded shadow"
+                  >
+                    {loading ? 'Confirming...' : 'Complete Registration'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* STEP 3: TICKET CONFIRMATION */}
+          {step === 3 && confirmedData && (
+            <div className="session-success">
+              <span><Check size={22}/></span>
+              <h3>Registration Confirmed!</h3>
+              <p>
+                Booking ID: <strong>{confirmedData.id}</strong><br/>
+                We have registered <strong>{confirmedData.name}</strong> for the 20th Oct Masterclass.
+              </p>
+              <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg text-xs my-2 text-left">
+                <strong>📅 Meeting Link Notification:</strong><br/>
+                The official Zoom / Google Meet joining link will be sent to your WhatsApp (<strong>{confirmedData.whatsapp}</strong>) 7 days before the session.
+              </div>
+              <div className="flex flex-col gap-2 mt-3">
+                <a
+                  href={`https://wa.me/917758816074?text=${encodeURIComponent(`Hello AayuTatva Hospital, I have registered for the 20 Oct Height Growth Masterclass. My Booking ID is ${confirmedData.id} (Name: ${confirmedData.name}). Please confirm!`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sub-cta text-center"
+                >
+                  <Phone size={14}/> Send Confirmation to WhatsApp
+                </a>
+                <button 
+                  onClick={() => { setStep(1); setConfirmedData(null); }} 
+                  className="session-reset"
+                >
+                  Register Another Attendee
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </section>
+
+      {/* Admin Leads & Excel Export Dialog */}
+      <HeightAdminModal 
+        isOpen={adminOpen} 
+        onClose={() => setAdminOpen(false)} 
+      />
     </PageShell>
   );
 }
