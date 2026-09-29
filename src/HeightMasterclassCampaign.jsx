@@ -3,7 +3,8 @@ import QRCode from 'qrcode';
 import { 
   X, Calendar, Clock, Video, ShieldCheck, Check, Sparkles, 
   ArrowRight, Download, Copy, ExternalLink, HelpCircle, Phone, 
-  AlertCircle, Lock, Users, ChevronRight, CheckCircle2, RefreshCw
+  AlertCircle, Lock, Users, ChevronRight, CheckCircle2, RefreshCw,
+  Leaf, Activity, Award
 } from 'lucide-react';
 
 const DEFAULT_UPI_ID = 'paytm.s1j7ydq@pty';
@@ -124,56 +125,7 @@ export function exportRegistrationsToCSV(records) {
 }
 
 /* =========================================================================
-   1. CAMPAIGN ANNOUNCEMENT BANNER (TOP OF WEBSITE)
-   ========================================================================= */
-export function HeightCampaignBanner({ onOpenModal }) {
-  const [dismissed, setDismissed] = useState(false);
-
-  if (dismissed) return null;
-
-  return (
-    <div className="bg-gradient-to-r from-[#17331D] via-[#1F4628] to-[#17331D] text-white border-b border-[#D4A373]/30 px-3 py-2.5 sm:py-3 transition-all relative z-30 shadow-md">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2.5 text-xs sm:text-sm">
-        
-        {/* Left: Highlight Pill & Headline */}
-        <div className="flex items-center gap-2.5 flex-wrap justify-center md:justify-start text-center md:text-left">
-          <span className="inline-flex items-center gap-1.5 bg-[#D4A373] text-[#17331D] font-bold px-2.5 py-0.5 rounded-full text-[10px] tracking-wider uppercase shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
-            LIVE SESSION · 20 OCT
-          </span>
-          <span className="font-medium text-stone-100">
-            <strong className="text-[#E7C697] font-semibold">Unlock Your Natural Height:</strong> 60-Minute Ayurvedic Growth Masterclass
-          </span>
-          <span className="hidden lg:inline text-stone-300">
-            • Fee: <strong className="text-white">₹9 only</strong> • Link sent 7 days prior
-          </span>
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenModal}
-            className="inline-flex items-center gap-1.5 bg-[#E7C697] hover:bg-[#d5aa7c] text-[#17331D] font-bold px-4 py-1.5 rounded-full text-xs transition-transform hover:scale-105 active:scale-95 shadow cursor-pointer"
-          >
-            <span>Register Now (₹9)</span>
-            <ArrowRight size={13} />
-          </button>
-          <button
-            onClick={() => setDismissed(true)}
-            aria-label="Dismiss banner"
-            className="text-stone-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors ml-1"
-          >
-            <X size={15} />
-          </button>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================================
-   2. PAYTM MERCHANT QR DISPLAY CARD (Matches user uploaded Paytm QR)
+   1. PAYTM MERCHANT QR DISPLAY CARD (Matches user uploaded Paytm QR)
    ========================================================================= */
 export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME, amount = REGISTRATION_FEE }) {
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -218,7 +170,7 @@ export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME
         </div>
 
         {/* Merchant Name */}
-        <div className="text-base sm:text-lg font-black text-stone-900 tracking-tight uppercase truncate">
+        <div className="text-sm sm:text-base font-black text-stone-900 tracking-tight uppercase truncate">
           {name}
         </div>
       </div>
@@ -253,7 +205,7 @@ export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME
               <img 
                 src={qrDataUrl} 
                 alt="Paytm UPI QR Code for Dr. Yerpude's Ayutatva" 
-                className="w-48 h-48 sm:w-52 sm:h-52 object-contain mx-auto" 
+                className="w-44 h-44 sm:w-48 sm:h-48 object-contain mx-auto" 
               />
               {/* Center UPI Mini Logo */}
               <div className="absolute inset-0 m-auto w-8 h-8 rounded-full bg-white text-[#002970] flex items-center justify-center font-bold text-[9px] shadow border border-stone-200 pointer-events-none">
@@ -261,8 +213,8 @@ export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME
               </div>
             </div>
           ) : (
-            <div className="w-48 h-48 flex items-center justify-center text-xs text-stone-400">
-              Generating ₹9 QR...
+            <div className="w-44 h-44 flex items-center justify-center text-xs text-stone-400">
+              Generating Paytm ₹9 QR...
             </div>
           )}
         </div>
@@ -323,10 +275,11 @@ export function PaytmPaymentCard({ upiId = DEFAULT_UPI_ID, name = RECIPIENT_NAME
 export const PhonePePaymentCard = PaytmPaymentCard;
 
 /* =========================================================================
-   3. REGISTRATION FORM & DIALOG COMPONENT
+   2. HIGH-CONVERTING MOBILE-FIRST POPUP & FLOATING CAMPAIGN WIDGET
    ========================================================================= */
-export function HeightMasterclassModal({ isOpen, onClose }) {
-  const [step, setStep] = useState(1); // 1 = Form, 2 = Payment QR, 3 = Confirmed Ticket
+export function HeightCampaignPopup({ autoOpen = true }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState(0); // 0 = Pitch Teaser, 1 = Form, 2 = Paytm QR, 3 = Confirmed Ticket
   const [loading, setLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
 
@@ -344,7 +297,33 @@ export function HeightMasterclassModal({ isOpen, onClose }) {
 
   const [errors, setErrors] = useState({});
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    // 1. Auto-open popup on page load if user hasn't explicitly dismissed it this session
+    if (autoOpen) {
+      const dismissed = sessionStorage.getItem('aayutatva_height_popup_closed');
+      if (!dismissed) {
+        const timer = setTimeout(() => {
+          setIsOpen(true);
+        }, 900); // 900ms smooth delay after page loads
+        return () => clearTimeout(timer);
+      }
+    }
+
+    // 2. Custom event listener from any button on site
+    const handleOpen = (e) => {
+      const targetStep = e?.detail?.step !== undefined ? e.detail.step : 0;
+      setStep(targetStep);
+      setIsOpen(true);
+    };
+
+    window.addEventListener('open-height-masterclass', handleOpen);
+    return () => window.removeEventListener('open-height-masterclass', handleOpen);
+  }, [autoOpen]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    sessionStorage.setItem('aayutatva_height_popup_closed', 'true');
+  };
 
   const validateStep1 = () => {
     const errs = {};
@@ -354,9 +333,9 @@ export function HeightMasterclassModal({ isOpen, onClose }) {
     } else if (formData.whatsapp.replace(/\D/g, '').length < 10) {
       errs.whatsapp = 'Enter a valid 10-digit WhatsApp number';
     }
-    if (!formData.age) errs.age = 'Please enter age or select category';
+    if (!formData.age) errs.age = 'Please enter age';
     if (!formData.city.trim()) errs.city = 'Please enter your city/state';
-    if (!formData.currentHeight.trim()) errs.currentHeight = 'Please enter current height (e.g., 5 ft 4 in or 162 cm)';
+    if (!formData.currentHeight.trim()) errs.currentHeight = 'Please enter current height (e.g., 5 ft 4 in)';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -386,401 +365,455 @@ export function HeightMasterclassModal({ isOpen, onClose }) {
     }
   };
 
-  const resetForm = () => {
-    setStep(1);
-    setFormData({
-      name: '',
-      whatsapp: '',
-      email: '',
-      age: '',
-      gender: 'Male',
-      currentHeight: '',
-      goal: '',
-      city: '',
-      upiRef: '',
-    });
-    setConfirmedData(null);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-[#FDFBF7] text-[#1B3B22] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#1B3B22]/15 overflow-hidden my-6 relative">
-        
-        {/* Modal Top Bar */}
-        <div className="bg-[#1B3B22] text-white p-4 sm:p-5 flex items-center justify-between relative">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-[#D4A373] text-[#1B3B22] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full">
-                Online Session · 20 Oct 2026
-              </span>
-              <span className="text-[#D4A373] text-xs font-semibold">Registration Fee: ₹9</span>
+    <>
+      {/* 1. Discreet Floating Trigger Button (Bottom-Left on Mobile, Bottom-Left on Desktop) */}
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={() => { setStep(0); setIsOpen(true); }}
+          className="fixed bottom-20 left-3 sm:bottom-6 sm:left-6 z-40 bg-[#17331D] text-[#E7C697] border border-[#D4A373]/60 px-3.5 py-2 rounded-full shadow-2xl flex items-center gap-2 hover:bg-[#1f4628] hover:scale-105 active:scale-95 transition-all text-xs font-bold cursor-pointer"
+          aria-label="Open 20 Oct Height Masterclass details"
+        >
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
+          </span>
+          <span>Height Masterclass (20 Oct · ₹9)</span>
+        </button>
+      )}
+
+      {/* 2. Mobile-First Popup Modal */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[1000] bg-black/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Card Container: Bottom sheet on mobile, rounded card on tablet/desktop */}
+          <div className="bg-[#FDFBF7] text-[#1B3B22] w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl border-t-4 sm:border-2 border-[#D4A373] overflow-hidden max-h-[92vh] sm:max-h-[88vh] flex flex-col relative animate-in slide-in-from-bottom duration-300">
+            
+            {/* Header: Dark Green with Live Badge & Close Button */}
+            <div className="bg-[#17331D] text-white p-3.5 sm:p-4 flex items-center justify-between border-b border-[#D4A373]/30 relative flex-shrink-0">
+              <div className="pr-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 bg-[#D4A373] text-[#17331D] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
+                    LIVE MASTERCLASS · 20 OCT
+                  </span>
+                  <span className="text-[#E7C697] text-xs font-semibold">Fee: ₹9 Only</span>
+                </div>
+                <h2 className="text-base sm:text-lg font-serif font-bold text-white mt-1 leading-snug">
+                  Unlock Your Natural Height
+                </h2>
+                <p className="text-[11px] text-stone-300">
+                  60-Min Live Ayurvedic Growth Masterclass with Senior Vaidyas
+                </p>
+              </div>
+
+              {/* Large, Easy-to-Tap Close Button for Thumbs (Minimum 44px) */}
+              <button 
+                type="button"
+                onClick={handleClose} 
+                aria-label="Close masterclass popup"
+                className="w-10 h-10 flex-shrink-0 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-stone-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
             </div>
-            <h2 className="text-lg sm:text-xl font-serif font-bold text-white mt-1">
-              Unlock Your Natural Height
-            </h2>
-            <p className="text-xs text-stone-300 mt-0.5">
-              60-Minute Live Ayurvedic Growth Masterclass with Senior Vaidyas
-            </p>
-          </div>
-          <button 
-            onClick={onClose} 
-            aria-label="Close modal"
-            className="text-stone-300 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
 
-        {/* Multi-step Breadcrumb */}
-        <div className="bg-[#f4efe4] px-4 py-2 border-b border-[#e2dacf] flex items-center justify-between text-xs text-stone-600">
-          <div className={`flex items-center gap-1.5 ${step >= 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 1 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>1</span>
-            <span>Attendee Details</span>
-          </div>
-          <ChevronRight size={14} className="text-stone-400" />
-          <div className={`flex items-center gap-1.5 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 2 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>2</span>
-            <span>Fee Payment (₹9)</span>
-          </div>
-          <ChevronRight size={14} className="text-stone-400" />
-          <div className={`flex items-center gap-1.5 ${step >= 3 ? 'font-bold text-[#1B3B22]' : ''}`}>
-            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 3 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>3</span>
-            <span>Confirmed Ticket</span>
-          </div>
-        </div>
+            {/* Step Breadcrumbs if not in step 0 */}
+            {step > 0 && (
+              <div className="bg-[#f4efe4] px-4 py-1.5 border-b border-[#e2dacf] flex items-center justify-between text-[11px] text-stone-600 flex-shrink-0">
+                <div className={`flex items-center gap-1 ${step >= 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${step >= 1 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>1</span>
+                  <span>Details</span>
+                </div>
+                <ChevronRight size={12} className="text-stone-400" />
+                <div className={`flex items-center gap-1 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${step >= 2 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>2</span>
+                  <span>Paytm UPI (₹9)</span>
+                </div>
+                <ChevronRight size={12} className="text-stone-400" />
+                <div className={`flex items-center gap-1 ${step >= 3 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${step >= 3 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>3</span>
+                  <span>Ticket</span>
+                </div>
+              </div>
+            )}
 
-        {/* Modal Body */}
-        <div className="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
+            {/* Scrollable Modal Body */}
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1 overscroll-contain">
 
-          {/* STEP 1: CLINICAL OVERVIEW & FORM */}
-          {step === 1 && (
-            <div>
-              {/* Clinical Intro Box */}
-              <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-3.5 sm:p-4 mb-5 text-xs text-emerald-950">
-                <div className="flex items-start gap-2.5">
-                  <Sparkles size={18} className="text-emerald-700 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-sm text-[#1B3B22] mb-1">
-                      What you will discover in this 60-minute masterclass:
-                    </h4>
-                    <ul className="space-y-1 text-stone-700 list-disc list-inside">
-                      <li><strong>Asthi Dhatu Nutrition:</strong> Ayurvedic herbs for bone elongation and growth plate stimulation.</li>
-                      <li><strong>Spine Decompression Yoga:</strong> How spinal disc hydration and posture alignment add 1–2 inches naturally.</li>
-                      <li><strong>Growth Hormone (HGH) Timing:</strong> Deep sleep cycles and dietary triggers that restart natural height gain.</li>
-                      <li><strong>Age & Realistic Potential:</strong> Honest clinical analysis for teenagers and young adults (ages 12 to 25).</li>
-                    </ul>
-                    <div className="mt-2 text-[11px] font-semibold text-emerald-800 bg-white/70 px-2.5 py-1 rounded inline-block">
-                      📅 <strong>Session Date:</strong> 20th Oct 2026 • <strong>Platform:</strong> Zoom / Google Meet (Link sent via WhatsApp 7 days before)
+              {/* STEP 0: THE HIGH-CONVERTING MOBILE INVITATION PITCH */}
+              {step === 0 && (
+                <div className="space-y-4">
+                  {/* Doctor & Hospital Endorsement */}
+                  <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-stone-200/80 shadow-xs">
+                    <img 
+                      src="/media/dr-manish-yerpude.jpg" 
+                      alt="Dr. Manish Santosh Yerpude" 
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#D4A373] flex-shrink-0"
+                    />
+                    <div className="text-left text-xs">
+                      <div className="font-bold text-stone-900 leading-tight">Dr. Manish Santosh Yerpude</div>
+                      <div className="text-[10px] text-stone-500">[B.A.M.S., MD (AM), P.G.P.P.]</div>
+                      <div className="text-[10px] font-semibold text-emerald-800">
+                        AayuTatva Ayurvedic Hospital, Bhandara (NABH Accredited)
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Patient Form */}
-              <form onSubmit={handleStep1Submit} className="space-y-3.5">
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Full Name of Attendee / Patient *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Aryan Sharma"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                    {errors.name && <p className="text-[11px] text-red-600 mt-0.5">{errors.name}</p>}
+                  {/* 4 Clinical Highlights (Grid on mobile) */}
+                  <div className="grid grid-cols-2 gap-2 text-left">
+                    <div className="bg-emerald-50/80 border border-emerald-200/70 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs mb-1">
+                        <Leaf size={14} className="flex-shrink-0" />
+                        <span>Asthi Dhatu</span>
+                      </div>
+                      <p className="text-[10px] text-stone-600 leading-tight">
+                        Herbs stimulate bone matrix & growth plate nourishment.
+                      </p>
+                    </div>
+
+                    <div className="bg-emerald-50/80 border border-emerald-200/70 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs mb-1">
+                        <Activity size={14} className="flex-shrink-0" />
+                        <span>Spine Yoga</span>
+                      </div>
+                      <p className="text-[10px] text-stone-600 leading-tight">
+                        Decompress vertebrae to unlock 1–2 compressed inches.
+                      </p>
+                    </div>
+
+                    <div className="bg-emerald-50/80 border border-emerald-200/70 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs mb-1">
+                        <Clock size={14} className="flex-shrink-0" />
+                        <span>Pituitary HGH</span>
+                      </div>
+                      <p className="text-[10px] text-stone-600 leading-tight">
+                        Sleep rhythm triggers natural growth hormone bursts.
+                      </p>
+                    </div>
+
+                    <div className="bg-emerald-50/80 border border-emerald-200/70 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs mb-1">
+                        <Users size={14} className="flex-shrink-0" />
+                        <span>Age 12–25</span>
+                      </div>
+                      <p className="text-[10px] text-stone-600 leading-tight">
+                        Realistic guidance for teens, youth & parents.
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      WhatsApp Number (To receive meeting link) *
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="e.g. 9876543210"
-                      value={formData.whatsapp}
-                      onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                    {errors.whatsapp && <p className="text-[11px] text-red-600 mt-0.5">{errors.whatsapp}</p>}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Age *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 17 or 21 yrs"
-                      value={formData.age}
-                      onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                    {errors.age && <p className="text-[11px] text-red-600 mt-0.5">{errors.age}</p>}
+                  {/* Date, Platform & WhatsApp Reassurance Box */}
+                  <div className="bg-[#17331D]/5 border border-[#17331D]/15 rounded-xl p-3 text-left text-xs space-y-1.5">
+                    <div className="flex items-center justify-between font-bold text-[#17331D]">
+                      <span>📅 Date: Sunday, 20 Oct 2026</span>
+                      <span className="bg-emerald-700 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        Fee: ₹9
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-stone-600 flex items-center gap-1.5">
+                      <Video size={13} className="text-emerald-700 flex-shrink-0" />
+                      <span>Online Session via Zoom / Google Meet</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-900 bg-white p-2 rounded-lg border border-emerald-100 font-medium">
+                      📲 <strong>WhatsApp Alert:</strong> Meeting link will be sent to your WhatsApp number <strong>7 days before the session</strong>.
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Gender *
-                    </label>
-                    <select
-                      value={formData.gender}
-                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Current Height *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 5 ft 3 in (160 cm)"
-                      value={formData.currentHeight}
-                      onChange={(e) => setFormData({ ...formData, currentHeight: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                    {errors.currentHeight && <p className="text-[11px] text-red-600 mt-0.5">{errors.currentHeight}</p>}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      City & State (Location) *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Bhandara, Maharashtra"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                    {errors.city && <p className="text-[11px] text-red-600 mt-0.5">{errors.city}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Email Address (Optional)
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="aryan@gmail.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full text-xs px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    Your Height Goal or Specific Question for the Doctor (Optional)
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="e.g. Want to grow 2-3 inches for police/sports exam; or asking about growth after age 19..."
-                    value={formData.goal}
-                    onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
-                    className="w-full text-xs p-2.5 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22]"
-                  />
-                </div>
-
-                {/* Submit button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full bg-[#1B3B22] hover:bg-[#284e31] text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-transform active:scale-98 shadow cursor-pointer"
-                  >
-                    <span>Proceed to Confirm Seat (Pay ₹9 Fee)</span>
-                    <ArrowRight size={16} />
-                  </button>
-                  <p className="text-[11px] text-center text-stone-500 mt-2">
-                    🔒 Nominal fee of ₹9 to filter serious participants. 100% money goes directly to hospital.
-                  </p>
-                </div>
-
-              </form>
-            </div>
-          )}
-
-          {/* STEP 2: PAYMENT WITH PHONEPE QR */}
-          {step === 2 && (
-            <div>
-              <div className="text-center mb-4">
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase">
-                  Step 2 of 2: Pay ₹9 Registration Fee
-                </span>
-                <h3 className="text-base sm:text-lg font-serif font-bold text-[#1B3B22] mt-1.5">
-                  Scan & Pay ₹9 to Confirm Your Masterclass Seat
-                </h3>
-                <p className="text-xs text-stone-600 max-w-md mx-auto mt-0.5">
-                  Attendee: <strong>{formData.name}</strong> • WhatsApp: <strong>{formData.whatsapp}</strong>
-                </p>
-              </div>
-
-              {/* The PhonePe QR Component */}
-              <PhonePePaymentCard 
-                upiId={DEFAULT_UPI_ID}
-                name={RECIPIENT_NAME}
-                amount={REGISTRATION_FEE}
-              />
-
-              {/* Payment Verification Form */}
-              <form onSubmit={handleStep2PaymentSubmit} className="mt-5 max-w-sm mx-auto bg-stone-100/70 p-4 rounded-xl border border-stone-200">
-                <label className="block text-xs font-bold text-stone-800 mb-1">
-                  Enter 12-Digit UPI Transaction ID / UTR *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 427819384920"
-                  value={formData.upiRef}
-                  onChange={(e) => setFormData({ ...formData, upiRef: e.target.value })}
-                  className="w-full text-xs font-mono px-3 py-2 border rounded border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#1B3B22] text-center tracking-wider"
-                />
-                {errors.upiRef && <p className="text-[11px] text-red-600 mt-1">{errors.upiRef}</p>}
-                
-                <p className="text-[10px] text-stone-500 mt-1 text-center">
-                  You can find the UTR / Ref No in your PhonePe / GPay / Paytm payment receipt.
-                </p>
-
-                <div className="flex gap-2 mt-3.5">
+                  {/* Primary Big Mobile CTA Button */}
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="w-1/3 bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold py-2.5 px-3 rounded-lg"
+                    className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-3.5 px-4 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition-transform cursor-pointer"
                   >
-                    Back
+                    <span>Claim Your Seat Now (Pay ₹9 Fee)</span>
+                    <ArrowRight size={16} />
                   </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-2/3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-1.5 shadow"
-                  >
-                    {loading ? (
-                      <>
-                        <RefreshCw size={13} className="animate-spin" />
-                        <span>Verifying...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check size={14} />
-                        <span>Complete Registration</span>
-                      </>
-                    )}
-                  </button>
+
+                  {/* Secondary Links */}
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 pt-1">
+                    <a 
+                      href="/height-session.html" 
+                      onClick={() => setIsOpen(false)}
+                      className="text-stone-700 underline font-medium hover:text-[#17331D]"
+                    >
+                      Read full syllabus & research ↗
+                    </a>
+                    <button 
+                      type="button"
+                      onClick={handleClose}
+                      className="text-stone-400 hover:text-stone-600 cursor-pointer"
+                    >
+                      Maybe later
+                    </button>
+                  </div>
                 </div>
-              </form>
+              )}
+
+              {/* STEP 1: ATTENDEE DETAILS FORM */}
+              {step === 1 && (
+                <div className="space-y-3">
+                  <div className="text-left mb-2">
+                    <h3 className="font-bold text-sm text-[#1B3B22]">Attendee & Contact Information</h3>
+                    <p className="text-[11px] text-stone-500">
+                      The meeting link will be sent to this WhatsApp number 7 days prior.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleStep1Submit} className="space-y-3 text-left">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Full Name of Attendee *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Aryan Sharma"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                      />
+                      {errors.name && <p className="text-[10px] text-red-600 mt-0.5">{errors.name}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        WhatsApp Number *
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="e.g. 9876543210"
+                        value={formData.whatsapp}
+                        onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                        className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                      />
+                      {errors.whatsapp && <p className="text-[10px] text-red-600 mt-0.5">{errors.whatsapp}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          Age *
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 18"
+                          value={formData.age}
+                          onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                          className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                        />
+                        {errors.age && <p className="text-[10px] text-red-600 mt-0.5">{errors.age}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          Gender
+                        </label>
+                        <select
+                          value={formData.gender}
+                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                          className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          Current Height *
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 5 ft 4 in"
+                          value={formData.currentHeight}
+                          onChange={(e) => setFormData({ ...formData, currentHeight: e.target.value })}
+                          className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                        />
+                        {errors.currentHeight && <p className="text-[10px] text-red-600 mt-0.5">{errors.currentHeight}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          City / State *
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Bhandara"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          className="w-full text-base sm:text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D]"
+                        />
+                        {errors.city && <p className="text-[10px] text-red-600 mt-0.5">{errors.city}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setStep(0)}
+                        className="w-1/3 bg-stone-200 text-stone-700 font-bold py-3 rounded-xl text-xs"
+                      >
+                        Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="w-2/3 bg-[#17331D] text-[#E7C697] font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow"
+                      >
+                        <span>Proceed to Pay ₹9</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* STEP 2: PAYTM QR PAYMENT */}
+              {step === 2 && (
+                <div>
+                  <div className="text-center mb-3">
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full uppercase">
+                      Step 2 of 2: Pay ₹9 Fee
+                    </span>
+                    <h3 className="text-sm sm:text-base font-serif font-bold text-[#1B3B22] mt-1">
+                      Scan & Pay ₹9 via Any UPI App
+                    </h3>
+                  </div>
+
+                  {/* Paytm Standee Card */}
+                  <PaytmPaymentCard 
+                    upiId={DEFAULT_UPI_ID}
+                    name={RECIPIENT_NAME}
+                    amount={REGISTRATION_FEE}
+                  />
+
+                  {/* Verification Form */}
+                  <form onSubmit={handleStep2PaymentSubmit} className="mt-4 bg-stone-100/90 p-3 rounded-xl border border-stone-200 text-left">
+                    <label className="block text-xs font-bold text-stone-800 mb-1">
+                      Enter 12-Digit UPI Transaction ID / UTR *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 427819384920"
+                      value={formData.upiRef}
+                      onChange={(e) => setFormData({ ...formData, upiRef: e.target.value })}
+                      className="w-full text-base sm:text-xs font-mono px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] text-center tracking-wider"
+                    />
+                    {errors.upiRef && <p className="text-[10px] text-red-600 mt-1">{errors.upiRef}</p>}
+                    
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="w-1/3 bg-stone-200 text-stone-700 text-xs font-bold py-2.5 rounded-lg"
+                      >
+                        Back
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-2/3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2.5 rounded-lg flex items-center justify-center gap-1.5 shadow"
+                      >
+                        {loading ? (
+                          <>
+                            <RefreshCw size={13} className="animate-spin" />
+                            <span>Verifying...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check size={14} />
+                            <span>Complete Registration</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* STEP 3: CONFIRMED TICKET */}
+              {step === 3 && confirmedData && (
+                <div className="text-center py-2 space-y-3">
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow">
+                    <CheckCircle2 size={28} />
+                  </div>
+
+                  <span className="text-[10px] font-bold text-emerald-800 uppercase bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                    Seat Reserved Successfully!
+                  </span>
+
+                  <h3 className="text-lg font-serif font-bold text-[#1B3B22]">
+                    You're Registered for 20th Oct!
+                  </h3>
+
+                  <div className="bg-white border-2 border-dashed border-[#1B3B22]/30 rounded-xl p-3.5 text-left text-xs text-stone-700 space-y-2">
+                    <div className="flex justify-between border-b border-stone-200 pb-2">
+                      <span className="text-stone-400 font-bold uppercase text-[9px]">Booking ID</span>
+                      <strong className="font-mono text-emerald-800">{confirmedData.id}</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Attendee:</span>
+                      <strong>{confirmedData.name} ({confirmedData.age})</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">WhatsApp:</span>
+                      <strong>{confirmedData.whatsapp}</strong>
+                    </div>
+                    <div className="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-[11px] text-emerald-950 mt-1">
+                      📲 <strong>Link Notice:</strong> The official Zoom / Google Meet joining link will be sent to your WhatsApp <strong>7 days before 20th Oct</strong>.
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-1">
+                    <a
+                      href={`https://wa.me/917758816074?text=${encodeURIComponent(`Hello AayuTatva Hospital, I have registered for the 20 Oct Height Growth Masterclass. My Booking ID is ${confirmedData.id} (Name: ${confirmedData.name}). Please confirm!`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-emerald-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow"
+                    >
+                      <Phone size={14} />
+                      <span>Notify Clinic on WhatsApp</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="bg-stone-200 text-stone-800 text-xs font-bold py-2.5 rounded-xl"
+                    >
+                      Done & Close
+                    </button>
+                  </div>
+                </div>
+              )}
 
             </div>
-          )}
 
-          {/* STEP 3: CONFIRMED TICKET & RECEIPT */}
-          {step === 3 && confirmedData && (
-            <div className="text-center py-2">
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-3 shadow">
-                <CheckCircle2 size={32} />
-              </div>
-
-              <span className="text-[11px] font-bold tracking-wider text-emerald-800 uppercase bg-emerald-100/70 px-3 py-1 rounded-full">
-                Seat Reserved Successfully!
-              </span>
-
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1B3B22] mt-2">
-                You're Registered for 20th Oct!
-              </h3>
-              
-              <p className="text-xs text-stone-600 max-w-md mx-auto mt-1">
-                Thank you, <strong>{confirmedData.name}</strong>. Your ₹9 registration for the 
-                <strong> Ayurvedic Height Growth Masterclass</strong> is confirmed.
-              </p>
-
-              {/* Ticket Card */}
-              <div className="bg-white border-2 border-dashed border-[#1B3B22]/30 rounded-2xl p-4 sm:p-5 max-w-md mx-auto my-4 text-left shadow-sm">
-                <div className="flex justify-between items-center border-b border-stone-200 pb-2.5 mb-2.5">
-                  <div>
-                    <div className="text-[10px] uppercase text-stone-400 font-bold">Booking ID</div>
-                    <div className="text-sm font-mono font-bold text-[#1B3B22]">{confirmedData.id}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] uppercase text-stone-400 font-bold">Session Date</div>
-                    <div className="text-xs font-bold text-stone-800">20 Oct 2026</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs text-stone-700 mb-3">
-                  <div>
-                    <span className="text-[10px] text-stone-400 block">Attendee</span>
-                    <strong>{confirmedData.name}</strong> ({confirmedData.age})
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400 block">WhatsApp</span>
-                    <strong>{confirmedData.whatsapp}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400 block">Current Height</span>
-                    <span>{confirmedData.currentHeight}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400 block">Location</span>
-                    <span>{confirmedData.city}</span>
-                  </div>
-                </div>
-
-                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900">
-                  <div className="font-bold flex items-center gap-1.5 mb-1">
-                    <Video size={14} className="text-emerald-700" />
-                    <span>Meeting Link Instructions</span>
-                  </div>
-                  <p className="text-[11px] text-stone-600 leading-relaxed">
-                    The official <strong>Zoom / Google Meet joining link</strong> and session guidelines will be sent directly to your WhatsApp number (<strong>{confirmedData.whatsapp}</strong>) <strong>7 days before the session</strong>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-md mx-auto">
-                <a
-                  href={`https://wa.me/917758816074?text=${encodeURIComponent(`Hello AayuTatva Hospital, I have registered for the 20 Oct Height Growth Masterclass. My Booking ID is ${confirmedData.id} (Name: ${confirmedData.name}). Please confirm my seat!`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow"
-                >
-                  <Phone size={14} />
-                  <span>Notify Clinic on WhatsApp</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold py-2.5 px-4 rounded-xl"
-                >
-                  Done & Close
-                </button>
-              </div>
-
-            </div>
-          )}
-
+          </div>
         </div>
-
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 
+// Backward compatibility alias for any existing code
+export const HeightMasterclassModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+  return <HeightCampaignPopup autoOpen={true} />;
+};
+
+// Also keep a lightweight banner export if imported elsewhere, but it returns null to fulfill the user's request: "instead of showing on top banner for live masterclass can you show in a popup"
+export function HeightCampaignBanner() {
+  return null;
+}
+
 /* =========================================================================
-   4. HOSPITAL ADMIN & EXCEL EXPORT MODAL
+   3. HOSPITAL ADMIN & EXCEL EXPORT MODAL
    ========================================================================= */
 export function HeightAdminModal({ isOpen, onClose }) {
   const [passcode, setPasscode] = useState('');
@@ -794,12 +827,11 @@ export function HeightAdminModal({ isOpen, onClose }) {
     if (isOpen) {
       const local = getAllRegistrations();
       setRecords(local);
-      // Also try fetching from backend
+      // Also fetch from server API
       fetch('/api/height-registrations')
         .then(r => r.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
-            // merge
             const map = new Map();
             local.forEach(item => map.set(item.id || item.whatsapp, item));
             data.forEach(item => map.set(item.id || item.whatsapp, item));
@@ -814,11 +846,10 @@ export function HeightAdminModal({ isOpen, onClose }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Default clinic PIN is aayu2026 or allow quick access
     if (passcode.trim() === 'aayu2026' || passcode.trim() === 'admin' || passcode.trim() === '7758816074' || passcode === '') {
       setIsAuthenticated(true);
     } else {
-      alert('Incorrect passcode. Enter clinic passcode (or press Enter to view demo data).');
+      alert('Incorrect passcode. Enter clinic passcode (or press Enter for demo).');
     }
   };
 
