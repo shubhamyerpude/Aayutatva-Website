@@ -879,9 +879,6 @@ export function AayuVaidyaAIPage() {
                       onClick={() => handleQuizSelect(opt.dosha)}
                     >
                       <div className="quiz-option-body">
-                        <span className={`quiz-dosha-indicator ${opt.dosha.toLowerCase()}`}>
-                          {opt.dosha} Attribute
-                        </span>
                         <p>{opt.label}</p>
                       </div>
                       <ArrowRight size={18} className="quiz-option-arrow"/>

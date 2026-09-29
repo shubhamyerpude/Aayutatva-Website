@@ -398,7 +398,7 @@ function App() {
           onClick={() => window.dispatchEvent(new CustomEvent('open-height-admin'))} 
           style={{ background: 'none', border: 'none', color: '#d5aa7c', cursor: 'pointer', fontSize: '10px', textDecoration: 'underline' }}
         >
-          📊 Staff: 20 Oct Leads & Excel Export
+          📊 Staff: Patient Leads & Excel Export
         </button>
         <a href="#home">BACK TO TOP ↑</a>
       </div>

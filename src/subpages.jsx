@@ -240,12 +240,12 @@ export function HeightSessionPage() {
   }
 
   return (
-    <PageShell breadcrumb="Height Growth Masterclass (20 Oct)">
+    <PageShell breadcrumb="Height Growth Guidance">
       {/* Masterclass Hero Section */}
       <section className="sub-hero height-hero">
         <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
         <div className="sub-overline">
-          🔴 LIVE CAMPAIGN · 20TH OCTOBER 2026 · ONLINE (ZOOM / MEET) · FEE: ₹9 ONLY
+          🔴 AYURVEDIC PEDIATRIC & ADOLESCENT GROWTH GUIDANCE · FEE: ₹9 ONLY
         </div>
         <h1>Unlock Your Natural Height:<br/><em>60-Minute Ayurvedic Growth Masterclass</em></h1>
         <p>
@@ -315,24 +315,24 @@ export function HeightSessionPage() {
 
         <div className="growth-quote">
           <span>“Safe, non-surgical bone stimulation rooted in 5,000 years of clinical wisdom.”</span>
-          <small>ONLINE MASTERCLASS ON 20 OCT 2026 · MEETING LINK SHARED 7 DAYS PRIOR VIA WHATSAPP</small>
+          <small>ONLINE CLINICAL SESSION · MEETING LINK SHARED VIA WHATSAPP</small>
         </div>
       </section>
 
       {/* Registration Section with Direct ₹9 PhonePe UPI Payment */}
       <section className="height-content" id="register">
         <div className="height-copy">
-          <div className="sub-overline">OCTOBER 20TH MASTERCLASS DETAILS</div>
+          <div className="sub-overline">AYURVEDIC GROWTH SESSION DETAILS</div>
           <h2>Join the live session<br/><em>for just ₹9.</em></h2>
           <p>
             We are charging a nominal commitment fee of <strong>₹9</strong> to ensure serious participants. 
-            The session link (Zoom / Google Meet) will be shared directly to your WhatsApp and Email <strong>7 days before the session</strong>.
+            The session link (Zoom / Google Meet) will be shared directly to your WhatsApp and Email.
           </p>
           
           <div className="growth-points">
-            <div><Check size={15}/><span><strong>Date:</strong> Sunday, 20th October 2026 (Live 60-Min Session)</span></div>
+            <div><Check size={15}/><span><strong>Session:</strong> Live 60-Min Doctor Guidance</span></div>
             <div><Check size={15}/><span><strong>Platform:</strong> Online Zoom / Google Meet</span></div>
-            <div><Check size={15}/><span><strong>Meeting Link:</strong> Shared 7 days prior directly on WhatsApp</span></div>
+            <div><Check size={15}/><span><strong>Meeting Link:</strong> Shared directly on WhatsApp</span></div>
             <div><Check size={15}/><span><strong>Who Should Attend:</strong> Ages 12 to 25 & concerned parents</span></div>
             <div><Check size={15}/><span><strong>Live Doctor Q&A:</strong> Ask your personal growth questions</span></div>
           </div>
@@ -346,7 +346,7 @@ export function HeightSessionPage() {
         {/* Dynamic Multi-Step Card */}
         <div className="session-card">
           <div className="session-card-head">
-            <span><CalendarDays size={17}/> 20 OCT MASTERCLASS</span>
+            <span><CalendarDays size={17}/> CLINICAL GROWTH SESSION</span>
             <span className="session-pill">₹9 REGISTRATION FEE</span>
           </div>
 

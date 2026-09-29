@@ -437,13 +437,22 @@ export function DoshaQuizPage() {
   const handleSelectOption = (qId, dosha) => {
     const updated = { ...answers, [qId]: dosha };
     setAnswers(updated);
+
+    // Auto-advance to next question smoothly upon click
+    setTimeout(() => {
+      if (step < questions.length - 1) {
+        setStep(prev => prev + 1);
+      } else {
+        calculateResult(updated);
+      }
+    }, 260);
   };
 
   const handleNext = () => {
     if (step < questions.length - 1) {
       setStep(step + 1);
     } else {
-      calculateResult();
+      calculateResult(answers);
     }
   };
 
@@ -453,13 +462,13 @@ export function DoshaQuizPage() {
     }
   };
 
-  const calculateResult = () => {
+  const calculateResult = (currentAnswers = answers) => {
     const counts = { Vata: 0, Pitta: 0, Kapha: 0 };
-    Object.values(answers).forEach((d) => {
+    Object.values(currentAnswers).forEach((d) => {
       counts[d] = (counts[d] || 0) + 1;
     });
 
-    const totalAnswered = Object.keys(answers).length;
+    const totalAnswered = Object.keys(currentAnswers).length || 1;
     const vataPct = Math.round((counts.Vata / totalAnswered) * 100);
     const pittaPct = Math.round((counts.Pitta / totalAnswered) * 100);
     const kaphaPct = Math.round((counts.Kapha / totalAnswered) * 100);
@@ -631,7 +640,6 @@ export function DoshaQuizPage() {
                 <div className="quiz-options-list">
                   {currentQ.options.map((opt, idx) => {
                     const isSelected = answers[currentQ.id] === opt.dosha;
-                    const doshaLabel = opt.dosha === 'Vata' ? (lang === 'mr' ? 'वात दोष' : 'Vata Type') : (opt.dosha === 'Pitta' ? (lang === 'mr' ? 'पित्त दोष' : 'Pitta Type') : (lang === 'mr' ? 'कफ दोष' : 'Kapha Type'));
                     return (
                       <div
                         key={idx}
@@ -646,10 +654,6 @@ export function DoshaQuizPage() {
                         </div>
                         <div className="quiz-option-content">
                           <div className="quiz-option-label">{opt.label}</div>
-                          <div className="quiz-option-trait">
-                            <span className={`dosha-pill dosha-${opt.dosha.toLowerCase()}`}>{doshaLabel}</span>
-                            <small>{opt.trait}</small>
-                          </div>
                         </div>
                       </div>
                     );
