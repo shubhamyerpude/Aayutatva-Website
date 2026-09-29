@@ -174,7 +174,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const { message, history = [], userDoshaProfile = null } = body;
+    const { message, history = [], userDoshaProfile = null, language = 'mr' } = body;
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Message is required' });
@@ -184,7 +184,7 @@ export default async function handler(req: any, res: any) {
 
     // 1. High-Performance Internal AI Engine (No Gemini API required)
     if (preferInternalEngine) {
-      const internalResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile);
+      const internalResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile, language);
       return res.status(200).json(internalResult);
     }
 

@@ -857,3 +857,61 @@
     min-height: 40px;
   }
 }
+
+/* Language Selection Banner Styles */
+.vaidya-lang-banner {
+  background: #ffffff;
+  border-bottom: 1px solid #e7e0d3;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vaidya-lang-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1b3b22;
+}
+
+.vaidya-lang-banner-title {
+  color: #1b3b22;
+}
+
+.vaidya-lang-btn-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f0ece1;
+  padding: 3px;
+  border-radius: 9px;
+  gap: 3px;
+}
+
+.vaidya-lang-btn {
+  border: none;
+  background: transparent;
+  color: #495648;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.vaidya-lang-btn:hover {
+  color: #1b3b22;
+}
+
+.vaidya-lang-btn.active {
+  background: #1b3b22;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(27, 59, 34, 0.25);
+  font-weight: 700;
+}

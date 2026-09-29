@@ -175,7 +175,7 @@ ${HOSPITAL_CONTACT_CTA}`;
 // AI Chat Route with Internal Engine & Optional External Fallback
 app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
   try {
-    const { message, history = [], userDoshaProfile = null } = req.body;
+    const { message, history = [], userDoshaProfile = null, language = 'mr' } = req.body;
 
     if (!message || typeof message !== 'string') {
       res.status(400).json({ error: 'Message is required' });
@@ -184,7 +184,7 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
 
     // 1. High-Performance Internal AI Engine (No Gemini API required)
     if (preferInternalEngine) {
-      const internalResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile);
+      const internalResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile, language);
       res.json(internalResult);
       return;
     }

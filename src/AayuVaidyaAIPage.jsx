@@ -3,7 +3,7 @@ import {
   Sparkles, Send, Activity, HelpCircle, BookOpen, MessageCircle, 
   ArrowRight, ArrowUpRight, CheckCircle2, RotateCcw, ShieldCheck, 
   Phone, User, Leaf, Zap, Droplets, Thermometer, Info, ChevronDown, 
-  ChevronUp, Search, Compass, RefreshCw, Star, HeartPulse, Building2
+  ChevronUp, Search, Compass, RefreshCw, Star, HeartPulse, Building2, Globe
 } from 'lucide-react';
 import './subpages.css';
 import './portal.css';
@@ -141,28 +141,72 @@ export const QUIZ_QUESTIONS = [
   }
 ];
 
+const PAGE_WELCOME_MESSAGES = {
+  mr: `### नमस्कार 🙏 आयुवैद्य एआय (AayuVaidya AI) मध्ये आपले स्वागत आहे
+
+मी **आयुतत्व आयुर्वेदिक हॉस्पिटल व पंचकर्म केंद्र**, भंडारा चा इन-हाउस क्लिनिकल ज्ञान सहाय्यक आहे. **डॉ. मनिष संतोष येरपुडे** यांच्या मार्गदर्शनाखाली खालील शास्त्रीय विषयांवर मी आपल्याला माहिती व मार्गदर्शन देऊ शकतो:
+
+• 🩺 **नाडी परीक्षा (Nadi Parikshan)**: ३ बोटांच्या नाडीवरून त्रिदोष अचूक निदान.
+• 🦴 **मणके व सायटिका**: स्लिप डिस्क, कंबरदुखी व संधिवातावर विना-शस्त्रक्रिया पंचकर्म उपचार.
+• 🍲 **पथ्यकर आहार**: आपल्या प्रकृतीनुसार (वात, पित्त, कफ) दैनंदिन आहार नियम.
+• 🌸 **५ शास्त्रीय पंचकर्म**: वमन, विरेचन, कटी बस्ती, नस्य आणि जळू चिकित्सा (रक्तमोक्षण).
+• 🏥 **१००% कॅशलेस मेडिक्लेम**: NABH मानांकित हॉस्पिटलमध्ये कॅशलेस उपचार.
+
+*सल्लामसलत किंवा उपचारासाठी खालील बटनांवरून थेट संपर्क साधा:*
+
+📞 **फोन करा**: [**+91 77588 16074**](tel:+917758816074) *(कॉल करण्यासाठी टॅप करा)*
+💬 **व्हॉट्सॲप**: [**व्हॉट्सॲपवर चॅट करा**](https://wa.me/917758816074?text=नमस्कार%20डॉ.%20मनिष%20येरपुडे%2C%20मला%20आयुतत्व%20हॉस्पिटल%20भंडारा%20येथे%20तपासणीसाठी%20अपॉइंटमेंट%20हवी%20आहे.) *(व्हॉट्सॲप उघडण्यासाठी टॅप करा)*
+
+📍 **पत्ता**: पहिला माळा, बावणकर भवन, खात रोड, गणेश मार्बल जवळ, शिव नगरी, भंडारा, महाराष्ट्र
+⏰ **ओपीडी वेळ**: सकाळी १०:०० ते दुपारी २:०० आणि संध्याकाळी ५:०० ते रात्री ८:०० (दररोज)`,
+
+  hi: `### नमस्ते 🙏 आयुवैद्य एआई (AayuVaidya AI) में आपका स्वागत है
+
+मैं **आयुतत्व आयुर्वेदिक हॉस्पिटल एवं पंचकर्म केंद्र**, भंडारा का इन-हाउस ज्ञान सहायक हूँ। **डॉ. मनीष संतोष येरपुडे** के मार्गदर्शन में आप नाड़ी परीक्षा, स्लिप डिस्क, कमर दर्द, साइटिका, जोड़ों के दर्द और 5 पंचकर्म उपचारों के बारे में जानकारी ले सकते हैं:
+
+📞 **फोन करें**: [**+91 77588 16074**](tel:+917758816074) *(कॉल करने के लिए टैप करें)*
+💬 **व्हाट्सएप**: [**व्हाट्सएप पर चैट करें**](https://wa.me/917758816074?text=नमस्ते%20डॉ.%20मनीष%20येरपुडे%2C%20मुझे%20आयुतत्व%20हॉस्पिटल%20भंडारा%20में%20अपॉइंटमेंट%20चाहिए।) *(व्हाट्सएप खोलने के लिए टैप करें)*
+📍 **पता**: प्रथम तल, बावंकर भवन, खात रोड, गणेश मार्बल के पास, शिव नगरी, भंडारा, महाराष्ट्र
+⏰ **ओपीडी समय**: प्रातः 10:00 से 2:00 एवं सायं 5:00 से 8:00 बजे (प्रतिदिन)`,
+
+  en: `### Namaste 🙏 Welcome to AayuVaidya AI
+
+I am the in-house Ayurvedic Clinical Knowledge Assistant for **AayuTatva Ayurvedic Hospital & Panchakarma Centre**, Bhandara. Consult **Dr. Manish Santosh Yerpude** for classical pulse diagnosis, spine and sciatica care, customized diets, and authentic Panchakarma detox:
+
+📞 **Phone**: [**+91 77588 16074**](tel:+917758816074) *(Tap to open dialpad)*
+💬 **WhatsApp**: [**Chat on WhatsApp**](https://wa.me/917758816074?text=Hello%20Dr.%20Manish%20Yerpude,%20I%20want%20to%20consult%20at%20AayuTatva%20Hospital%20in%20Bhandara) *(Tap to open WhatsApp)*
+📍 **Location**: 1st Floor, Bawankar Bhavan, Khat Road, near Ganesh Marble, Shiv Nagari, Bhandara, Maharashtra
+⏰ **OPD Timings**: 10:00 AM – 2:00 PM & 5:00 PM – 8:00 PM (Daily)`
+};
+
 export function AayuVaidyaAIPage() {
   const [activeTab, setActiveTab] = useState('chat'); // 'chat', 'quiz', 'faqs', 'shastra'
+  const [selectedLang, setSelectedLang] = useState('mr'); // Default to Marathi
   
   // Chat state
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: `### Namaste 🙏 Welcome to AayuTatva Ayurvedic Hospital
-
-For any health questions, treatments, or consultation appointments with **Dr. Manish Santosh Yerpude**, tap below to call our clinic or chat on WhatsApp:
-
-📞 **Phone**: [**+91 77588 16074**](tel:+917758816074) *(Tap to open dialpad)*
-💬 **WhatsApp**: [**Chat on WhatsApp**](https://wa.me/917758816074?text=Hello%20Dr.%20Manish%20Yerpude,%20I%20want%20to%20consult%20at%20AayuTatva%20Hospital%20in%20Bhandara) *(Tap to open WhatsApp)*
-
-📍 **Location**: 1st Floor, Bawankar Bhavan, Khat Road, near Ganesh Marble, Shiv Nagari, Bhandara, Maharashtra
-⏰ **OPD Timings**: 10:00 AM – 2:00 PM & 5:00 PM – 8:00 PM (Daily)`,
+      text: PAGE_WELCOME_MESSAGES.mr,
       time: 'Just now'
     }
   ]);
   const [inputVal, setInputVal] = useState('');
   const [loading, setLoading] = useState(false);
   const [userDoshaProfile, setUserDoshaProfile] = useState(null);
+
+  const handleLanguageChange = (lang) => {
+    setSelectedLang(lang);
+    if (messages.length <= 1) {
+      setMessages([
+        {
+          role: 'assistant',
+          text: PAGE_WELCOME_MESSAGES[lang],
+          time: 'Just now'
+        }
+      ]);
+    }
+  };
   
   // Quiz state
   const [quizStep, setQuizStep] = useState(0);
@@ -208,6 +252,7 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: trimmed,
+          language: selectedLang,
           history: nextMessages.slice(-8).map(m => ({
             role: m.role === 'user' ? 'user' : 'model',
             content: m.text
@@ -221,7 +266,7 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
       }
 
       const data = await res.json();
-      const replyText = data.reply || 'Namaste. I am ready to guide your Ayurvedic health journey. Please feel free to ask any question regarding your Dosha, diet, or Panchakarma treatments.';
+      const replyText = data.reply || (selectedLang === 'mr' ? 'नमस्कार. मी आपल्या आयुर्वेदिक आरोग्य प्रवासात मार्गदर्शन करण्यास तत्पर आहे.' : 'Namaste. I am ready to guide your Ayurvedic health journey.');
 
       setMessages(prev => [
         ...prev,
@@ -233,7 +278,7 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
       ]);
     } catch (err) {
       console.warn('AIPage using internal engine:', err);
-      const internalRes = generateInternalAyurvedicResponse(trimmed, nextMessages, userDoshaProfile);
+      const internalRes = generateInternalAyurvedicResponse(trimmed, nextMessages, userDoshaProfile, selectedLang);
       setMessages(prev => [
         ...prev,
         {
@@ -435,6 +480,39 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
                 </div>
               </div>
 
+              {/* Language Selection Banner */}
+              <div className="vaidya-lang-banner">
+                <div className="vaidya-lang-banner-left">
+                  <Globe size={16} color="#2e7d32" />
+                  <span className="vaidya-lang-banner-title">
+                    {selectedLang === 'mr' ? 'उत्तर मिळवण्यासाठी भाषा निवडा:' : selectedLang === 'hi' ? 'उत्तर प्राप्त करने के लिए भाषा चुनें:' : 'Select Response Language:'}
+                  </span>
+                </div>
+                <div className="vaidya-lang-btn-group">
+                  <button 
+                    type="button" 
+                    className={`vaidya-lang-btn ${selectedLang === 'mr' ? 'active' : ''}`}
+                    onClick={() => handleLanguageChange('mr')}
+                  >
+                    मराठी (Default)
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`vaidya-lang-btn ${selectedLang === 'hi' ? 'active' : ''}`}
+                    onClick={() => handleLanguageChange('hi')}
+                  >
+                    हिंदी
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`vaidya-lang-btn ${selectedLang === 'en' ? 'active' : ''}`}
+                    onClick={() => handleLanguageChange('en')}
+                  >
+                    English
+                  </button>
+                </div>
+              </div>
+
               {/* Messages Area */}
               <div className="vaidya-messages-area">
                 {messages.map((m, idx) => (
@@ -538,41 +616,121 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
 
               {/* Prompt Chips */}
               <div className="vaidya-chips-tray">
-                <button 
-                  type="button" 
-                  className="vaidya-chip" 
-                  onClick={() => handleSendMessage('What is my Dosha and how does Nadi Parikshan detect imbalances?')}
-                >
-                  <Activity size={13} color="#2e7d32"/> Know My Dosha & Nadi
-                </button>
-                <button 
-                  type="button" 
-                  className="vaidya-chip" 
-                  onClick={() => handleSendMessage('What diet and foods (Ahara) should I follow to balance acidity, joint pain, and sluggish metabolism?')}
-                >
-                  <Leaf size={13} color="#9c7852"/> Diet (Ahara) Guidelines
-                </button>
-                <button 
-                  type="button" 
-                  className="vaidya-chip" 
-                  onClick={() => handleSendMessage('Can Panchakarma treat Sciatica, slip disc, and chronic back pain without surgery?')}
-                >
-                  <Zap size={13} color="#d97706"/> Sciatica & Spine Care
-                </button>
-                <button 
-                  type="button" 
-                  className="vaidya-chip" 
-                  onClick={() => handleSendMessage('What are the five authentic Panchakarma cleansing therapies and who needs them?')}
-                >
-                  <Droplets size={13} color="#0284c7"/> 5 Panchakarma Cleanses
-                </button>
-                <button 
-                  type="button" 
-                  className="vaidya-chip" 
-                  onClick={() => handleSendMessage('How does 100% cashless mediclaim health insurance work at AayuTatva Hospital in Bhandara?')}
-                >
-                  <ShieldCheck size={13} color="#1b3b22"/> Cashless Insurance Desk
-                </button>
+                {selectedLang === 'mr' ? (
+                  <>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('नाडी परीक्षा कशी करतात व शरीरातील दोष कसे ओळखतात?')}
+                    >
+                      <Activity size={13} color="#2e7d32"/> 🩺 नाडी परीक्षा कशी करतात?
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('स्लिप डिस्क, कंबरदुखी आणि सायटिका वर विना-शस्त्रक्रिया काय उपचार आहेत?')}
+                    >
+                      <Zap size={13} color="#d97706"/> 🦴 कंबरदुखी व सायटिका उपचार
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('माझ्या प्रकृतीनुसार (वात, पित्त, कफ) कोणता आहार व पथ्य पाळावे?')}
+                    >
+                      <Leaf size={13} color="#9c7852"/> 🍲 प्रकृतीनुसार पथ्यकर आहार
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('५ शास्त्रीय पंचकर्म कोणते आहेत व ते शरीराची शुद्धी कशी करतात?')}
+                    >
+                      <Droplets size={13} color="#0284c7"/> 🌸 ५ शास्त्रीय पंचकर्म पद्धती
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('आयुतत्व हॉस्पिटलमध्ये १००% कॅशलेस मेडिक्लेम विमा सुविधा कशी मिळते?')}
+                    >
+                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 १००% कॅशलेस मेडिक्लेम विमा
+                    </button>
+                  </>
+                ) : selectedLang === 'hi' ? (
+                  <>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('नाड़ी परीक्षा कैसे की जाती है और दोष कैसे पहचाने जाते हैं?')}
+                    >
+                      <Activity size={13} color="#2e7d32"/> 🩺 नाड़ी परीक्षा कैसे करते हैं?
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('कमर दर्द, स्लिप डिस्क और साइटिका का बिना ऑपरेशन इलाज क्या है?')}
+                    >
+                      <Zap size={13} color="#d97706"/> 🦴 कमर दर्द व साइटिका इलाज
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('वात, पित्त और कफ अनुसार कौन सा आहार लेना चाहिए?')}
+                    >
+                      <Leaf size={13} color="#9c7852"/> 🍲 प्रकृति अनुसार आहार नियम
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('5 शास्त्रीय पंचकर्म कौन से हैं और कैसे काम करते हैं?')}
+                    >
+                      <Droplets size={13} color="#0284c7"/> 🌸 5 शास्त्रीय पंचकर्म
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('आयुतत्व हॉस्पिटल में 100% कैशलेस मेडिक्लेम बीमा कैसे मिलता है?')}
+                    >
+                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 100% कैशलेस मेडिक्लेम
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('What is my Dosha and how does Nadi Parikshan detect imbalances?')}
+                    >
+                      <Activity size={13} color="#2e7d32"/> 🩺 Know My Dosha & Nadi
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('Can Panchakarma treat Sciatica, slip disc, and chronic back pain without surgery?')}
+                    >
+                      <Zap size={13} color="#d97706"/> 🦴 Sciatica & Spine Care
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('What diet and foods (Ahara) should I follow to balance acidity, joint pain, and sluggish metabolism?')}
+                    >
+                      <Leaf size={13} color="#9c7852"/> 🍲 Diet (Ahara) Guidelines
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('What are the five authentic Panchakarma cleansing therapies and who needs them?')}
+                    >
+                      <Droplets size={13} color="#0284c7"/> 🌸 5 Panchakarma Cleanses
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      onClick={() => handleSendMessage('How does 100% cashless mediclaim health insurance work at AayuTatva Hospital in Bhandara?')}
+                    >
+                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 Cashless Insurance Desk
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Chat Input */}
@@ -584,7 +742,13 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
                   type="text" 
                   value={inputVal} 
                   onChange={(e) => setInputVal(e.target.value)} 
-                  placeholder="Ask any question about your Dosha, symptoms, herbs, or treatments…"
+                  placeholder={
+                    selectedLang === 'mr' 
+                      ? 'येथे प्रश्न विचारा (उदा. कंबरदुखी, ऍसिडिटी, गुडघेदुखी, नाडी परीक्षा)…'
+                      : selectedLang === 'hi'
+                      ? 'यहाँ प्रश्न पूछें (उदा. कमर दर्द, एसिडिटी, घुटनों का दर्द, नाड़ी परीक्षा)…'
+                      : 'Ask any question about your Dosha, symptoms, herbs, or treatments…'
+                  }
                   disabled={loading}
                   aria-label="Ask AayuVaidya AI a question"
                 />
@@ -594,7 +758,7 @@ For any health questions, treatments, or consultation appointments with **Dr. Ma
                   disabled={loading || !inputVal.trim()}
                   aria-label="Send message"
                 >
-                  <span>Send</span>
+                  <span>{selectedLang === 'mr' ? 'पाठवा' : selectedLang === 'hi' ? 'भेजें' : 'Send'}</span>
                   <Send size={15}/>
                 </button>
               </form>
