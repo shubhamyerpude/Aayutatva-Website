@@ -13,7 +13,8 @@ import {
   generateInternalAyurvedicResponse,
   IN_CHAT_PRAKRITI_QUESTIONS,
   computeInChatPrakritiAnalysis,
-  isPrakritiQuizRequest
+  isPrakritiQuizRequest,
+  parseAyurvedicMarkdown
 } from './ayurvedicInternalEngine.ts';
 
 const whatsappPhone = '917758816074';
@@ -631,7 +632,7 @@ export function AayuVaidyaAIPage() {
                             <ul key={pIdx}>
                               {items.map((it, itIdx) => (
                                 <li key={itIdx}>
-                                  <span dangerouslySetInnerHTML={{ __html: it.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                                  <span dangerouslySetInnerHTML={{ __html: parseAyurvedicMarkdown(it) }} />
                                 </li>
                               ))}
                             </ul>
@@ -641,10 +642,7 @@ export function AayuVaidyaAIPage() {
                           <p 
                             key={pIdx} 
                             dangerouslySetInnerHTML={{ 
-                              __html: paragraph
-                                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#1b3b22;font-weight:700;text-decoration:underline;">$1</a>')
-                                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                                .replace(/\*(.*?)\*/g, '<em>$1</em>') 
+                              __html: parseAyurvedicMarkdown(paragraph)
                             }} 
                           />
                         );

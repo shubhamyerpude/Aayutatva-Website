@@ -806,6 +806,41 @@ export function isPrakritiQuizRequest(message: string): boolean {
   );
 }
 
+export function safeEncodeURIComponent(str: string): string {
+  return encodeURIComponent(str)
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/'/g, '%27')
+    .replace(/\*/g, '%2A');
+}
+
+export function parseAyurvedicMarkdown(text: string): string {
+  if (!text) return '';
+
+  // 1. Links: [label](url)
+  let html = text.replace(
+    /\[([^\]]+)\]\(((?:https?:\/\/|tel:|mailto:)[^)\s]+|[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#1b3b22;font-weight:700;text-decoration:underline;">$1</a>'
+  );
+
+  // 2. Headings: Process 4 hashes before 3 hashes so #### is not prematurely matched by ###
+  html = html.replace(/#### (.*?)(?:\n|$)/g, '<b style="display:block;margin-top:8px;margin-bottom:4px;color:#274b2a;font-size:12px">$1</b>');
+  html = html.replace(/### (.*?)(?:\n|$)/g, '<b style="display:block;margin-bottom:6px;color:#1b3b22;font-size:13px">$1</b>');
+
+  // 3. Blockquotes
+  html = html.replace(/> (.*?)(?:\n|$)/g, '<blockquote style="border-left:3px solid #2e7d32;padding-left:8px;margin:6px 0;font-style:italic;color:#3e4a3c;background:rgba(46,125,50,0.06);padding-top:3px;padding-bottom:3px">$1</blockquote>');
+
+  // 4. Bold and Italics
+  html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // 5. Linebreaks
+  html = html.replace(/\n\n/g, '<br/><br/>');
+  html = html.replace(/\n/g, '<br/>');
+
+  return html;
+}
+
 export function computeInChatPrakritiAnalysis(
   answersList: ('Vata' | 'Pitta' | 'Kapha')[],
   lang: SupportedLanguage = 'mr'
@@ -854,6 +889,8 @@ export function computeInChatPrakritiAnalysis(
       ? `**${first === 'Vata' ? 'वात' : first === 'Pitta' ? 'पित्त' : 'कफ'}-${second === 'Vata' ? 'वात' : second === 'Pitta' ? 'पित्त' : 'कफ'} द्विदोषात्मक प्रकृती**`
       : `**${first === 'Vata' ? 'वात प्रधान' : first === 'Pitta' ? 'पित्त प्रधान' : 'कफ प्रधान'} प्रकृती**`;
 
+    const waMsgMr = `नमस्कार डॉ. मनीष येरपुडे, मी एआय मध्ये प्रकृती चाचणी पूर्ण केली. माझी प्रकृती ${dominantName} - वात: ${vataPct}%, पित्त: ${pittaPct}%, कफ: ${kaphaPct}% - आली आहे. मला प्रत्यक्ष नाडी तपासणीसाठी वेळ हवी आहे.`;
+
     text = `### 🧘 आपले देह प्रकृती परीक्षण पूर्ण झाले!
 
 • **आपली शारीरिक प्रकृती**: ${prakritiTitleMr}
@@ -873,8 +910,10 @@ export function computeInChatPrakritiAnalysis(
 
 ---
 📍 **आयुतत्व आयुर्वेदिक हॉस्पिटल, भंडारा** | प्रत्यक्ष नाडी तपासा व डॉक्टरांशी चर्चा करा:
-📞 [**कॉल करा: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हॉट्सॲपवर चॅट करा**](https://wa.me/917758816074?text=${encodeURIComponent(`नमस्कार डॉ. मनीष येरपुडे, मी एआय मध्ये प्रकृती चाचणी पूर्ण केली. माझी प्रकृती ${dominantName} (वात: ${vataPct}%, पित्त: ${pittaPct}%, कफ: ${kaphaPct}%) आली आहे. मला प्रत्यक्ष नाडी तपासणीसाठी वेळ हवी आहे.` )})`;
+📞 [**कॉल करा: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हॉट्सॲपवर चॅट करा**](https://wa.me/917758816074?text=${safeEncodeURIComponent(waMsgMr)})`;
   } else if (lang === 'hi') {
+    const waMsgHi = `नमस्कार डॉ. मनीष येरपुडे, मैंने एआई में प्रकृति परीक्षण पूरा किया। मेरी प्रकृति ${dominantName} - वात: ${vataPct}%, पित्त: ${pittaPct}%, कफ: ${kaphaPct}% - आई है। मुझे नाड़ी परीक्षण हेतु परामर्श चाहिए।`;
+
     text = `### 🧘 आपका देह प्रकृति परीक्षण संपन्न हुआ!
 
 • **आपकी प्रकृति**: **${dominantName} प्रकृति**
@@ -889,8 +928,10 @@ export function computeInChatPrakritiAnalysis(
 • **${first === 'Vata' ? 'कटी बस्ती, पत्र पिंड स्वेद व अभ्यंग' : first === 'Pitta' ? 'विरेचन (लिवर डिटॉक्स) एवं तक्रधारा' : 'उद्वर्तन, वमन एवं कफ नाशक पंचकर्म'}**
 
 ---
-📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हाट्सएप पर संपर्क करें**](https://wa.me/917758816074)`;
+📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हाट्सएप पर संपर्क करें**](https://wa.me/917758816074?text=${safeEncodeURIComponent(waMsgHi)})`;
   } else {
+    const waMsgEn = `Hello Dr. Manish Yerpude, I completed the Prakriti Quiz on AayuVaidya AI. My constitution is ${dominantName} - Vata: ${vataPct}%, Pitta: ${pittaPct}%, Kapha: ${kaphaPct}% -. I would like to schedule a consultation.`;
+
     text = `### 🧘 Your Prakriti & Nadi Evaluation is Complete!
 
 • **Constitution**: **${dominantName} Predominant**
@@ -905,7 +946,7 @@ export function computeInChatPrakritiAnalysis(
 • **${first === 'Vata' ? 'Kati Basti, Patra Pinda Sweda & Herbal Snehana' : first === 'Pitta' ? 'Virechana (Liver Detox) & Shirodhara' : 'Udwarthana (Dry Scrub) & Vamana Cleansing'}**
 
 ---
-📍 **AayuTatva Ayurvedic Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](tel:+917758816074) | 💬 [**Chat on WhatsApp**](https://wa.me/917758816074)`;
+📍 **AayuTatva Ayurvedic Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](tel:+917758816074) | 💬 [**Chat on WhatsApp**](https://wa.me/917758816074?text=${safeEncodeURIComponent(waMsgEn)})`;
   }
 
   return {

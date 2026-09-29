@@ -7,7 +7,8 @@ import {
   generateInternalAyurvedicResponse,
   IN_CHAT_PRAKRITI_QUESTIONS,
   computeInChatPrakritiAnalysis,
-  isPrakritiQuizRequest
+  isPrakritiQuizRequest,
+  parseAyurvedicMarkdown
 } from './ayurvedicInternalEngine.ts';
 import './vaidya-ai.css';
 
@@ -309,15 +310,7 @@ export function AayuVaidyaWidget() {
               <div key={i} className={`vaidya-msg-row ${m.role}`} style={{ maxWidth: '96%' }}>
                 <div className="vaidya-msg-bubble" style={{ padding: '12px 14px', fontSize: '12px', lineHeight: '1.6' }}>
                   <div dangerouslySetInnerHTML={{ 
-                    __html: m.text
-                      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#1b3b22;font-weight:700;text-decoration:underline;">$1</a>')
-                      .replace(/### (.*?)\n/g, '<b style="display:block;margin-bottom:6px;color:#1b3b22;font-size:13px">$1</b>')
-                      .replace(/#### (.*?)\n/g, '<b style="display:block;margin-top:8px;margin-bottom:4px;color:#274b2a;font-size:12px">$1</b>')
-                      .replace(/> (.*?)\n/g, '<blockquote style="border-left:3px solid #2e7d32;padding-left:8px;margin:6px 0;font-style:italic;color:#3e4a3c;background:rgba(46,125,50,0.06);padding-top:3px;padding-bottom:3px">$1</blockquote>')
-                      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                      .replace(/\n\n/g, '<br/><br/>')
-                      .replace(/\n/g, '<br/>')
+                    __html: parseAyurvedicMarkdown(m.text)
                   }} />
 
                   {/* In-Chat Interactive Quiz Option Buttons */}
