@@ -619,3 +619,301 @@ export function generateInternalAyurvedicResponse(
     whatsappUrl
   };
 }
+
+export interface InChatQuizOption {
+  label: string;
+  dosha: 'Vata' | 'Pitta' | 'Kapha';
+}
+
+export interface InChatQuizQuestion {
+  id: string;
+  title: string;
+  category: string;
+  options: InChatQuizOption[];
+}
+
+export const IN_CHAT_PRAKRITI_QUESTIONS: Record<SupportedLanguage, InChatQuizQuestion[]> = {
+  mr: [
+    {
+      id: 'frame',
+      category: '१. शारीरिक बांधा व हाडे',
+      title: 'प्रश्न १/५: आपली नैसर्गिक शारीरिक रचना कशी आहे?',
+      options: [
+        { label: 'बारीक अंगकाठी, हलकी हाडे, सांधे ठळक, वजन वाढण्यास कठीण', dosha: 'Vata' },
+        { label: 'मध्यम बांधा, प्रमाणबद्ध स्नायू, योग्य आहाराने वजन नियंत्रणात', dosha: 'Pitta' },
+        { label: 'रुंद खांदे, भरभक्कम हाडे, मजबूत बांधा, वजन सहज वाढते', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'digestion',
+      category: '२. पचनशक्ती व भूक (जठराग्नी)',
+      title: 'प्रश्न २/५: दैनंदिन जीवनात आपली भूक व पचन कसे असते?',
+      options: [
+        { label: 'अनियमित भूक: कधी खूप तर कधी अजिबात नाही, गॅस व बद्धकोष्ठता', dosha: 'Vata' },
+        { label: 'तीव्र भूक: जेवणाची वेळ चुकल्यास पित्त, ऍसिडिटी व छातीत जळजळ', dosha: 'Pitta' },
+        { label: 'मंद पचन: जेवल्यानंतर पोटात जड वाटणे, वजन लवकर वाढणे', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'sleep',
+      category: '३. झोप व विश्रांती',
+      title: 'प्रश्न ३/५: रात्रीची झोप आणि स्वप्नांचे स्वरूप कसे असते?',
+      options: [
+        { label: 'हलकी व कमी झोप, थोड्या आवाजानेही जाग येणे, चंचल विचार', dosha: 'Vata' },
+        { label: 'मध्यम शांत झोप (६-७ तास), कमी झोपेतही ताजेतवाने वाटणे', dosha: 'Pitta' },
+        { label: 'गाढ व सलग झोप (८+ तास), सकाळी उठण्यास आळस वाटणे', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'weather',
+      category: '४. हवामान व तापमान सहनशीलता',
+      title: 'प्रश्न ४/५: आपल्याला कोणत्या प्रकारचे हवामान त्रासदायक वाटते?',
+      options: [
+        { label: 'थंड हवामान व गार वारा अजिबात सहन होत नाही, नेहमी ऊब आवडते', dosha: 'Vata' },
+        { label: 'उष्णता व उन्हाळा सहन होत नाही, गारवा व थंड पाणी आवडते', dosha: 'Pitta' },
+        { label: 'थंड व दमट हवामान त्रासदायक वाटते, उष्ण कोरडे वातावरण आवडते', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'mind',
+      category: '५. स्वभाव व विचार',
+      title: 'प्रश्न ५/५: ताणतणाव आल्यास आपली मानसिक प्रतिक्रिया कशी असते?',
+      options: [
+        { label: 'चंचल विचार, चिंता व काळजी लवकर वाटणे, निर्णय चटकन बदलणे', dosha: 'Vata' },
+        { label: 'तीव्र स्मरणशक्ती, महत्त्वाकांक्षी, राग लवकर येणे व शांत होणे', dosha: 'Pitta' },
+        { label: 'शांत, संयमी व सहनशील स्वभाव, सहसा राग न येणे', dosha: 'Kapha' }
+      ]
+    }
+  ],
+  hi: [
+    {
+      id: 'frame',
+      category: '1. शारीरिक बनावट एवं हड्डियां',
+      title: 'प्रश्न 1/5: आपकी प्राकृतिक शारीरिक बनावट कैसी है?',
+      options: [
+        { label: 'पतला शरीर, हल्की हड्डियां, वजन बढ़ाने में कठिनाई', dosha: 'Vata' },
+        { label: 'मध्यम शरीर, सुडौल मांसपेशियां, वजन आसानी से नियंत्रित', dosha: 'Pitta' },
+        { label: 'चौड़े कंधे, मजबूत भारी हड्डियां, वजन तेजी से बढ़ता है', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'digestion',
+      category: '2. पाचन शक्ति एवं भूख (जठराग्नि)',
+      title: 'प्रश्न 2/5: आपकी भूख और पाचन की स्थिति कैसी रहती है?',
+      options: [
+        { label: 'अनियमित भूख: कभी ज्यादा कभी बिल्कुल नहीं, गैस या कब्ज', dosha: 'Vata' },
+        { label: 'तीव्र भूख: समय पर खाना न मिले तो सिरदर्द, एसिडिटी या जलन', dosha: 'Pitta' },
+        { label: 'सुस्त पाचन: खाने के बाद भारीपन, कम खाने पर भी वजन बढ़ना', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'sleep',
+      category: '3. नींद एवं विश्राम',
+      title: 'प्रश्न 3/5: आपकी नींद की गहराई कैसी है?',
+      options: [
+        { label: 'हल्की नींद, बार-बार आंख खुलना, बेचैन सपने', dosha: 'Vata' },
+        { label: 'मध्यम शांत नींद (6-7 घंटे), ताजगी महसूस होना', dosha: 'Pitta' },
+        { label: 'गहरी भारी नींद (8+ घंटे), सुबह उठने में सुस्ती', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'weather',
+      category: '4. मौसम सहनशीलता',
+      title: 'प्रश्न 4/5: आपको किस प्रकार का मौसम असहज लगता है?',
+      options: [
+        { label: 'ठंड और ठंडी हवा बर्दाश्त नहीं होती, गर्माहट पसंद है', dosha: 'Vata' },
+        { label: 'गर्मी और धूप बिल्कुल सहन नहीं होती, ठंडा पानी व हवा पसंद', dosha: 'Pitta' },
+        { label: 'ठंडा व नम मौसम परेशान करता है, धूप व सूखा मौसम पसंद', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'mind',
+      category: '5. मानसिक स्वभाव एवं तनाव',
+      title: 'प्रश्न 5/5: तनाव के समय आपका व्यवहार कैसा होता है?',
+      options: [
+        { label: 'जल्दी चिंता होना, चंचल विचार, निर्णय तुरंत बदलना', dosha: 'Vata' },
+        { label: 'तेज बुद्धि, महत्वाकांक्षी, गुस्सा जल्दी आना व शांत होना', dosha: 'Pitta' },
+        { label: 'शांत, धैर्यवान, जल्दी गुस्सा न आने वाला स्वभाव', dosha: 'Kapha' }
+      ]
+    }
+  ],
+  en: [
+    {
+      id: 'frame',
+      category: '1. Body Frame & Bone Structure',
+      title: 'Question 1/5: What best describes your natural body structure?',
+      options: [
+        { label: 'Slim, light frame, prominent joints, hard to gain weight', dosha: 'Vata' },
+        { label: 'Medium build, athletic muscle tone, stable weight', dosha: 'Pitta' },
+        { label: 'Broad shoulders, heavy bones, solid frame, gains weight easily', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'digestion',
+      category: '2. Digestion & Appetite (Agni)',
+      title: 'Question 2/5: How is your everyday hunger and digestion?',
+      options: [
+        { label: 'Irregular appetite, bloating, gas, occasional constipation', dosha: 'Vata' },
+        { label: 'Intense hunger, irritation if meals are delayed, acid reflux', dosha: 'Pitta' },
+        { label: 'Slow digestion, heaviness after meals, sluggish metabolism', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'sleep',
+      category: '3. Sleep Quality',
+      title: 'Question 3/5: What is your typical sleep pattern?',
+      options: [
+        { label: 'Light sleep, easily awakened, active restless dreams', dosha: 'Vata' },
+        { label: 'Sound, moderate sleep (6-7 hrs), wakes up refreshed quickly', dosha: 'Pitta' },
+        { label: 'Deep heavy sleep (8+ hrs), difficult to wake up in mornings', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'weather',
+      category: '4. Climate Tolerance',
+      title: 'Question 4/5: Which climate is most uncomfortable for you?',
+      options: [
+        { label: 'Dislikes cold & dry wind; craves warmth and sun', dosha: 'Vata' },
+        { label: 'Intolerant to summer heat & humidity; seeks cool shade', dosha: 'Pitta' },
+        { label: 'Dislikes cold, damp weather; thrives in warm dry climate', dosha: 'Kapha' }
+      ]
+    },
+    {
+      id: 'mind',
+      category: '5. Temperament & Stress Response',
+      title: 'Question 5/5: How do you naturally respond to stress?',
+      options: [
+        { label: 'Quick thinker, anxious under stress, fluctuating focus', dosha: 'Vata' },
+        { label: 'Sharp intellect, ambitious, quick to anger and resolve', dosha: 'Pitta' },
+        { label: 'Calm, patient, steady, rarely gets agitated', dosha: 'Kapha' }
+      ]
+    }
+  ]
+};
+
+export function isPrakritiQuizRequest(message: string): boolean {
+  const q = (message || '').toLowerCase();
+  return (
+    q.includes('प्रकृती') ||
+    q.includes('प्रकृति') ||
+    q.includes('prakriti') ||
+    q.includes('dosha quiz') ||
+    q.includes('quiz') ||
+    q.includes('त्रिदोष') ||
+    q.includes('दोष क्विझ') ||
+    q.includes('वात पित्त') ||
+    q.includes('देह प्रकृती')
+  );
+}
+
+export function computeInChatPrakritiAnalysis(
+  answersList: ('Vata' | 'Pitta' | 'Kapha')[],
+  lang: SupportedLanguage = 'mr'
+): { reply: string; dominant: string; vata: number; pitta: number; kapha: number; pulseGati: string } {
+  let v = 0, p = 0, k = 0;
+  answersList.forEach(dosha => {
+    if (dosha === 'Vata') v++;
+    if (dosha === 'Pitta') p++;
+    if (dosha === 'Kapha') k++;
+  });
+  const total = answersList.length || 1;
+  const vataPct = Math.round((v / total) * 100);
+  const pittaPct = Math.round((p / total) * 100);
+  const kaphaPct = Math.round((k / total) * 100);
+
+  const scores = [
+    { name: 'Vata', count: v, pct: vataPct },
+    { name: 'Pitta', count: p, pct: pittaPct },
+    { name: 'Kapha', count: k, pct: kaphaPct }
+  ].sort((a, b) => b.count - a.count);
+
+  const first = scores[0].name;
+  const second = scores[1].name;
+  const isDual = scores[0].count - scores[1].count <= 1 && scores[1].count > 0;
+
+  let dominantName = isDual ? `${first}-${second}` : first;
+  let pulseGati = '';
+
+  if (dominantName.includes('Vata') && dominantName.includes('Pitta')) {
+    pulseGati = lang === 'mr' ? 'सर्प-मण्डूक गती (नागमोडी व उडी मारणारी)' : 'Sarpa-Manduka Gati (Snake & Frog rhythm)';
+  } else if (dominantName.includes('Pitta') && dominantName.includes('Kapha')) {
+    pulseGati = lang === 'mr' ? 'मण्डूक-हंस गती (उडी मारणारी व संथ)' : 'Manduka-Hamsa Gati (Frog & Swan rhythm)';
+  } else if (dominantName.includes('Vata') && dominantName.includes('Kapha')) {
+    pulseGati = lang === 'mr' ? 'सर्प-हंस गती (नागमोडी व मंद)' : 'Sarpa-Hamsa Gati (Snake & Swan rhythm)';
+  } else if (dominantName === 'Vata') {
+    pulseGati = lang === 'mr' ? 'सर्प गती (सापासारखी चपळ नागमोडी)' : 'Sarpa Gati (Serpentine wave)';
+  } else if (dominantName === 'Pitta') {
+    pulseGati = lang === 'mr' ? 'मण्डूक गती (बेडकासारखी उडी मारणारी)' : 'Manduka Gati (Leaping frog wave)';
+  } else {
+    pulseGati = lang === 'mr' ? 'हंस गती (हंसासारखी संथ व स्थिर)' : 'Hamsa Gati (Graceful swan glide)';
+  }
+
+  let text = '';
+  if (lang === 'mr') {
+    const prakritiTitleMr = isDual 
+      ? `**${first === 'Vata' ? 'वात' : first === 'Pitta' ? 'पित्त' : 'कफ'}-${second === 'Vata' ? 'वात' : second === 'Pitta' ? 'पित्त' : 'कफ'} द्विदोषात्मक प्रकृती**`
+      : `**${first === 'Vata' ? 'वात प्रधान' : first === 'Pitta' ? 'पित्त प्रधान' : 'कफ प्रधान'} प्रकृती**`;
+
+    text = `### 🧘 आपले देह प्रकृती परीक्षण पूर्ण झाले!
+
+• **आपली शारीरिक प्रकृती**: ${prakritiTitleMr}
+• **त्रिदोष प्रमाण**: वात: **${vataPct}%** | पित्त: **${pittaPct}%** | कफ: **${kaphaPct}%**
+• **शास्त्रीय नाडी गती**: **${pulseGati}**
+
+#### 🍲 आपल्या प्रकृतीनुसार हितकर आहार (काय खावे / काय टाळावे):
+• **हितकर अन्न**: ${first === 'Vata' ? 'गरम, स्निग्ध, साजूक तूप, मऊ मूग डाळ खिचडी, बदाम, खजूर, कोमट पाणी.' : first === 'Pitta' ? 'थंड गुणधर्माचे अन्न, डाळिंब, आवळा, नारळ पाणी, ताज्या भाज्या, धणे-जिरे पाणी.' : 'हलके, उष्ण व रुक्ष अन्न, ज्वारी-बाजरी, सुंठ पाणी, कारले, उकडलेल्या भाज्या.'}
+• **काय टाळावे**: ${first === 'Vata' ? 'कच्च्या थंड कोशिंबिरी, कोरडे फरसाण, रात्रीचे जागरण व शिळे अन्न.' : first === 'Pitta' ? 'अति तिखट, मसालेदार, तळलेले पदार्थ, लोणचे, चहा व उन्हात फिरणे.' : 'गोड पदार्थ, मिठाई, रात्रीचे दही, तेलकट अन्न व दिवसा झोपणे.'}
+
+#### 🌿 दैनंदिन दिनचर्या व नियम:
+• नियमित वेळेवर जेवण घ्यावे व पोटाचा १/३ भाग नेहमी रिकामा ठेवावा.
+• रात्री १०:३० पूर्वी झोपावे; झोपण्यापूर्वी तळपायांना कोमट तेलाने मसाज (*पादाभ्यंग*) करावा.
+
+#### 🌸 हॉस्पिटलमधील शिफारस केलेले पंचकर्म:
+• **${first === 'Vata' ? 'कटी बस्ती, पत्रपिंड स्वेद व स्नेहन' : first === 'Pitta' ? 'विरेचन (लिव्हर डिटॉक्स) व तिक्त घृत' : 'वमन, उद्वर्तन (पावडर मसाज) व कफ नाशन'}**
+
+---
+📍 **आयुतत्व आयुर्वेदिक हॉस्पिटल, भंडारा** | प्रत्यक्ष नाडी तपासा व डॉक्टरांशी चर्चा करा:
+📞 [**कॉल करा: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हॉट्सॲपवर चॅट करा**](https://wa.me/917758816074?text=${encodeURIComponent(`नमस्कार डॉ. मनीष येरपुडे, मी एआय मध्ये प्रकृती चाचणी पूर्ण केली. माझी प्रकृती ${dominantName} (वात: ${vataPct}%, पित्त: ${pittaPct}%, कफ: ${kaphaPct}%) आली आहे. मला प्रत्यक्ष नाडी तपासणीसाठी वेळ हवी आहे.` )})`;
+  } else if (lang === 'hi') {
+    text = `### 🧘 आपका देह प्रकृति परीक्षण संपन्न हुआ!
+
+• **आपकी प्रकृति**: **${dominantName} प्रकृति**
+• **त्रिदोष अनुपात**: वात: **${vataPct}%** | पित्त: **${pittaPct}%** | कफ: **${kaphaPct}%**
+• **नाड़ी गति**: **${pulseGati}**
+
+#### 🍲 आहार एवं परहेज:
+• **हितकर**: ताजा गर्म भोजन, 1 चम्मच गाय का घी, मूंग दाल, गुनगुना पानी।
+• **परहेज**: अत्यधिक तीखा, तला हुआ, बासी भोजन व दिन में सोना वर्जित है।
+
+#### 🌸 शिफारिश किए गए पंचकर्म:
+• **${first === 'Vata' ? 'कटी बस्ती, पत्र पिंड स्वेद व अभ्यंग' : first === 'Pitta' ? 'विरेचन (लिवर डिटॉक्स) एवं तक्रधारा' : 'उद्वर्तन, वमन एवं कफ नाशक पंचकर्म'}**
+
+---
+📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](tel:+917758816074) | 💬 [**व्हाट्सएप पर संपर्क करें**](https://wa.me/917758816074)`;
+  } else {
+    text = `### 🧘 Your Prakriti & Nadi Evaluation is Complete!
+
+• **Constitution**: **${dominantName} Predominant**
+• **Tridosha Proportion**: Vata: **${vataPct}%** | Pitta: **${pittaPct}%** | Kapha: **${kaphaPct}%**
+• **Classical Pulse Rhythm**: **${pulseGati}**
+
+#### 🍲 Ahara (Dietary Rules):
+• **Favor**: Warm, fresh meals with 1 tsp pure cow ghee, steamed greens, warm cumin water.
+• **Avoid**: Excess dry snacks, stale food, deep-fried items, late-night dinners.
+
+#### 🌸 Recommended Panchakarma:
+• **${first === 'Vata' ? 'Kati Basti, Patra Pinda Sweda & Herbal Snehana' : first === 'Pitta' ? 'Virechana (Liver Detox) & Shirodhara' : 'Udwarthana (Dry Scrub) & Vamana Cleansing'}**
+
+---
+📍 **AayuTatva Ayurvedic Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](tel:+917758816074) | 💬 [**Chat on WhatsApp**](https://wa.me/917758816074)`;
+  }
+
+  return {
+    reply: text,
+    dominant: dominantName,
+    vata: vataPct,
+    pitta: pittaPct,
+    kapha: kaphaPct,
+    pulseGati
+  };
+}

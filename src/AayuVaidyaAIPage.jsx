@@ -9,7 +9,12 @@ import './subpages.css';
 import './portal.css';
 import './vaidya-ai.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
-import { generateInternalAyurvedicResponse } from './ayurvedicInternalEngine.ts';
+import { 
+  generateInternalAyurvedicResponse,
+  IN_CHAT_PRAKRITI_QUESTIONS,
+  computeInChatPrakritiAnalysis,
+  isPrakritiQuizRequest
+} from './ayurvedicInternalEngine.ts';
 
 const whatsappPhone = '917758816074';
 
@@ -236,10 +241,96 @@ export function AayuVaidyaAIPage() {
     }
   }, [messages, activeTab]);
 
+  const [inChatQuizStep, setInChatQuizStep] = useState(null);
+  const [inChatQuizAnswers, setInChatQuizAnswers] = useState([]);
+
+  const startInChatQuiz = () => {
+    setActiveTab('chat');
+    setInChatQuizStep(0);
+    setInChatQuizAnswers([]);
+    const qList = IN_CHAT_PRAKRITI_QUESTIONS[selectedLang] || IN_CHAT_PRAKRITI_QUESTIONS.mr;
+    const q1 = qList[0];
+
+    const introText = selectedLang === 'mr'
+      ? `### 🧘 शास्त्रीय देह प्रकृती परीक्षण (Prakriti Quiz)\nखालील ५ सोप्या प्रश्नांची उत्तरे देऊन आपली वात, पित्त, कफ देह रचना व नाडी गती त्वरित जाणून घ्या:\n\n**${q1.title}**`
+      : selectedLang === 'hi'
+      ? `### 🧘 शास्त्रीय देह प्रकृति परीक्षण (Prakriti Quiz)\nकृपया नीचे दिए गए 5 प्रश्नों के उत्तर देकर अपनी त्रिदोष प्रकृति व नाड़ी गति जानें:\n\n**${q1.title}**`
+      : `### 🧘 Classical Prakriti Quiz (Know Your Dosha)\nAnswer 5 diagnostic questions to discover your Tridosha constitution and radial pulse:\n\n**${q1.title}**`;
+
+    setMessages(prev => [
+      ...prev,
+      {
+        role: 'assistant',
+        text: introText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        quizQuestion: q1,
+        quizStep: 0
+      }
+    ]);
+  };
+
+  const handleInChatQuizOptionSelect = (option, currentStep) => {
+    const qList = IN_CHAT_PRAKRITI_QUESTIONS[selectedLang] || IN_CHAT_PRAKRITI_QUESTIONS.mr;
+    const newAnswers = [...inChatQuizAnswers, option.dosha];
+    setInChatQuizAnswers(newAnswers);
+
+    const userSelectedMsg = {
+      role: 'user',
+      text: `${selectedLang === 'mr' ? 'माझी निवड' : selectedLang === 'hi' ? 'मेरी पसंद' : 'Selected'}: ${option.label}`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const nextStep = currentStep + 1;
+    if (nextStep < qList.length) {
+      setInChatQuizStep(nextStep);
+      const nextQ = qList[nextStep];
+      const assistantQMsg = {
+        role: 'assistant',
+        text: `**${nextQ.title}**`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        quizQuestion: nextQ,
+        quizStep: nextStep
+      };
+      setMessages(prev => [...prev, userSelectedMsg, assistantQMsg]);
+    } else {
+      setInChatQuizStep(null);
+      const analysis = computeInChatPrakritiAnalysis(newAnswers, selectedLang);
+      const resultMsg = {
+        role: 'assistant',
+        text: analysis.reply,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isQuizComplete: true
+      };
+      setMessages(prev => [...prev, userSelectedMsg, resultMsg]);
+      setUserDoshaProfile({
+        dominant: analysis.dominant,
+        vata: analysis.vata,
+        pitta: analysis.pitta,
+        kapha: analysis.kapha,
+        pulseGati: analysis.pulseGati
+      });
+    }
+  };
+
   // Send message to AI
   const handleSendMessage = async (textToSend = inputVal) => {
     const trimmed = textToSend.trim();
     if (!trimmed || loading) return;
+
+    // Check if user is asking for Prakriti Quiz
+    if (isPrakritiQuizRequest(trimmed)) {
+      const userMsg = {
+        role: 'user',
+        text: trimmed,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, userMsg]);
+      setInputVal('');
+      setTimeout(() => {
+        startInChatQuiz();
+      }, 150);
+      return;
+    }
 
     const userMsg = {
       role: 'user',
@@ -559,6 +650,62 @@ export function AayuVaidyaAIPage() {
                         );
                       })}
 
+                      {/* In-Chat Interactive Quiz Option Buttons */}
+                      {m.quizQuestion && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '14px' }}>
+                          {m.quizQuestion.options.map((opt, optIdx) => (
+                            <button
+                              key={optIdx}
+                              type="button"
+                              onClick={() => handleInChatQuizOptionSelect(opt, m.quizStep)}
+                              style={{
+                                background: '#ffffff',
+                                border: '1.5px solid #2e5939',
+                                borderRadius: '10px',
+                                padding: '12px 16px',
+                                textAlign: 'left',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                color: '#1b3b22',
+                                cursor: 'pointer',
+                                boxShadow: '0 2px 6px rgba(27,59,34,0.06)',
+                                transition: 'all 0.2s ease',
+                                lineHeight: '1.5'
+                              }}
+                            >
+                              <span style={{ display: 'inline-block', marginRight: '8px', color: '#2e7d32', fontWeight: 'bold' }}>
+                                •
+                              </span>
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {m.isQuizComplete && (
+                        <div style={{ marginTop: '14px' }}>
+                          <button
+                            type="button"
+                            onClick={startInChatQuiz}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              background: '#f4f9f4',
+                              border: '1.5px solid #2e5939',
+                              color: '#1b3b22',
+                              padding: '8px 16px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <RotateCcw size={14} /> {selectedLang === 'mr' ? 'पुन्हा प्रकृती क्विझ द्या' : selectedLang === 'hi' ? 'दोबारा प्रकृति क्विज दें' : 'Retake Prakriti Quiz'}
+                          </button>
+                        </div>
+                      )}
+
                       {m.role === 'assistant' && (
                         <div style={{ display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap' }}>
                           <a 
@@ -627,6 +774,14 @@ export function AayuVaidyaAIPage() {
                     <button 
                       type="button" 
                       className="vaidya-chip" 
+                      style={{ background: '#1b3b22', color: '#ffffff', fontWeight: '700', borderColor: '#1b3b22' }}
+                      onClick={startInChatQuiz}
+                    >
+                      <Activity size={13} color="#ffffff"/> 🧘 प्रकृती क्विझ (Prakriti Quiz)
+                    </button>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
                       onClick={() => handleSendMessage('नाडी परीक्षा कशी करतात व शरीरातील दोष कसे ओळखतात?')}
                     >
                       <Activity size={13} color="#2e7d32"/> 🩺 नाडी परीक्षा कशी करतात?
@@ -652,16 +807,17 @@ export function AayuVaidyaAIPage() {
                     >
                       <Droplets size={13} color="#0284c7"/> 🌸 ५ शास्त्रीय पंचकर्म पद्धती
                     </button>
-                    <button 
-                      type="button" 
-                      className="vaidya-chip" 
-                      onClick={() => handleSendMessage('आयुतत्व हॉस्पिटलमध्ये १००% कॅशलेस मेडिक्लेम विमा सुविधा कशी मिळते?')}
-                    >
-                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 १००% कॅशलेस मेडिक्लेम विमा
-                    </button>
                   </>
                 ) : selectedLang === 'hi' ? (
                   <>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      style={{ background: '#1b3b22', color: '#ffffff', fontWeight: '700', borderColor: '#1b3b22' }}
+                      onClick={startInChatQuiz}
+                    >
+                      <Activity size={13} color="#ffffff"/> 🧘 प्रकृति क्विज (Prakriti Quiz)
+                    </button>
                     <button 
                       type="button" 
                       className="vaidya-chip" 
@@ -683,23 +839,17 @@ export function AayuVaidyaAIPage() {
                     >
                       <Leaf size={13} color="#9c7852"/> 🍲 प्रकृति अनुसार आहार नियम
                     </button>
-                    <button 
-                      type="button" 
-                      className="vaidya-chip" 
-                      onClick={() => handleSendMessage('5 शास्त्रीय पंचकर्म कौन से हैं और कैसे काम करते हैं?')}
-                    >
-                      <Droplets size={13} color="#0284c7"/> 🌸 5 शास्त्रीय पंचकर्म
-                    </button>
-                    <button 
-                      type="button" 
-                      className="vaidya-chip" 
-                      onClick={() => handleSendMessage('आयुतत्व हॉस्पिटल में 100% कैशलेस मेडिक्लेम बीमा कैसे मिलता है?')}
-                    >
-                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 100% कैशलेस मेडिक्लेम
-                    </button>
                   </>
                 ) : (
                   <>
+                    <button 
+                      type="button" 
+                      className="vaidya-chip" 
+                      style={{ background: '#1b3b22', color: '#ffffff', fontWeight: '700', borderColor: '#1b3b22' }}
+                      onClick={startInChatQuiz}
+                    >
+                      <Activity size={13} color="#ffffff"/> 🧘 Prakriti Quiz (Know Dosha)
+                    </button>
                     <button 
                       type="button" 
                       className="vaidya-chip" 
@@ -720,20 +870,6 @@ export function AayuVaidyaAIPage() {
                       onClick={() => handleSendMessage('What diet and foods (Ahara) should I follow to balance acidity, joint pain, and sluggish metabolism?')}
                     >
                       <Leaf size={13} color="#9c7852"/> 🍲 Diet (Ahara) Guidelines
-                    </button>
-                    <button 
-                      type="button" 
-                      className="vaidya-chip" 
-                      onClick={() => handleSendMessage('What are the five authentic Panchakarma cleansing therapies and who needs them?')}
-                    >
-                      <Droplets size={13} color="#0284c7"/> 🌸 5 Panchakarma Cleanses
-                    </button>
-                    <button 
-                      type="button" 
-                      className="vaidya-chip" 
-                      onClick={() => handleSendMessage('How does 100% cashless mediclaim health insurance work at AayuTatva Hospital in Bhandara?')}
-                    >
-                      <ShieldCheck size={13} color="#1b3b22"/> 🏥 Cashless Insurance Desk
                     </button>
                   </>
                 )}
@@ -801,9 +937,9 @@ export function AayuVaidyaAIPage() {
                     <button 
                       type="button"
                       className="vaidya-sidebar-btn" 
-                      onClick={() => setActiveTab('quiz')}
+                      onClick={startInChatQuiz}
                     >
-                      <span>Start Dosha & Nadi Quiz</span>
+                      <span>Start In-Chat Prakriti Quiz</span>
                       <ArrowRight size={14}/>
                     </button>
                   </div>
