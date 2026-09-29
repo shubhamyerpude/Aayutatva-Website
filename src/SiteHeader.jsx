@@ -58,21 +58,12 @@ export function SiteHeader({ breadcrumb = null }) {
           <a href="/treatments.html" onClick={() => setMenuOpen(false)}>Our Specialities</a>
           <a href="/facilities.html" onClick={() => setMenuOpen(false)}>Hospital & IPD</a>
           <a href="/insurance.html" onClick={() => setMenuOpen(false)}>Cashless Insurance</a>
-          <a href="/vaidya-ai.html" onClick={() => setMenuOpen(false)}>AayuVaidya AI & Quiz</a>
           <a href="/#booking" className="nav-book" onClick={() => setMenuOpen(false)}>
             Book Appointment <ArrowUpRight size={15}/>
           </a>
         </nav>
 
         <div className="header-right">
-          <a
-            href="/vaidya-ai.html"
-            className="hidden sm:inline-flex items-center gap-1.5 bg-[#1B3B22] text-[#E7C697] hover:bg-[#284e31] border border-[#D4A373]/40 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition-transform hover:scale-105 cursor-pointer"
-            style={{ textDecoration: 'none' }}
-          >
-            <Sparkles size={13} className="text-[#D4A373]"/>
-            <span>AayuVaidya AI 🌿</span>
-          </a>
           <a href={`tel:${phonePrimary}`} className="phone-head" aria-label="Call clinic at +91 77588 16074">
             <Phone size={16}/><span>Call Clinic</span>
           </a>
