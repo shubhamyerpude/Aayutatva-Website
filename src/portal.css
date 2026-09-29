@@ -1,0 +1,450 @@
+/* Modern hospital web portal upgrade styling */
+
+/* Floating Top Announcement Bar */
+.top-portal-bar {
+  background: #142a19;
+  color: #d6e2d1;
+  font-size: 11px;
+  padding: 8px 7.4%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.top-portal-bar-left, .top-portal-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.top-portal-bar a {
+  color: #f1ebd8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.top-portal-bar a:hover {
+  color: #d4a373;
+}
+.top-portal-chip {
+  background: rgba(212, 163, 115, 0.15);
+  color: #dfba8c;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Quick Action Portal Strip */
+.portal-quick-strip {
+  background: #ffffff;
+  border-bottom: 1px solid #e7e2d4;
+  padding: 14px 7.4%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(27, 59, 34, 0.03);
+}
+.portal-quick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #efebe2;
+  background: #faf8f3;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.portal-quick-item:hover {
+  background: #ffffff;
+  border-color: #1b3b22;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(27, 59, 34, 0.06);
+}
+.portal-quick-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #edf1e8;
+  color: #1b3b22;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.portal-quick-info b {
+  display: block;
+  font-size: 12px;
+  color: #1b3b22;
+  font-weight: 600;
+}
+.portal-quick-info span {
+  display: block;
+  font-size: 11px;
+  color: #6a7364;
+}
+
+/* NABH & Cashless Insurance Hero Banner Bar */
+.nabh-cashless-banner {
+  background: #ffffff;
+  border: 1px solid #e5dfd2;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 30px rgba(27, 59, 34, 0.04);
+  margin: 30px 0 0;
+}
+.nabh-cashless-items {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.nabh-unit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nabh-unit img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+.nabh-unit-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #edf2eb;
+  color: #2b6127;
+  display: grid;
+  place-items: center;
+}
+.nabh-text small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #8c8f85;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.nabh-text b {
+  font: 500 14px 'Playfair Display', serif;
+  color: #1b3b22;
+}
+
+/* Minimal Doctor Cards */
+.doctor-cards-minimal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.doctor-card-min {
+  background: #ffffff;
+  border: 1px solid #eae5d7;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.035);
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.doctor-card-min:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(27, 59, 34, 0.08);
+}
+.doctor-card-min-photo {
+  height: 100%;
+  min-height: 220px;
+  background: #e9ece4;
+  position: relative;
+  overflow: hidden;
+}
+.doctor-card-min-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+}
+.doctor-card-min-details {
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.doctor-min-kicker {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: #9c7b55;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.doctor-card-min-details h3 {
+  font: 500 24px 'Playfair Display', serif;
+  color: #1b3b22;
+  margin: 0 0 6px;
+}
+.doctor-min-deg {
+  font-size: 11px;
+  color: #727a6d;
+  margin-bottom: 4px;
+}
+.doctor-min-reg {
+  font-size: 10px;
+  color: #9da096;
+  margin-bottom: 12px;
+}
+.doctor-min-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.doctor-min-specialties span {
+  font-size: 10px;
+  background: #f1ede3;
+  color: #4b5847;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* Compact Specialities Grid (Fast Readability List) */
+.specialities-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.speciality-compact-card {
+  background: #ffffff;
+  border: 1px solid #ebe6da;
+  border-radius: 12px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.speciality-compact-card:hover {
+  border-color: #1b3b22;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(27, 59, 34, 0.07);
+}
+.speciality-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.speciality-compact-top span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #a7825b;
+}
+.speciality-compact-top svg {
+  color: #1b3b22;
+}
+.speciality-compact-card h3 {
+  font: 500 18px 'Playfair Display', serif;
+  color: #1b3b22;
+  margin: 0 0 8px;
+}
+.speciality-compact-card p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #667062;
+  margin: 0 0 14px;
+  flex: 1;
+}
+.speciality-compact-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1b3b22;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Mobile Sticky Bottom Action Bar */
+.mobile-bottom-bar {
+  display: none;
+}
+@media (max-width: 760px) {
+  .mobile-bottom-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #e5dfd2;
+    z-index: 99;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  }
+  .mobile-bar-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    color: #4b5849;
+    border-right: 1px solid #f0ecdf;
+    padding: 0 4px;
+  }
+  .mobile-bar-btn:last-child {
+    border-right: none;
+  }
+  .mobile-bar-btn.active, .mobile-bar-btn:active {
+    color: #1b3b22;
+    background: #f7f9f5;
+  }
+  .mobile-bar-btn.cta {
+    background: #1b3b22;
+    color: #ffffff;
+    flex: 1.25;
+  }
+  .mobile-bar-btn.whatsapp {
+    color: #2e7d32;
+  }
+  body {
+    padding-bottom: 64px;
+  }
+  .whatsapp {
+    bottom: 74px !important;
+  }
+  .top-portal-bar {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    font-size: 10px;
+    padding: 8px clamp(16px, 5vw, 24px);
+  }
+  .top-portal-bar-left, .top-portal-bar-right {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .portal-quick-strip {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px clamp(16px, 5vw, 24px);
+  }
+  .nabh-cashless-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(14px, 4vw, 18px);
+    gap: 14px;
+    width: 100%;
+  }
+  .nabh-cashless-items {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+  .doctor-cards-minimal {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .doctor-card-min {
+    grid-template-columns: 1fr;
+  }
+  .doctor-card-min-photo {
+    height: 230px;
+  }
+  .specialities-compact-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .specialities-compact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .portal-quick-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Dosha & Nadi Quiz Teaser Banner */
+.dosha-quiz-teaser-section {
+  padding: 60px 7.4%;
+  background: #fdfbf7;
+  border-top: 1px solid #ede8dc;
+  border-bottom: 1px solid #ede8dc;
+}
+.dosha-quiz-teaser-card {
+  background: #ffffff;
+  border: 1px solid #e7e1d2;
+  border-radius: 16px;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 36px;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+@media (max-width: 900px) {
+  .dosha-quiz-teaser-section {
+    padding: clamp(44px, 7vw, 60px) clamp(16px, 5vw, 24px);
+  }
+  .dosha-quiz-teaser-card {
+    grid-template-columns: 1fr;
+    padding: clamp(20px, 4vw, 28px);
+    gap: 20px;
+  }
+}
+
+/* Breadcrumb Navigation for All Subpages */
+.site-breadcrumbs {
+  background: #f6f3eb;
+  border-bottom: 1px solid #e6e0d2;
+  padding: 10px 7.4%;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .site-breadcrumbs {
+    padding: 10px clamp(16px, 5vw, 24px);
+  }
+}
+.breadcrumbs-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #647363;
+  flex-wrap: wrap;
+}
+.crumb-link {
+  color: #1b3b22;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+.crumb-link:hover {
+  color: #9e7f59;
+  text-decoration: underline;
+}
+.crumb-arrow {
+  color: #a4b0a2;
+}
+.crumb-active {
+  color: #7a6a58;
+  font-weight: 500;
+}
+

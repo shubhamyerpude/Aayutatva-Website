@@ -1,0 +1,7 @@
+{
+  "name": "AayuTatva Ayurvedic Hospital",
+  "description": "Personalized Ayurvedic care and Panchakarma at AayuTatva Hospital, Bhandara, directed by Dr. Manish Santosh Yerpude.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

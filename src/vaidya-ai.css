@@ -1,0 +1,859 @@
+/* ========================================================
+   AAYUVAIDYA AI: AYURVEDIC CLINICAL & WELLNESS ASSISTANT
+   Styling for Dedicated Page, Interactive Chat, FAQs,
+   Dosha/Nadi Quiz Integration & Floating Assistant
+   ======================================================== */
+
+.vaidya-page {
+  min-height: 100vh;
+  background: #fdfbf7;
+  color: #1b3b22;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.vaidya-hero {
+  background: radial-gradient(circle at 85% 20%, rgba(200, 218, 192, 0.45), transparent 45%),
+              linear-gradient(180deg, #f2efe4 0%, #faf8f2 100%);
+  padding: 48px 7.4% 36px;
+  border-bottom: 1px solid #e7e2d4;
+  position: relative;
+}
+
+.vaidya-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.vaidya-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #dcd5c4;
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #274b2a;
+  box-shadow: 0 2px 8px rgba(27, 59, 34, 0.04);
+}
+
+.vaidya-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #2e7d32;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(46, 125, 50, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+}
+
+.vaidya-doctor-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #687364;
+}
+
+.vaidya-doctor-credit b {
+  color: #1b3b22;
+}
+
+.vaidya-hero-headline {
+  max-width: 820px;
+}
+
+.vaidya-overline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #9c7852;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.vaidya-hero h1 {
+  font: 400 clamp(30px, 4.2vw, 48px)/1.15 Georgia, 'Playfair Display', serif;
+  color: #1b3b22;
+  margin: 0 0 14px;
+}
+
+.vaidya-hero h1 em {
+  color: #9e7f59;
+  font-style: italic;
+}
+
+.vaidya-hero-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #536252;
+  max-width: 680px;
+  margin: 0 0 24px;
+}
+
+/* Nav Tabs */
+.vaidya-nav-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.vaidya-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 99px;
+  border: 1px solid #dfd8c7;
+  background: #ffffff;
+  color: #3b503d;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.vaidya-tab-btn:hover {
+  background: #f4ede0;
+  border-color: #c9bc9e;
+  color: #1b3b22;
+}
+
+.vaidya-tab-btn.active {
+  background: #1b3b22;
+  border-color: #1b3b22;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(27, 59, 34, 0.18);
+}
+
+.vaidya-tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  margin-left: 2px;
+}
+
+.vaidya-tab-btn:not(.active) .vaidya-tab-badge {
+  background: #ece7db;
+  color: #687364;
+}
+
+/* Main Content Container */
+.vaidya-main-container {
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 5% 60px;
+  flex: 1;
+}
+
+/* ========================================================
+   CHAT CONTAINER & MESSAGES
+   ======================================================== */
+.vaidya-chat-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.vaidya-chat-box {
+  background: #ffffff;
+  border: 1px solid #e5ded0;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(27, 59, 34, 0.04);
+  display: flex;
+  flex-direction: column;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+.vaidya-chat-header {
+  padding: 16px 22px;
+  background: #fbf9f4;
+  border-bottom: 1px solid #eee8dc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vaidya-chat-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vaidya-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1b3b22;
+  color: #d7b588;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(27, 59, 34, 0.15);
+}
+
+.vaidya-chat-title b {
+  display: block;
+  font-size: 14px;
+  color: #1b3b22;
+}
+
+.vaidya-chat-title small {
+  display: block;
+  font-size: 11px;
+  color: #727e70;
+}
+
+.vaidya-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vaidya-action-btn-sm {
+  background: #ffffff;
+  border: 1px solid #dcd4c3;
+  color: #556253;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.vaidya-action-btn-sm:hover {
+  background: #f6f1e7;
+  color: #1b3b22;
+  border-color: #baa98d;
+}
+
+/* Messages Scrollable Area */
+.vaidya-messages-area {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 560px;
+  scroll-behavior: smooth;
+  background: #faf8f2;
+}
+
+.vaidya-msg-row {
+  display: flex;
+  gap: 12px;
+  max-width: 88%;
+}
+
+.vaidya-msg-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.vaidya-msg-row.assistant {
+  align-self: flex-start;
+}
+
+.vaidya-msg-bubble {
+  padding: 16px 20px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.vaidya-msg-row.user .vaidya-msg-bubble {
+  background: #1b3b22;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(27, 59, 34, 0.15);
+}
+
+.vaidya-msg-row.assistant .vaidya-msg-bubble {
+  background: #ffffff;
+  color: #273729;
+  border: 1px solid #e7e0d3;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.vaidya-msg-bubble h3 {
+  font: 500 17px Georgia, serif;
+  color: #1b3b22;
+  margin: 4px 0 10px;
+}
+
+.vaidya-msg-bubble h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7a5c37;
+  margin: 12px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vaidya-msg-bubble p {
+  margin: 0 0 10px;
+}
+
+.vaidya-msg-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.vaidya-msg-bubble ul, .vaidya-msg-bubble ol {
+  margin: 6px 0 12px 18px;
+  padding: 0;
+}
+
+.vaidya-msg-bubble li {
+  margin-bottom: 6px;
+}
+
+.vaidya-msg-bubble blockquote {
+  border-left: 3px solid #b8986c;
+  margin: 10px 0;
+  padding: 8px 14px;
+  background: #fbf8f0;
+  font-style: italic;
+  color: #4a5448;
+  border-radius: 0 8px 8px 0;
+}
+
+.vaidya-msg-time {
+  display: block;
+  font-size: 10px;
+  margin-top: 6px;
+  opacity: 0.75;
+}
+
+.vaidya-typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-style: italic;
+  color: #727e70;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e7e0d3;
+  border-radius: 14px;
+  width: fit-content;
+}
+
+.vaidya-typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.vaidya-typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: #99ab94;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out;
+}
+
+.vaidya-typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.vaidya-typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Prompt Chips */
+.vaidya-chips-tray {
+  padding: 12px 20px;
+  background: #fcfbfa;
+  border-top: 1px solid #eee8dc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vaidya-chips-tray::-webkit-scrollbar {
+  display: none;
+}
+
+.vaidya-chip {
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #ddd6c6;
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: #3b4e3c;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.vaidya-chip:hover {
+  background: #f1ede2;
+  border-color: #bfae90;
+  color: #1b3b22;
+  transform: translateY(-1px);
+}
+
+/* Input Form */
+.vaidya-chat-input-bar {
+  padding: 16px 20px;
+  background: #ffffff;
+  border-top: 1px solid #e9e3d6;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.vaidya-chat-input-bar input {
+  flex: 1;
+  height: 48px;
+  border: 1px solid #dcd4c3;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 13px;
+  background: #fcfbf8;
+  color: #1b3b22;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.vaidya-chat-input-bar input:focus {
+  border-color: #1b3b22;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(27, 59, 34, 0.1);
+}
+
+.vaidya-send-btn {
+  height: 48px;
+  padding: 0 20px;
+  background: #1b3b22;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.vaidya-send-btn:hover:not(:disabled) {
+  background: #2a5534;
+  transform: translateY(-1px);
+}
+
+.vaidya-send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Sidebar / Quick Insights */
+.vaidya-chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vaidya-sidebar-card {
+  background: #ffffff;
+  border: 1px solid #e6dfd1;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(27, 59, 34, 0.03);
+}
+
+.vaidya-sidebar-card h4 {
+  font: 500 16px Georgia, serif;
+  color: #1b3b22;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vaidya-sidebar-card p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #556254;
+  margin: 0 0 14px;
+}
+
+.vaidya-sidebar-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vaidya-sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f7f4ed;
+  border: 1px solid #e3dcce;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1b3b22;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vaidya-sidebar-btn:hover {
+  background: #eee8da;
+  border-color: #c9bda5;
+}
+
+/* ========================================================
+   PREDEFINED FAQS SECTION
+   ======================================================== */
+.vaidya-faqs-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 32px;
+}
+
+.vaidya-faqs-header h2 {
+  font: 400 clamp(26px, 3.5vw, 36px)/1.2 Georgia, serif;
+  color: #1b3b22;
+  margin: 10px 0 12px;
+}
+
+.vaidya-faqs-header p {
+  font-size: 13px;
+  line-height: 1.75;
+  color: #616e60;
+}
+
+/* Search bar */
+.vaidya-faq-search-wrap {
+  max-width: 580px;
+  margin: 0 auto 28px;
+  position: relative;
+}
+
+.vaidya-faq-search-wrap input {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #dcd4c3;
+  border-radius: 99px;
+  padding: 0 20px 0 46px;
+  font-size: 13px;
+  background: #ffffff;
+  color: #1b3b22;
+  outline: none;
+  box-shadow: 0 4px 16px rgba(27, 59, 34, 0.04);
+}
+
+.vaidya-faq-search-wrap svg {
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  color: #928b7e;
+}
+
+/* Categories */
+.vaidya-faq-categories {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.vaidya-faq-cat-pill {
+  padding: 8px 16px;
+  border-radius: 99px;
+  border: 1px solid #dfd8c7;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5e4c;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vaidya-faq-cat-pill:hover {
+  background: #f4eee2;
+}
+
+.vaidya-faq-cat-pill.active {
+  background: #1b3b22;
+  color: #ffffff;
+  border-color: #1b3b22;
+}
+
+/* FAQ Accordion List */
+.vaidya-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.vaidya-faq-card {
+  background: #ffffff;
+  border: 1px solid #e7e0d3;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.vaidya-faq-card:hover {
+  box-shadow: 0 6px 20px rgba(27, 59, 34, 0.05);
+}
+
+.vaidya-faq-trigger {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 18px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1b3b22;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.vaidya-faq-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #9c7852;
+  background: #f6f1e5;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.vaidya-faq-body {
+  padding: 0 22px 20px;
+  border-top: 1px solid #f1ece1;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #4f5d4e;
+}
+
+.vaidya-faq-body p {
+  margin: 12px 0;
+}
+
+.vaidya-faq-body-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.vaidya-ask-this-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eaf1e7;
+  color: #234726;
+  border: 1px solid #c9dec4;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.vaidya-ask-this-btn:hover {
+  background: #1b3b22;
+  color: #ffffff;
+  border-color: #1b3b22;
+}
+
+/* ========================================================
+   FLOATING WIDGET
+   ======================================================== */
+.vaidya-floating-trigger {
+  position: fixed;
+  bottom: 84px;
+  right: 22px;
+  z-index: 990;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1b3b22;
+  color: #ffffff;
+  border: 1px solid #d4c5a9;
+  border-radius: 99px;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(27, 59, 34, 0.28);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vaidya-floating-trigger:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: #254d2e;
+  box-shadow: 0 12px 30px rgba(27, 59, 34, 0.35);
+}
+
+.vaidya-floating-trigger .spark-icon {
+  color: #e5c38d;
+}
+
+.vaidya-floating-modal {
+  position: fixed;
+  bottom: 24px;
+  right: 22px;
+  width: min(440px, 94vw);
+  height: min(620px, 86vh);
+  background: #ffffff;
+  border: 1px solid #ddd5c4;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vaidya-modal-head {
+  padding: 14px 18px;
+  background: #1b3b22;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vaidya-modal-head h3 {
+  font: 500 15px Georgia, serif;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vaidya-modal-head button {
+  background: none;
+  border: none;
+  color: #e3dccd;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Disclaimer Banner */
+.vaidya-disclaimer-band {
+  background: #f3efe6;
+  border-top: 1px solid #e7e0d3;
+  padding: 14px 20px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #657164;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.vaidya-disclaimer-band svg {
+  flex-shrink: 0;
+  color: #9c7852;
+  margin-top: 2px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 900px) {
+  .vaidya-chat-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .vaidya-hero {
+    padding: clamp(32px, 6vw, 44px) clamp(16px, 5vw, 24px) 24px;
+  }
+  .vaidya-main-container {
+    padding: 24px clamp(16px, 5vw, 24px) 50px;
+  }
+  .vaidya-msg-row {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .vaidya-floating-trigger span {
+    display: none;
+  }
+  .vaidya-floating-trigger {
+    padding: 12px;
+    border-radius: 50%;
+    bottom: 74px;
+    right: 16px;
+  }
+  .vaidya-modal-window {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 80px;
+    height: min(580px, 82vh);
+  }
+  .vaidya-chat-box {
+    min-height: 500px;
+    border-radius: 14px;
+  }
+  .vaidya-nav-tabs {
+    gap: 8px;
+  }
+  .vaidya-tab-btn {
+    padding: 8px 14px;
+    font-size: 11px;
+    min-height: 40px;
+  }
+}

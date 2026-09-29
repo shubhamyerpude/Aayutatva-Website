@@ -36,9 +36,20 @@ The production output is generated in `dist/`.
 
 ## Deploy on Vercel
 
-Import this repository into Vercel. Use the Vite framework preset, `npm run build` as the build command, and `dist` as the output directory.
+This project is fully ready for one-click deployment on **Vercel**:
 
-The included `vercel.json` sends direct page URLs such as `/treatments.html`, `/insurance.html`, and `/height-session.html` to the React application.
+1. **Import Repository**: Connect your GitHub repository to Vercel.
+2. **Build Settings**: Vercel automatically detects the Vite framework:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+3. **Environment Variables**:
+   - In Vercel Project Settings > **Environment Variables**, add:
+     - `GEMINI_API_KEY`: Your Google Gemini API key (for live AI completions).
+   *(Note: Even if the API key is not configured, the built-in dynamic Ayurvedic knowledge engine responds instantly to patient questions).*
+4. **Serverless AI Function**:
+   - The included `api/ayurveda-chat.ts` is automatically deployed as a Vercel Serverless Function handling all `/api/ayurveda-chat` requests.
+   - The configured `vercel.json` routes API traffic to the serverless function while routing client-side navigation to the React SPA (`index.html`).
 
 ## Clinic contact
 

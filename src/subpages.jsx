@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video } from 'lucide-react';
+import { 
+  ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, 
+  Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video 
+} from 'lucide-react';
 import './subpages.css';
+import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
 
-const phone='+918856031282';
-const googleMaps='https://www.google.com/maps/place/Dr.+Yerpude%27s+AayuTatva+Ayurvedic+Hospital+%26+Panchakarma+Centre/@21.1741166,79.6442647,17z/data=!4m6!3m5!1s0x3a2b39df27db6025:0xee597cf866c04adf!8m2!3d21.1741166!4d79.6442647!16s%2Fg%2F11lz6hdbmr';
-const heightReviews=[
-{name:'Ajinket Ghollar',initial:'A',summary:'Says he began height-growth care with Dr. Yerpude and felt pleased with the progress at his one-month update; treatment was still ongoing.'},
-{name:'Abhay Chandekar',initial:'A',summary:'Shares a positive personal experience with the height-growth programme and thanks the AayuTatva team.'},
-{name:'Kalyani Hatwar',initial:'K',summary:'Describes seeking care for height concerns and noticing a change in her recorded measurement at a one-month follow-up.'},
-{name:'Suhani Selote',initial:'S',summary:'Reports a 2.5 cm change at the two-month point of a planned three-month course, in her own account.'},
-{name:'Sangita Shrawankar',initial:'S',summary:'A parent shares a positive update about her daughter’s measured growth during follow-up after starting care.'},
-];
-const therapies=[
+const phone = phonePrimary;
+const googleMaps = 'https://www.google.com/maps/place/Dr.+Yerpude%27s+AayuTatva+Ayurvedic+Hospital+%26+Panchakarma+Centre/@21.1741166,79.6442647,17z/data=!4m6!3m5!1s0x3a2b39df27db6025:0xee597cf866c04adf!8m2!3d21.1741166!4d79.6442647!16s%2Fg%2F11lz6hdbmr';
+
+const therapies = [
   {id:'height-growth',no:'01',title:'Height & growth consultations',label:'CURRENT FOCUS',copy:'A doctor-led starting point for families with questions about a child’s height or growth pattern. The consultation can review age, growth history, family context, and whether further assessment is appropriate.',note:'Growth varies from child to child. A consultation cannot promise a specific height increase; seek an appropriate paediatric assessment for ongoing growth concerns.'},
   {id:'joint-spine',no:'02',title:'Joint & spine care',label:'BONE · JOINT · SPINE',copy:'Consultation for joint and back discomfort, arthritis, sciatica, cervical concerns, frozen shoulder, gout, and related mobility issues. Care options are discussed after an individual assessment.',note:'Seek urgent medical care for sudden weakness, loss of bladder or bowel control, major injury, or rapidly worsening symptoms.'},
   {id:'panchakarma',no:'03',title:'Panchakarma & Takradhara',label:'TRADITIONAL AYURVEDA',copy:'Personalized Panchakarma and Takradhara consultations, with the choice and timing of any therapy guided by a practitioner after discussing your health history and needs.',note:'Therapies are not suitable for everyone. A clinician should review your health history, medicines, and current symptoms before treatment.'},
@@ -25,7 +23,8 @@ const therapies=[
   {id:'hair-care',no:'11',title:'Hair, scalp & trichology care',label:'HAIR & SCALP',copy:'Consultations for concerns such as hair fall, dandruff, scalp psoriasis, and hair thinning, with an assessment before discussing suitable care.',note:'Sudden, patchy, painful, or rapidly progressing hair loss needs medical evaluation.'},
   {id:'garbha-sanskar',no:'12',title:'Garbha Sanskar consultations',label:'MATERNAL WELLBEING',copy:'Consultations for families interested in Garbha Sanskar and wellbeing during pregnancy, with guidance tailored to the parent’s health and stage of pregnancy.',note:'Pregnancy care must remain coordinated with your obstetric team. Check with them before starting herbs, supplements, or therapies.'},
 ];
-const insurers=[
+
+const insurers = [
   {name:'Star Health',logo:'/media/brands/star-health.png'},
   {name:'HDFC ERGO',logo:'/media/brands/hdfc-ergo.png'},
   {name:'ICICI Lombard',logo:'/media/brands/icici-lombard.png'},
@@ -34,19 +33,330 @@ const insurers=[
   {name:'New India Assurance',logo:'/media/brands/new-india-assurance.png'},
 ];
 
-function PageHeader(){return <header className="sub-header"><a className="sub-brand" href="/" aria-label="AayuTatva home"><img src="/media/aayutatva-logo.png" alt="AayuTatva Ayurvedic Hospital logo"/></a><nav><a href="/treatments.html">Treatments</a><a href="/insurance.html">Cashless care</a><a className="sub-height-nav" href="/height-session.html">Height session</a><a className="sub-book" href="/#booking">Book consultation <ArrowUpRight size={15}/></a></nav><a className="sub-phone" href={`tel:${phone}`}><Phone size={15}/> Call us</a></header>}
-function PageFooter(){return <footer className="sub-footer"><a href="/" className="sub-brand" aria-label="AayuTatva home"><img src="/media/aayutatva-logo.png" alt="AayuTatva Ayurvedic Hospital logo"/></a><span>Dr. Manish Santosh Yerpude · Bhandara</span><a href="/">Back to home <ArrowRight size={14}/></a></footer>}
-function PageShell({children}){return <div className="subpage"><PageHeader/><main>{children}</main><PageFooter/><a className="sub-wa" href="https://wa.me/917758816074" target="_blank" rel="noreferrer" aria-label="WhatsApp AayuTatva at +91 77588 16074"><HeartPulse size={21}/></a></div>}
+function PageFooter() {
+  return (
+    <footer className="sub-footer">
+      <a href="/" className="sub-brand" aria-label="AayuTatva home">
+        <img src="/media/aayutatva-logo.png" alt="AayuTatva Ayurvedic Hospital logo"/>
+      </a>
+      <span>Dr. Manish Santosh Yerpude · Bhandara</span>
+      <a href="/">Back to home <ArrowRight size={14}/></a>
+    </footer>
+  );
+}
 
-export function TreatmentsPage(){return <PageShell><section className="sub-hero treatments-hero"><a className="back-link" href="/"><ArrowLeft size={14}/> AAYUTATVA</a><div className="sub-overline">THOUGHTFUL, PERSONAL AYURVEDIC CARE</div><h1>Treatments, with<br/><em>you at the centre.</em></h1><p>Explore consultations across joint and spine care, Panchakarma, women’s health, skin and hair, digestion, fertility, and lifestyle concerns. Each recommendation begins with a personal assessment.</p><a href="/#booking" className="sub-cta">Book a consultation <ArrowUpRight size={16}/></a></section><section className="treatment-directory"><div className="directory-side"><div className="sub-overline">AREAS OF CARE</div><h2>Find the right<br/><em>conversation.</em></h2><p>Select an area below to read more about what a first consultation may cover.</p><a className="directory-call" href={`tel:${phone}`}><Phone size={16}/> +91 88560 31282</a></div><div className="directory-list">{therapies.map((t)=><article className="therapy-detail" id={t.id} key={t.id}><span className="therapy-number">{t.no} / 12</span><div><span className="therapy-label">{t.label}</span><h3>{t.title}</h3><p>{t.copy}</p><div className="clinical-note"><ShieldCheck size={16}/><span>{t.note}</span></div><a href="/#booking" className="therapy-book">Ask about this care <ArrowUpRight size={14}/></a></div></article>)}</div></section><section className="treatment-disclaimer"><Sparkles size={18}/><p>This page describes consultation areas, not a diagnosis or guarantee of outcome. Your practitioner will discuss benefits, limitations, and appropriate alternatives for your situation.</p></section></PageShell>}
+function PageShell({ breadcrumb, children }) {
+  return (
+    <div className="subpage">
+      <SiteHeader breadcrumb={breadcrumb} />
+      <main>{children}</main>
+      <PageFooter/>
+    </div>
+  );
+}
 
-export function InsurancePage(){return <PageShell><section className="sub-hero insurance-hero"><a className="back-link" href="/"><ArrowLeft size={14}/> AAYUTATVA</a><div className="sub-overline">CARE WITH CLEAR NEXT STEPS</div><h1>Cashless insurance<br/><em>support for eligible care.</em></h1><p>AayuTatva accepts cashless insurance requests for eligible in-patient AYUSH care. Coverage and cashless approval depend on your policy, insurer/TPA network, and pre-authorisation.</p><div className="insurance-hero-actions"><a href={`tel:${phone}`} className="sub-cta"><Phone size={15}/> Check your cover</a><a href="#network-list" className="sub-secondary">See insurer information <ArrowRight size={15}/></a></div><div className="nabh-badge"><img src="/media/brands/nabh.png" alt="NABH Accredited"/><span><b>NABH-APPROVED HOSPITAL</b><small>Patient safety and quality of care</small></span></div></section><section className="insurance-steps"><div className="sub-overline">BEFORE YOUR ADMISSION</div><h2>Understand your<br/><em>insurance steps.</em></h2><div className="steps-grid"><article><span>01</span><h3>Check eligibility</h3><p>Call with your insurer or TPA name, policy details, and planned care so the team can help check requirements.</p></article><article><span>02</span><h3>Request pre-authorisation</h3><p>Cashless admission requires approval from your insurer/TPA. The hospital team can guide you on the documents requested.</p></article><article><span>03</span><h3>Confirm what is covered</h3><p>Limits, exclusions, room eligibility, and final approval are decided by your insurer under your policy terms.</p></article></div><div className="insurance-callout"><ShieldCheck size={22}/><p><b>Cashless does not mean automatic approval.</b> Please confirm eligibility with your insurer before admission. Reimbursement may be an option if cashless approval is unavailable, subject to your policy.</p></div></section><section className="network-list" id="network-list"><div className="network-mark"><ShieldCheck size={24}/></div><div><div className="sub-overline">INSURER / TPA NETWORK</div><h2>Confirm your provider<br/><em>before you visit.</em></h2><p>Browse insurer and TPA information for cashless AYUSH care. Network participation and approval depend on your policy, treatment, and current insurer requirements.</p><div className="insurer-grid">{insurers.map((insurer)=><div className="insurer-tile" key={insurer.name}><img src={insurer.logo} alt=""/><span className="insurer-wordmark">{insurer.name}</span></div>)}</div><a href={`tel:${phone}`} className="sub-cta">Call to check your insurer <ArrowUpRight size={16}/></a></div></section></PageShell>}
+export function TreatmentsPage() {
+  return (
+    <PageShell breadcrumb="Our Specialities">
+      <section className="sub-hero treatments-hero">
+        <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
+        <div className="sub-overline">THOUGHTFUL, PERSONAL AYURVEDIC CARE</div>
+        <h1>Our Specialities, with<br/><em>you at the centre.</em></h1>
+        <p>Explore consultations across joint and spine care, Panchakarma, women’s health, skin and hair, digestion, fertility, and lifestyle concerns. Each recommendation begins with a personal assessment.</p>
+        <a href="/#booking" className="sub-cta">Book a consultation <ArrowUpRight size={16}/></a>
+      </section>
 
-export function HeightSessionPage(){const [submitted,setSubmitted]=useState(false);const [form,setForm]=useState({name:'',phone:'',ageBand:''});function submit(e){e.preventDefault();const records=JSON.parse(localStorage.getItem('aayutatva-height-session-interest')||'[]');records.push({...form,submittedAt:new Date().toISOString()});localStorage.setItem('aayutatva-height-session-interest',JSON.stringify(records));setSubmitted(true)}function update(e){setForm({...form,[e.target.name]:e.target.value})}return <PageShell><section className="sub-hero height-hero"><a className="back-link" href="/"><ArrowLeft size={14}/> AAYUTATVA</a><div className="sub-overline">HEIGHT & GROWTH CARE · BHANDARA · FREE ZOOM SESSION DATE TO BE ANNOUNCED</div><h1>Every growth journey<br/>deserves <em>careful attention.</em></h1><p>If you’re exploring height increase care, start with an individual growth assessment and a clear conversation about what may be appropriate. Children grow on different timelines; no height gain is guaranteed.</p><a className="sub-cta" href="#register"><Video size={16}/> Register your interest <ArrowDownIcon/></a><div className="height-doctor-photo"><img src="/media/dr-manish-yerpude.jpg" alt="Dr. Manish Santosh Yerpude"/><div className="height-photo-caption"><span>PERSONALIZED CARE</span><b>Growth is a journey.<br/>Let’s understand yours.</b></div></div></section><section className="height-review-band"><div className="height-review-score"><span>GOOGLE PATIENT FEEDBACK</span><b>4.8 <i>★★★★★</i></b><small>Open the live listing to read names and reviews.</small></div><div className="height-review-area"><div className="height-review-topline"><span>HEIGHT & GROWTH · GOOGLE REVIEWS</span><div><button type="button" aria-label="Scroll reviews left" onClick={()=>document.getElementById('height-review-track').scrollBy({left:-340,behavior:'smooth'})}>←</button><button type="button" aria-label="Scroll reviews right" onClick={()=>document.getElementById('height-review-track').scrollBy({left:340,behavior:'smooth'})}>→</button></div></div><div className="height-review-scroll" id="height-review-track" aria-label="Height growth patient review summaries" tabIndex="0">{heightReviews.map((review)=><article className="height-review-card" key={review.name}><div className="height-review-card-head"><span className="height-review-avatar">{review.initial}</span><span><b>{review.name}</b><small>Google review · shared by clinic</small></span><span className="height-review-stars" aria-label="5 out of 5 stars">★★★★★</span></div><p>{review.summary}</p><a href={googleMaps} target="_blank" rel="noreferrer">Open Google listing <ArrowUpRight size={13}/></a></article>)}</div><p className="reviews-disclaimer">Translated summaries of public Google review screenshots supplied by the clinic. These are individual, self-reported experiences; measurements and treatment effects have not been independently verified and do not predict or guarantee another person’s result.</p></div></section><section className="growth-infographic"><div className="growth-intro-layout"><div className="growth-intro"><div className="sub-overline">A VISUAL GUIDE FOR FAMILIES</div><h2>Support the conditions<br/><em>for healthy growth.</em></h2><p>Height is influenced by many factors. Use this simple guide to prepare for a conversation with a qualified clinician—not as a diagnosis or promise of added height.</p></div><HeightSpineGraphic/></div><div className="growth-steps-visual"><article><span className="growth-step-icon"><RulerIcon/></span><b>01 · NOTICE</b><h3>Track the pattern</h3><p>Record measurements and dates. A series over time is more useful than a single number.</p></article><div className="growth-connector">→</div><article><span className="growth-step-icon chart-icon"><GrowthChart/></span><b>02 · REVIEW</b><h3>Look at the whole picture</h3><p>Discuss age, family growth history, wellbeing, and any concerns with a clinician.</p></article><div className="growth-connector">→</div><article><span className="growth-step-icon"><Leaf size={22}/></span><b>03 · PLAN</b><h3>Choose the next step</h3><p>Ask what assessment or supportive care is suitable, and when follow-up is needed.</p></article></div><div className="growth-quote"><span>“You can support healthy growth with informed, individualized care.”</span><small>GROWTH IS PERSONAL · RESULTS VARY · NO HEIGHT INCREASE GUARANTEED</small></div></section><section className="ayurveda-reading"><div className="sub-overline">FURTHER READING · AYURVEDA & CHILD GROWTH</div><h2>Read beyond the <em>claims.</em></h2><p>These Ayurveda-related papers discuss child development and growth. They are research reading, not proof that a therapy can increase height.</p><div className="reading-cards"><a href="https://jaims.in/jaims/article/view/1148" target="_blank" rel="noreferrer"><span>JOURNAL ARTICLE</span><h3>Role of Agni in growth and development in children</h3><small>Journal of Ayurveda and Integrated Medical Sciences <ArrowUpRight size={13}/></small></a><a href="https://ijam.co.in/index.php/ijam/article/view/05382014" target="_blank" rel="noreferrer"><span>RESEARCH PAPER · 2014</span><h3>Swarna Prashan and physical growth parameters in children</h3><small>International Journal of Ayurvedic Medicine <ArrowUpRight size={13}/></small></a><a href="https://www.who.int/publications/i/item/9789240042674" target="_blank" rel="noreferrer"><span>WHO · PRACTICE BENCHMARKS</span><h3>WHO benchmarks for the practice of Ayurveda</h3><small>Safety and practice guidance <ArrowUpRight size={13}/></small></a></div></section><section className="height-content"><div className="height-copy"><div className="sub-overline">A GENTLE START</div><h2>Ask about your child’s<br/><em>growth, with care.</em></h2><p>Growth is different for every child. The session will share general information, help parents prepare useful questions, and explain why individual assessment matters.</p><div className="growth-points"><div><Check size={15}/><span>How to notice and record growth patterns</span></div><div><Check size={15}/><span>Questions to discuss with a qualified clinician</span></div><div><Check size={15}/><span>How to arrange a personal consultation</span></div></div><div className="growth-caveat"><ShieldCheck size={17}/><p>No fixed height gain can be promised. Persistent growth concerns should be assessed by an appropriate paediatric clinician.</p></div></div><div className="session-card" id="register"><div className="session-card-head"><span><CalendarDays size={17}/> LIVE ONLINE SESSION</span><span className="session-pill">FREE · ZOOM</span></div>{submitted?<div className="session-success"><span><Check size={22}/></span><h3>Interest saved.</h3><p>Your request is stored in this browser preview. This demo has not sent your details to the clinic.</p><button onClick={()=>setSubmitted(false)} className="session-reset">Submit another interest form</button></div>:<><h3>Save your place<br/><em>when dates open.</em></h3><p>Leave a contact number and we’ll note your interest for the next session announcement.</p><form onSubmit={submit}><label>Your name<input name="name" value={form.name} onChange={update} placeholder="Your name" required autoComplete="name"/></label><label>Phone number<input name="phone" type="tel" value={form.phone} onChange={update} placeholder="+91 00000 00000" required pattern="[+0-9 ()-]{10,}" autoComplete="tel"/></label><label>Age group of the person you’re asking for<span className="sub-select-wrap"><select name="ageBand" value={form.ageBand} onChange={update} required><option value="" disabled>Select an age group</option><option>Under 10</option><option>10–13</option><option>14–17</option><option>18 or older</option></select></span></label><label className="consent-line"><input type="checkbox" required/><span>I am the parent/guardian or an adult registering myself.</span></label><button className="sub-cta form-cta" type="submit">Register interest <ArrowUpRight size={16}/></button><small className="form-privacy">Prototype note: submissions stay on this device until a clinic registration inbox is connected.</small></form></>}</div></section></PageShell>}
+      <section className="treatment-directory">
+        <div className="directory-side">
+          <div className="sub-overline">AREAS OF CARE</div>
+          <h2>Find the right<br/><em>speciality.</em></h2>
+          <p>Select an area below to read more about what a first consultation may cover.</p>
+          <a className="directory-call" href={`tel:${phone}`}><Phone size={16}/> +91 77588 16074</a>
+        </div>
+        <div className="directory-list">
+          {therapies.map((t) => (
+            <article className="therapy-detail" id={t.id} key={t.id}>
+              <span className="therapy-number">{t.no} / 12</span>
+              <div>
+                <span className="therapy-label">{t.label}</span>
+                <h3>{t.title}</h3>
+                <p>{t.copy}</p>
+                <div className="clinical-note">
+                  <ShieldCheck size={16}/>
+                  <span>{t.note}</span>
+                </div>
+                <a href="/#booking" className="therapy-book">Ask about this care <ArrowUpRight size={14}/></a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-function HeightSpineGraphic(){return <div className="height-spine-graphic"><svg viewBox="0 0 340 280" role="img" aria-label="Height measurement and healthy spine illustration"><defs><linearGradient id="spineGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#D4A373"/><stop offset="1" stopColor="#587054"/></linearGradient></defs><circle className="spine-halo" cx="178" cy="132" r="102"/><path className="spine-silhouette" d="M183 47c-15 5-24 18-23 33 1 13 10 24 23 28-5 14-7 30-5 47 3 28 13 51 29 72"/><path className="spine-path" d="M176 101c21 7 27 20 15 34-12 13-10 26 4 37 14 12 13 28-1 43"/><g className="vertebrae"><circle cx="183" cy="108" r="6"/><circle cx="190" cy="121" r="6"/><circle cx="190" cy="136" r="6"/><circle cx="187" cy="151" r="6"/><circle cx="191" cy="166" r="6"/><circle cx="199" cy="181" r="6"/><circle cx="201" cy="197" r="6"/></g><path className="measure-line" d="M69 54v174M69 66h31M69 96h20M69 126h31M69 156h20M69 186h31M69 216h20"/><path className="growth-arrow" d="M267 218V68m0 0-14 17m14-17 14 17"/><text x="91" y="251">GROWTH · POSTURE · CARE</text></svg><div><b>Understand the whole growth pattern</b><span>Measure consistently, review posture and discuss concerns with a qualified clinician.</span></div></div>}
+      <section className="treatment-disclaimer">
+        <Sparkles size={18}/>
+        <p>This page describes clinical speciality areas, not a self-diagnosis or guarantee of outcome. Your practitioner will discuss benefits, limitations, and appropriate alternatives for your situation.</p>
+      </section>
+    </PageShell>
+  );
+}
 
-function RulerIcon(){return <span className="ruler-emoji" aria-hidden="true">↕</span>}
-function GrowthChart(){return <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 39V8M7 39H42M12 34C19 31 19 25 24 25s7-10 14-17" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="38" cy="8" r="3" fill="currentColor"/></svg>}
+export function InsurancePage() {
+  return (
+    <PageShell breadcrumb="Cashless Mediclaim Insurance">
+      <section className="sub-hero insurance-hero">
+        <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
+        <div className="sub-overline">CARE WITH CLEAR NEXT STEPS</div>
+        <h1>Cashless insurance<br/><em>support for eligible care.</em></h1>
+        <p>AayuTatva accepts cashless insurance requests for eligible in-patient AYUSH care. Coverage and cashless approval depend on your policy, insurer/TPA network, and pre-authorisation.</p>
+        <div className="insurance-hero-actions">
+          <a href={`tel:${phone}`} className="sub-cta"><Phone size={15}/> Check your cover</a>
+          <a href="#network-list" className="sub-secondary">See insurer information <ArrowRight size={15}/></a>
+        </div>
+        <div className="nabh-badge">
+          <img src="/media/brands/nabh.png" alt="NABH Accredited"/>
+          <span><b>NABH-APPROVED HOSPITAL</b><small>Patient safety and quality of care</small></span>
+        </div>
+      </section>
 
-function ArrowDownIcon(){return <span aria-hidden="true">↓</span>}
+      <section className="insurance-steps">
+        <div className="sub-overline">BEFORE YOUR ADMISSION</div>
+        <h2>Understand your<br/><em>insurance steps.</em></h2>
+        <div className="steps-grid">
+          <article>
+            <span>01</span>
+            <h3>Check eligibility</h3>
+            <p>Call with your insurer or TPA name, policy details, and planned care so the team can help check requirements.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Request pre-authorisation</h3>
+            <p>Cashless admission requires approval from your insurer/TPA. The hospital team can guide you on the documents requested.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Confirm what is covered</h3>
+            <p>Limits, exclusions, room eligibility, and final approval are decided by your insurer under your policy terms.</p>
+          </article>
+        </div>
+        <div className="insurance-callout">
+          <ShieldCheck size={22}/>
+          <p><b>Cashless does not mean automatic approval.</b> Please confirm eligibility with your insurer before admission. Reimbursement may be an option if cashless approval is unavailable, subject to your policy.</p>
+        </div>
+      </section>
+
+      <section className="network-list" id="network-list">
+        <div className="network-mark"><ShieldCheck size={24}/></div>
+        <div>
+          <div className="sub-overline">INSURER / TPA NETWORK</div>
+          <h2>Confirm your provider<br/><em>before you visit.</em></h2>
+          <p>Browse insurer and TPA information for cashless AYUSH care. Network participation and approval depend on your policy, treatment, and current insurer requirements.</p>
+          <div className="insurer-grid">
+            {insurers.map((insurer) => (
+              <div className="insurer-tile" key={insurer.name}>
+                <img src={insurer.logo} alt=""/>
+                <span className="insurer-wordmark">{insurer.name}</span>
+              </div>
+            ))}
+          </div>
+          <a href={`tel:${phone}`} className="sub-cta">Call to check your insurer <ArrowUpRight size={16}/></a>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+export function HeightSessionPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ name: '', phone: '', ageBand: '' });
+
+  function submit(e) {
+    e.preventDefault();
+    const records = JSON.parse(localStorage.getItem('aayutatva-height-session-interest') || '[]');
+    records.push({ ...form, submittedAt: new Date().toISOString() });
+    localStorage.setItem('aayutatva-height-session-interest', JSON.stringify(records));
+    setSubmitted(true);
+  }
+
+  function update(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  return (
+    <PageShell breadcrumb="Height & Growth Care">
+      <section className="sub-hero height-hero">
+        <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
+        <div className="sub-overline">HEIGHT & GROWTH CARE · BHANDARA · CLINICAL EVALUATION</div>
+        <h1>Every growth journey<br/>deserves <em>careful attention.</em></h1>
+        <p>If you’re exploring height increase care, start with an individual growth assessment and a clear conversation about what may be appropriate. Children grow on different timelines; no height gain is guaranteed.</p>
+        <a className="sub-cta" href="#register"><Video size={16}/> Register your interest <ArrowDownIcon/></a>
+        <div className="height-doctor-photo">
+          <img src="/media/dr-manish-yerpude.jpg" alt="Dr. Manish Santosh Yerpude"/>
+          <div className="height-photo-caption">
+            <span>PERSONALIZED CARE</span>
+            <b>Growth is a journey.<br/>Let’s understand yours.</b>
+          </div>
+        </div>
+      </section>
+
+      {/* Note: Screenshot review band removed per instructions */}
+
+      <section className="growth-infographic">
+        <div className="growth-intro-layout">
+          <div className="growth-intro">
+            <div className="sub-overline">A VISUAL GUIDE FOR FAMILIES</div>
+            <h2>Support the conditions<br/><em>for healthy growth.</em></h2>
+            <p>Height is influenced by many factors. Use this simple guide to prepare for a conversation with a qualified clinician—not as a diagnosis or promise of added height.</p>
+          </div>
+          <HeightSpineGraphic/>
+        </div>
+        <div className="growth-steps-visual">
+          <article>
+            <span className="growth-step-icon"><RulerIcon/></span>
+            <b>01 · NOTICE</b>
+            <h3>Track the pattern</h3>
+            <p>Record measurements and dates. A series over time is more useful than a single number.</p>
+          </article>
+          <div className="growth-connector">→</div>
+          <article>
+            <span className="growth-step-icon chart-icon"><GrowthChart/></span>
+            <b>02 · REVIEW</b>
+            <h3>Look at the whole picture</h3>
+            <p>Discuss age, family growth history, wellbeing, and any concerns with a clinician.</p>
+          </article>
+          <div className="growth-connector">→</div>
+          <article>
+            <span className="growth-step-icon"><Leaf size={22}/></span>
+            <b>03 · PLAN</b>
+            <h3>Choose the next step</h3>
+            <p>Ask what assessment or supportive care is suitable, and when follow-up is needed.</p>
+          </article>
+        </div>
+        <div className="growth-quote">
+          <span>“You can support healthy growth with informed, individualized care.”</span>
+          <small>GROWTH IS PERSONAL · RESULTS VARY · NO HEIGHT INCREASE GUARANTEED</small>
+        </div>
+      </section>
+
+      <section className="ayurveda-reading">
+        <div className="sub-overline">FURTHER READING · AYURVEDA & CHILD GROWTH</div>
+        <h2>Read beyond the <em>claims.</em></h2>
+        <p>These Ayurveda-related papers discuss child development and growth. They are research reading, not proof that a therapy can increase height.</p>
+        <div className="reading-cards">
+          <a href="https://jaims.in/jaims/article/view/1148" target="_blank" rel="noreferrer">
+            <span>JOURNAL ARTICLE</span>
+            <h3>Role of Agni in growth and development in children</h3>
+            <small>Journal of Ayurveda and Integrated Medical Sciences <ArrowUpRight size={13}/></small>
+          </a>
+          <a href="https://ijam.co.in/index.php/ijam/article/view/05382014" target="_blank" rel="noreferrer">
+            <span>RESEARCH PAPER · 2014</span>
+            <h3>Swarna Prashan and physical growth parameters in children</h3>
+            <small>International Journal of Ayurvedic Medicine <ArrowUpRight size={13}/></small>
+          </a>
+          <a href="https://www.who.int/publications/i/item/9789240042674" target="_blank" rel="noreferrer">
+            <span>WHO · PRACTICE BENCHMARKS</span>
+            <h3>WHO benchmarks for the practice of Ayurveda</h3>
+            <small>Safety and practice guidance <ArrowUpRight size={13}/></small>
+          </a>
+        </div>
+      </section>
+
+      <section className="height-content">
+        <div className="height-copy">
+          <div className="sub-overline">A GENTLE START</div>
+          <h2>Ask about your child’s<br/><em>growth, with care.</em></h2>
+          <p>Growth is different for every child. The session will share general information, help parents prepare useful questions, and explain why individual assessment matters.</p>
+          <div className="growth-points">
+            <div><Check size={15}/><span>How to notice and record growth patterns</span></div>
+            <div><Check size={15}/><span>Questions to discuss with a qualified clinician</span></div>
+            <div><Check size={15}/><span>How to arrange a personal consultation</span></div>
+          </div>
+          <div className="growth-caveat">
+            <ShieldCheck size={17}/>
+            <p>No fixed height gain can be promised. Persistent growth concerns should be assessed by an appropriate paediatric clinician.</p>
+          </div>
+        </div>
+
+        <div className="session-card" id="register">
+          <div className="session-card-head">
+            <span><CalendarDays size={17}/> LIVE ONLINE SESSION</span>
+            <span className="session-pill">FREE · ZOOM</span>
+          </div>
+          {submitted ? (
+            <div className="session-success">
+              <span><Check size={22}/></span>
+              <h3>Interest saved.</h3>
+              <p>Your request is stored in this browser preview. This demo has not sent your details to the clinic.</p>
+              <button onClick={() => setSubmitted(false)} className="session-reset">Submit another interest form</button>
+            </div>
+          ) : (
+            <>
+              <h3>Save your place<br/><em>when dates open.</em></h3>
+              <p>Leave a contact number and we’ll note your interest for the next session announcement.</p>
+              <form onSubmit={submit}>
+                <label>Your name<input name="name" value={form.name} onChange={update} placeholder="Your name" required autoComplete="name"/></label>
+                <label>Phone number<input name="phone" type="tel" value={form.phone} onChange={update} placeholder="+91 00000 00000" required pattern="[+0-9 ()-]{10,}" autoComplete="tel"/></label>
+                <label>Age group of the person you’re asking for
+                  <span className="sub-select-wrap">
+                    <select name="ageBand" value={form.ageBand} onChange={update} required>
+                      <option value="" disabled>Select an age group</option>
+                      <option>Under 10</option>
+                      <option>10–13</option>
+                      <option>14–17</option>
+                      <option>18 or older</option>
+                    </select>
+                  </span>
+                </label>
+                <label className="consent-line">
+                  <input type="checkbox" required/>
+                  <span>I am the parent/guardian or an adult registering myself.</span>
+                </label>
+                <button className="sub-cta form-cta" type="submit">Register interest <ArrowUpRight size={16}/></button>
+                <small className="form-privacy">Prototype note: submissions stay on this device until a clinic registration inbox is connected.</small>
+              </form>
+            </>
+          )}
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+function HeightSpineGraphic() {
+  return (
+    <div className="height-spine-graphic">
+      <svg viewBox="0 0 340 280" role="img" aria-label="Height measurement and healthy spine illustration">
+        <circle className="spine-halo" cx="178" cy="132" r="102"/>
+        <path className="spine-silhouette" d="M183 47c-15 5-24 18-23 33 1 13 10 24 23 28-5 14-7 30-5 47 3 28 13 51 29 72"/>
+        <path className="spine-path" d="M176 101c21 7 27 20 15 34-12 13-10 26 4 37 14 12 13 28-1 43"/>
+        <g className="vertebrae">
+          <circle cx="183" cy="108" r="6"/>
+          <circle cx="190" cy="121" r="6"/>
+          <circle cx="190" cy="136" r="6"/>
+          <circle cx="187" cy="151" r="6"/>
+          <circle cx="191" cy="166" r="6"/>
+          <circle cx="199" cy="181" r="6"/>
+          <circle cx="201" cy="197" r="6"/>
+        </g>
+        <path className="measure-line" d="M69 54v174M69 66h31M69 96h20M69 126h31M69 156h20M69 186h31M69 216h20"/>
+        <path className="growth-arrow" d="M267 218V68m0 0-14 17m14-17 14 17"/>
+        <text x="91" y="251">GROWTH · POSTURE · CARE</text>
+      </svg>
+      <div>
+        <b>Understand the whole growth pattern</b>
+        <span>Measure consistently, review posture and discuss concerns with a qualified clinician.</span>
+      </div>
+    </div>
+  );
+}
+
+function RulerIcon() { return <span className="ruler-emoji" aria-hidden="true">↕</span>; }
+function GrowthChart() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M7 39V8M7 39H42M12 34C19 31 19 25 24 25s7-10 14-17" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="38" cy="8" r="3" fill="currentColor"/>
+    </svg>
+  );
+}
+
+function ArrowDownIcon() { return <span aria-hidden="true">↓</span>; }

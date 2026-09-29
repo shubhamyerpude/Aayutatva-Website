@@ -1,13 +1,8 @@
 node_modules/
+build/
 dist/
-.npm-cache/
+coverage/
+.DS_Store
 *.log
-.env
-.env.*
+.env*
 !.env.example
-.vercel/
-
-
-test-results/
-test-report/
-quality-results.json
