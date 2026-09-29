@@ -10,9 +10,9 @@ const whatsappPhone = '917758816074';
 const phonePrimary = '+917758816074';
 
 const WELCOME_MESSAGES = {
-  mr: 'नमस्कार! 🙏 आयुतत्व आयुर्वेदिक हॉस्पिटल व पंचकर्म केंद्र, भंडारा मध्ये आपले स्वागत आहे. डॉ. मनिष संतोष येरपुडे यांच्याशी सल्लामसलत, नाडी परीक्षा किंवा उपचारांसाठी खालील पर्यायांवरून थेट कॉल करा किंवा व्हॉट्सॲपवर संपर्क साधा:',
-  hi: 'नमस्ते! 🙏 आयुतत्व आयुर्वेदिक हॉस्पिटल एवं पंचकर्म केंद्र, भंडारा में आपका स्वागत है। डॉ. मनीष संतोष येरपुडे से परामर्श, नाड़ी परीक्षा या उपचार के लिए नीचे दिए गए बटन से कॉल करें या व्हाट्सएप पर संपर्क करें:',
-  en: 'Namaste! 🙏 Welcome to AayuTatva Ayurvedic Hospital & Panchakarma Centre, Bhandara. Consult Dr. Manish Santosh Yerpude for classical treatments, pulse examination, and Panchakarma:'
+  mr: 'नमस्कार! 🙏 आयुवैद्य एआय मध्ये आपले स्वागत आहे. कंबरदुखी, सायटिका, गुडघेदुखी, नाडी परीक्षा किंवा पंचकर्माबद्दल कोणताही प्रश्न विचारा:',
+  hi: 'नमस्ते! 🙏 आयुवैद्य एआई में आपका स्वागत है। स्लिप डिस्क, साइटिका, घुटनों का दर्द, नाड़ी परीक्षा या पंचकर्म पर कोई भी सवाल पूछें:',
+  en: 'Namaste! 🙏 Welcome to AayuVaidya AI. Ask any question on slip disc, sciatica, knee pain, pulse diagnosis, or Panchakarma:'
 };
 
 export function AayuVaidyaWidget() {
