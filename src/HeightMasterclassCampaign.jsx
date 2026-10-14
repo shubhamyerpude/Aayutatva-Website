@@ -259,6 +259,9 @@ export function PaytmPaymentCard({
             </>
           )}
         </a>
+        <p className="text-[8.5px] text-sky-200 mt-1 leading-tight font-medium">
+          💡 Pay using your <strong>Bank Savings A/C</strong> on UPI. (Credit Cards on UPI / Overdraft / Wallets are not supported).
+        </p>
         {desktopNotice && (
           <p className="text-[9px] text-[#00b9f5] mt-1 leading-tight font-medium">
             Laptops don't have UPI apps. Scan the QR code with your mobile phone or use copied UPI ID: <span className="font-mono text-white">{upiId}</span>
@@ -717,6 +720,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     amount={REGISTRATION_FEE}
                     compact={true}
                   />
+
+                  {/* Payment account guidance notice */}
+                  <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-2 text-left text-[9.5px] leading-snug flex items-start gap-1.5">
+                    <span className="font-bold text-xs shrink-0">💡</span>
+                    <span>
+                      <strong>Important:</strong> In your UPI app (GPay / PhonePe / Paytm), select your <strong>Bank Savings Account</strong> to pay. Do not select Credit Card or Wallet on UPI.
+                    </span>
+                  </div>
 
                   {/* Single Clean Confirmation Action */}
                   <div className="bg-emerald-50/90 border border-emerald-300 p-2 rounded-xl text-left shadow-xs space-y-1.5">
