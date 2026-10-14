@@ -242,7 +242,7 @@ export function HeightSessionPage() {
         `📏 *Current Height:* ${saved.currentHeight}`,
         `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
         `📍 *City:* ${saved.city}`,
-        `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+        `💳 *Payment Method:* Direct Hospital UPI (7758816074@ybl)`,
         `🔢 *UPI UTR / Ref:* ${saved.upiRef || form.upiRef}`,
         `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
         ``,
@@ -357,7 +357,7 @@ export function HeightSessionPage() {
 
           <div className="growth-caveat">
             <ShieldCheck size={17}/>
-            <p>100% direct hospital settlement via Paytm UPI (paytm.s1j7ydq@pty). Transparent, doctor-led clinical education.</p>
+            <p>100% direct hospital settlement via Verified Bank UPI / QR (7758816074@ybl). Transparent, doctor-led clinical education.</p>
           </div>
         </div>
 
@@ -493,7 +493,7 @@ export function HeightSessionPage() {
               </div>
 
               <PaytmPaymentCard 
-                upiId="paytm.s1j7ydq@pty"
+                upiId="7758816074@ybl"
                 name="DR YERPUDES AYUTATVA"
                 amount={9}
               />
@@ -568,7 +568,7 @@ export function HeightSessionPage() {
                     `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
                     `📍 *City:* ${confirmedData.city}`,
                     `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-                    `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+                    `💳 *Payment Method:* Direct Hospital UPI (7758816074@ybl)`,
                     `🔢 *UPI UTR / Ref:* ${confirmedData.upiRef || 'Submitted'}`,
                     `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
                     ``,

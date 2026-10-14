@@ -428,7 +428,7 @@ function App() {
 
               {/* Paytm UPI Standee QR Card */}
               <PaytmPaymentCard 
-                upiId="paytm.s1j7ydq@pty"
+                upiId="7758816074@ybl"
                 name="DR YERPUDES AYUTATVA"
                 amount={200}
               />

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import { generateInternalAyurvedicResponse } from './src/ayurvedicInternalEngine.ts';
 import heightRegistrationsHandler from './api/height-registrations.ts';
+import paymentConfigHandler from './api/payment-config.ts';
 
 dotenv.config();
 
@@ -289,6 +290,11 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
 // Height Growth Masterclass Registrations & Excel CSV export API
 app.all('/api/height-registrations*', (req: Request, res: Response) => {
   return heightRegistrationsHandler(req, res);
+});
+
+// Dynamic Payment & QR Code Configuration API
+app.all('/api/payment-config*', (req: Request, res: Response) => {
+  return paymentConfigHandler(req, res);
 });
 
 async function startServer() {
