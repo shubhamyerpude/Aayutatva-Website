@@ -48,6 +48,14 @@ function PageFooter() {
         <img src="/media/aayutatva-logo.png" alt="AayuTatva Ayurvedic Hospital logo"/>
       </a>
       <span>Dr. Manish Santosh Yerpude · Bhandara</span>
+      <button 
+        type="button" 
+        onClick={() => window.dispatchEvent(new CustomEvent('open-height-admin'))} 
+        style={{ background: 'none', border: 'none', color: '#d5aa7c', cursor: 'pointer', fontSize: '11px', textDecoration: 'underline' }}
+        title="Internal Staff Access"
+      >
+        Staff Portal (Leads & Excel)
+      </button>
       <a href="/">Back to home <ArrowRight size={14}/></a>
     </footer>
   );
@@ -274,13 +282,6 @@ export function HeightSessionPage() {
           <a className="sub-cta" href="#register">
             <Video size={16}/> Register Now (₹9) <ArrowDownIcon/>
           </a>
-          <button 
-            type="button" 
-            onClick={() => setAdminOpen(true)}
-            className="sub-secondary cursor-pointer"
-          >
-            Hospital Leads & Excel Export <ArrowUpRight size={15}/>
-          </button>
         </div>
 
         <div className="height-doctor-photo">

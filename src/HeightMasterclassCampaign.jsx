@@ -278,13 +278,7 @@ export const PhonePePaymentCard = PaytmPaymentCard;
    ========================================================================= */
 export function HeightCampaignPopup({ autoOpen = false }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
-    try {
-      return sessionStorage.getItem('aayutatva_height_banner_dismissed') === 'true';
-    } catch (e) {
-      return false;
-    }
-  });
+  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
   const [step, setStep] = useState(0); // 0 = Pitch Teaser, 1 = Form, 2 = Paytm QR, 3 = Confirmed Ticket
   const [loading, setLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
@@ -433,7 +427,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       {/* 1. Elevated Floating Live Masterclass Banner with Dismiss/Close Button */}
       {!isOpen && !isBannerDismissed && (
         <div
-          className="fixed bottom-[136px] right-3.5 sm:bottom-6 sm:left-6 z-[950] flex items-center bg-[#17331D] text-[#E7C697] border-2 border-[#D4A373] rounded-full shadow-2xl overflow-hidden text-xs font-bold transition-all duration-200 max-w-[calc(100vw-28px)]"
+          className="fixed bottom-[84px] right-3 sm:bottom-6 sm:right-6 z-[950] flex items-center bg-[#17331D] text-[#E7C697] border-2 border-[#D4A373] rounded-full shadow-2xl overflow-hidden text-xs font-bold transition-all duration-200 max-w-[calc(100vw-28px)]"
           role="region"
           aria-label="Live Masterclass Announcement"
         >

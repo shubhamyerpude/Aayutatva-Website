@@ -274,23 +274,6 @@ function App() {
       {/* Our Specialities: Smaller Cards / List for Faster Readability */}
       <SpecialitiesCompactSection />
 
-      {/* Height & Growth Feature */}
-      <section className="height-feature">
-        <div className="height-feature-art">
-          <div className="height-ruler"><span/><span/><span/><span/><span/><span/><span/></div>
-          <div className="height-plant"><i/><i/><i/><b/></div>
-          <span className="height-art-label">GROWTH, GUIDED WITH CARE</span>
-        </div>
-        <div className="height-feature-copy">
-          <div className="section-kicker"><span>PEDIATRIC HEALTH & ASSESSMENT</span><i/></div>
-          <h2>A thoughtful start<br/>to their <em>growth journey.</em></h2>
-          <p>Questions about a child’s height? Begin with a doctor-led consultation and an individual assessment. Growth varies from child to child, so we focus on understanding first—without promising a fixed height gain.</p>
-          <div className="height-feature-actions">
-            <a className="btn-primary" href="/height-session.html">Join our free Zoom session <Video size={16}/></a>
-            <a className="under-link" href="/treatments.html#height-growth">Explore height consultations <ArrowUpRight size={15}/></a>
-          </div>
-        </div>
-      </section>
 
       {/* Our Doctors in Clean Cards */}
       <DoctorsCardsMinimal />

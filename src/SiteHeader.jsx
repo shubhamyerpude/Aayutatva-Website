@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  ShieldCheck, Phone, ArrowUpRight, Menu, X, ChevronRight, Home, 
+  ShieldCheck, ArrowUpRight, Menu, X, ChevronRight, ChevronDown, Home, 
   Sparkles, Flower2, Activity, Calendar, Ruler, Building2, MessageCircle,
-  MoreVertical, Video 
+  Video, Lock, Phone
 } from 'lucide-react';
 import { 
   HeightCampaignPopup, 
@@ -13,10 +13,102 @@ export const phonePrimary = '+917758816074';
 export const whatsappPhone = '917758816074';
 
 /**
- * Mobile Bottom Navigation Bar (Pattern 1 from Mobile Touch Design Guidelines)
- * Ergonomic thumb zone for 1-tap mobile navigation. Hidden on desktop (md:hidden).
+ * Mobile Bottom Navigation Bar:
+ * - Removed Home, Specialities, and Book OPD buttons as requested.
+ * - Added discreet Staff Portal / Hospital Leads & Excel Export access for internal hospital staff.
+ * - Quick access to AayuVaidya AI and WhatsApp Desk.
+ * - Can be minimized by user, and does not hide the footer.
+ * - Strictly hidden on desktop/laptop web mode.
  */
 export function MobileBottomNav() {
+  const [minimized, setMinimized] = useState(false);
+
+  if (minimized) {
+    return (
+      <aside 
+        className="fixed bottom-3 left-3 z-[990] md:hidden"
+        aria-label="Staff and AI shortcut"
+      >
+        <button
+          type="button"
+          onClick={() => setMinimized(false)}
+          className="bg-[#17331D] text-[#E7C697] border border-[#D4A373] px-3 py-1.5 rounded-full shadow-lg text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer"
+          title="Restore quick staff bar"
+        >
+          <Lock size={12} />
+          <span>Staff / Menu</span>
+        </button>
+      </aside>
+    );
+  }
+
+  return (
+    <nav 
+      className="mobile-bottom-nav md:hidden" 
+      aria-label="Staff and quick assistance bottom bar"
+    >
+      <div className="mobile-bottom-nav-inner">
+        {/* 1. Internal Hospital Leads & Excel Export (Staff Access) */}
+        <button 
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-height-admin'))}
+          className="mobile-tab-item tab-staff"
+          aria-label="Hospital Leads & Excel Export (Internal Staff)"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <div className="staff-icon-badge">
+            <Lock size={16} />
+          </div>
+          <span className="tab-label">Hospital Leads</span>
+        </button>
+
+        {/* 2. Quick AayuVaidya AI Assistant */}
+        <button 
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-vaidya-widget'))}
+          className="mobile-tab-item tab-featured"
+          aria-label="AayuVaidya AI Assistant"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          <div className="featured-icon-badge">
+            <Sparkles size={16} />
+          </div>
+          <span className="tab-label">आयुवैद्य AI</span>
+        </button>
+
+        {/* 3. WhatsApp Clinical Desk */}
+        <a 
+          href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hello Dr. Manish Yerpude, I am inquiring from the website for an appointment at AayuTatva Hospital in Bhandara.')}`}
+          target="_blank" 
+          rel="noreferrer"
+          className="mobile-tab-item"
+          aria-label="WhatsApp Desk"
+        >
+          <MessageCircle size={18} className="tab-icon text-emerald-600" />
+          <span className="tab-label">WhatsApp</span>
+        </a>
+
+        {/* Minimize bottom bar to view full footer uninterrupted */}
+        <button
+          type="button"
+          onClick={() => setMinimized(true)}
+          className="mobile-tab-minimize"
+          title="Minimize bottom bar"
+          aria-label="Minimize bottom bar"
+        >
+          <X size={14} />
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+export function SiteHeader({ breadcrumb = null }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
@@ -28,71 +120,8 @@ export function MobileBottomNav() {
   const p = currentPath.replace(/\/$/, '') || '/';
   const isHome = p === '/' || p === '/index.html';
   const isSpecialities = p.includes('treatment');
-  const isAI = p.includes('vaidya') || p.includes('ai-assistant') || p.includes('ask-vaidya');
-  const isQuiz = p.includes('quiz') || p.includes('prakriti') || p.includes('dosha');
-
-  return (
-    <nav 
-      className="mobile-bottom-nav md:hidden" 
-      aria-label="Mobile primary navigation"
-    >
-      <div className="mobile-bottom-nav-inner">
-        <a 
-          href="/" 
-          className={`mobile-tab-item ${isHome ? 'active' : ''}`}
-          aria-label="Home"
-        >
-          <Home size={20} className="tab-icon" />
-          <span className="tab-label">Home</span>
-        </a>
-
-        <a 
-          href="/treatments.html" 
-          className={`mobile-tab-item ${isSpecialities ? 'active' : ''}`}
-          aria-label="Specialities"
-        >
-          <Flower2 size={20} className="tab-icon" />
-          <span className="tab-label">Specialities</span>
-        </a>
-
-        <button 
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent('open-vaidya-widget'))}
-          className={`mobile-tab-item tab-featured ${isAI ? 'active' : ''}`}
-          aria-label="AayuVaidya AI Assistant"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-        >
-          <div className="featured-icon-badge">
-            <Sparkles size={18} className="tab-icon" />
-          </div>
-          <span className="tab-label">आयुवैद्य AI</span>
-        </button>
-
-        <a 
-          href="/dosha-quiz.html" 
-          className={`mobile-tab-item ${isQuiz ? 'active' : ''}`}
-          aria-label="Prakriti Dosha Quiz"
-        >
-          <Activity size={20} className="tab-icon" />
-          <span className="tab-label">देह प्रकृती</span>
-        </a>
-
-        <a 
-          href="/#booking" 
-          className="mobile-tab-item tab-cta"
-          aria-label="Book Appointment"
-        >
-          <Calendar size={20} className="tab-icon" />
-          <span className="tab-label">Book OPD</span>
-        </a>
-      </div>
-    </nav>
-  );
-}
-
-export function SiteHeader({ breadcrumb = null }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [adminOpen, setAdminOpen] = useState(false);
+  const isFacilities = p.includes('facilities');
+  const isHeight = p.includes('height');
 
   useEffect(() => {
     const handleOpenAdmin = () => setAdminOpen(true);
@@ -106,6 +135,17 @@ export function SiteHeader({ breadcrumb = null }) {
     return () => {
       window.removeEventListener('open-height-admin', handleOpenAdmin);
     };
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Prevent background body scroll when mobile menu is open
@@ -131,7 +171,7 @@ export function SiteHeader({ breadcrumb = null }) {
       {/* 1. Campaign Popup Trigger (Opens on click or direct URL parameter) */}
       <HeightCampaignPopup autoOpen={false} />
 
-      {/* 2. Top Portal Status Bar */}
+      {/* 2. Top Portal Status Bar (Call hospital removed from title bar) */}
       <div className="top-portal-bar">
         <div className="top-portal-bar-left">
           <span className="top-portal-chip">NABH ACCREDITED</span>
@@ -139,25 +179,168 @@ export function SiteHeader({ breadcrumb = null }) {
         </div>
         <div className="top-portal-bar-right">
           <a href="/insurance.html" className="top-portal-mediclaim">
-            <Building2 size={14}/> IPD Hospital Admission
+            <ShieldCheck size={14}/> 100% Cashless Mediclaim Accepted
           </a>
-          <a href={`tel:${phonePrimary}`} className="top-portal-phone">
-            <Phone size={14}/> +91 77588 16074
+          <a href="/facilities.html" className="top-portal-mediclaim">
+            <Building2 size={14}/> Hospital & IPD Admissions
           </a>
         </div>
       </div>
 
-      {/* 3. Main Header Title Bar */}
+      {/* 3. Main Header Title Bar (Organized, clean button navigation without clutter) */}
       <header className="header">
         <a href="/" className="brand" aria-label="AayuTatva Ayurvedic Hospital Home">
           <img 
             className="brand-logo" 
             src="/media/aayutatva-logo.png" 
             alt="Dr. Yerpude’s AayuTatva Ayurved Hospital & Panchakarma Centre"
+            style={{ maxHeight: '46px', width: 'auto', objectFit: 'contain' }}
           />
         </a>
 
-        {/* Backdrop overlay for mobile menu */}
+        {/* Desktop Web Navigation: Clean, button-styled options with dropdown for secondary tools */}
+        <nav className="desktop-titlebar-nav" aria-label="Primary website navigation">
+          <a 
+            href="/" 
+            className={`nav-btn ${isHome ? 'active' : ''}`}
+          >
+            Home
+          </a>
+
+          <a 
+            href="/treatments.html" 
+            className={`nav-btn ${isSpecialities ? 'active' : ''}`}
+          >
+            Our Specialities
+          </a>
+
+          <a 
+            href="/facilities.html" 
+            className={`nav-btn ${isFacilities ? 'active' : ''}`}
+          >
+            Hospital & IPD
+          </a>
+
+          <a 
+            href="/height-session.html" 
+            className={`nav-btn ${isHeight ? 'active' : ''}`}
+          >
+            Height Growth
+          </a>
+
+          {/* More Dropdown Menu */}
+          <div className="nav-dropdown-container" ref={dropdownRef}>
+            <button 
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className={`nav-btn nav-btn-dropdown ${dropdownOpen ? 'active' : ''}`}
+              aria-expanded={dropdownOpen}
+              aria-haspopup="true"
+            >
+              <span>More</span>
+              <ChevronDown 
+                size={14} 
+                style={{ 
+                  transform: dropdownOpen ? 'rotate(180deg)' : 'none', 
+                  transition: 'transform 0.2s ease' 
+                }} 
+              />
+            </button>
+
+            {dropdownOpen && (
+              <div className="nav-dropdown-menu">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    window.dispatchEvent(new CustomEvent('open-vaidya-widget'));
+                  }}
+                  className="nav-dropdown-item"
+                >
+                  <div className="nav-dropdown-icon bg-emerald-50 text-emerald-800">
+                    <Sparkles size={16} />
+                  </div>
+                  <div>
+                    <b>आयुवैद्य AI Assistant</b>
+                    <small>24/7 Ayurvedic clinical consultation & triage</small>
+                  </div>
+                </button>
+
+                <a 
+                  href="/dosha-quiz.html" 
+                  onClick={() => setDropdownOpen(false)}
+                  className="nav-dropdown-item"
+                >
+                  <div className="nav-dropdown-icon bg-amber-50 text-amber-800">
+                    <Activity size={16} />
+                  </div>
+                  <div>
+                    <b>देह प्रकृती व नाडी परीक्षा</b>
+                    <small>Ayurvedic constitution self-assessment quiz</small>
+                  </div>
+                </a>
+
+                <a 
+                  href="/insurance.html" 
+                  onClick={() => setDropdownOpen(false)}
+                  className="nav-dropdown-item"
+                >
+                  <div className="nav-dropdown-icon bg-emerald-50 text-emerald-800">
+                    <ShieldCheck size={16} />
+                  </div>
+                  <div>
+                    <b>Cashless Insurance & Mediclaim</b>
+                    <small>NABH pre-authorization & 0-deduction support</small>
+                  </div>
+                </a>
+
+                <a 
+                  href="/facilities.html" 
+                  onClick={() => setDropdownOpen(false)}
+                  className="nav-dropdown-item"
+                >
+                  <div className="nav-dropdown-icon bg-stone-100 text-stone-800">
+                    <Building2 size={16} />
+                  </div>
+                  <div>
+                    <b>Hospital Facilities & Doctors</b>
+                    <small>Panchakarma theatre & patient rooms</small>
+                  </div>
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Live Masterclass Button with pulsing indicator */}
+          <button 
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-height-masterclass', { detail: { step: 0 } }))}
+            className="nav-btn-masterclass"
+            title="18 Oct Height Masterclass details & registration"
+          >
+            <span className="live-pulse-dot" />
+            <span>Live Masterclass (₹9)</span>
+          </button>
+
+          {/* Primary CTA: Book Appointment */}
+          <a href="/#booking" className="nav-btn-primary">
+            <span>Book Appointment</span>
+            <ArrowUpRight size={14}/>
+          </a>
+        </nav>
+
+        {/* Mobile Hamburger Toggle Button (Hidden on desktop / laptop) */}
+        <button 
+          type="button"
+          className="menu-toggle" 
+          onClick={() => setMenuOpen(!menuOpen)} 
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X size={24}/> : <Menu size={24}/>}
+        </button>
+
+        {/* Backdrop overlay for mobile drawer */}
         {menuOpen && (
           <div 
             className="mobile-drawer-backdrop" 
@@ -166,11 +349,15 @@ export function SiteHeader({ breadcrumb = null }) {
           />
         )}
 
-        {/* Navigation Menu */}
-        <nav className={menuOpen ? 'nav open' : 'nav'} aria-label="Site navigation">
-          {/* Mobile drawer header */}
-          <div className="mobile-drawer-header md:hidden">
-            <span className="mobile-drawer-title">AayuTatva Menu</span>
+        {/* Mobile Drawer (Only used on mobile screens) */}
+        <div className={menuOpen ? 'mobile-drawer open' : 'mobile-drawer'}>
+          {/* Mobile drawer header: AayuTatva logo replaces text, keeping close button for mobile */}
+          <div className="mobile-drawer-header">
+            <img 
+              src="/media/aayutatva-logo.png" 
+              alt="AayuTatva Ayurvedic Hospital" 
+              className="mobile-drawer-logo"
+            />
             <button 
               type="button" 
               className="mobile-drawer-close"
@@ -181,124 +368,83 @@ export function SiteHeader({ breadcrumb = null }) {
             </button>
           </div>
 
-          <a href="/" onClick={() => setMenuOpen(false)}>
-            <Home size={18} className="nav-item-icon md:hidden" />
-            <span>Home</span>
-          </a>
-          <a href="/treatments.html" onClick={() => setMenuOpen(false)}>
-            <Flower2 size={18} className="nav-item-icon md:hidden" />
-            <span>Our Specialities</span>
-          </a>
-          <a href="/facilities.html" onClick={() => setMenuOpen(false)}>
-            <Building2 size={18} className="nav-item-icon md:hidden" />
-            <span>Hospital & IPD</span>
-          </a>
-          <a href="/insurance.html" onClick={() => setMenuOpen(false)}>
-            <Building2 size={18} className="nav-item-icon md:hidden" />
-            <span>Hospital Admission & IPD</span>
-          </a>
-          <a href="/dosha-quiz.html" onClick={() => setMenuOpen(false)}>
-            <Activity size={18} className="nav-item-icon md:hidden" />
-            <span>प्रकृती व नाडी परीक्षा</span>
-            <span className="nav-chip-badge md:hidden">Self-Test</span>
-          </a>
-          <button 
-            type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              window.dispatchEvent(new CustomEvent('open-vaidya-widget'));
-            }}
-            className="nav-item-btn"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              width: '100%',
-              background: 'none',
-              border: 'none',
-              borderBottom: '1px solid #eeece5',
-              padding: '14px 4px',
-              font: 'inherit',
-              fontSize: '14px',
-              color: 'inherit',
-              cursor: 'pointer',
-              textAlign: 'left'
-            }}
-          >
-            <Sparkles size={18} className="nav-item-icon md:hidden" />
-            <span>आयुवैद्य AI Assistant</span>
-            <span className="nav-chip-badge md:hidden">24/7 Live</span>
-          </button>
-          <a href="/height-session.html" onClick={() => setMenuOpen(false)}>
-            <Ruler size={18} className="nav-item-icon md:hidden" />
-            <span>Height Growth Care</span>
-          </a>
-
-          <button 
-            type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              window.dispatchEvent(new CustomEvent('open-height-masterclass', { detail: { step: 0 } }));
-            }}
-            className="nav-item-btn"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              width: '100%',
-              background: 'none',
-              border: 'none',
-              borderBottom: '1px solid #eeece5',
-              padding: '14px 4px',
-              font: 'inherit',
-              fontSize: '14px',
-              color: '#17331D',
-              fontWeight: '700',
-              cursor: 'pointer',
-              textAlign: 'left'
-            }}
-          >
-            <Video size={18} className="nav-item-icon text-amber-700 md:hidden" />
-            <span>Live Masterclass (18 Oct · 7-8 PM · ₹9)</span>
-            <span className="nav-chip-badge md:hidden" style={{ background: '#d4a373', color: '#17331D' }}>Live</span>
-          </button>
-
-          <a href="/#booking" className="nav-book" onClick={() => setMenuOpen(false)}>
-            <Calendar size={18} className="nav-item-icon md:hidden" />
-            <span>Book Appointment</span> 
-            <ArrowUpRight size={16}/>
-          </a>
-
-          {/* Quick contact buttons in mobile drawer */}
-          <div className="mobile-drawer-actions md:hidden">
-            <a href={`tel:${phonePrimary}`} className="mobile-drawer-btn phone">
-              <Phone size={16} /> Call Hospital
+          <div className="mobile-drawer-body">
+            <a href="/" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Home size={18} className="nav-item-icon" />
+              <span>Home</span>
             </a>
-            <a 
-              href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hello Dr. Manish Yerpude, I am inquiring from the website for an appointment at AayuTatva Hospital in Bhandara.')}`}
-              target="_blank" 
-              rel="noreferrer"
-              className="mobile-drawer-btn whatsapp"
+            <a href="/treatments.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Flower2 size={18} className="nav-item-icon" />
+              <span>Our Specialities</span>
+            </a>
+            <a href="/facilities.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Building2 size={18} className="nav-item-icon" />
+              <span>Hospital & IPD Facilities</span>
+            </a>
+            <a href="/height-session.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Ruler size={18} className="nav-item-icon" />
+              <span>Height Growth Care</span>
+            </a>
+
+            <button 
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                window.dispatchEvent(new CustomEvent('open-height-masterclass', { detail: { step: 0 } }));
+              }}
+              className="mobile-drawer-link mobile-drawer-link-highlight"
             >
-              <MessageCircle size={16} /> WhatsApp Desk
+              <Video size={18} className="text-amber-700" />
+              <span>Live Masterclass (18 Oct · 7-8 PM · ₹9)</span>
+              <span className="nav-chip-badge" style={{ background: '#d4a373', color: '#17331D' }}>Live</span>
+            </button>
+
+            <button 
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                window.dispatchEvent(new CustomEvent('open-vaidya-widget'));
+              }}
+              className="mobile-drawer-link"
+            >
+              <Sparkles size={18} className="nav-item-icon" />
+              <span>आयुवैद्य AI Assistant</span>
+              <span className="nav-chip-badge">24/7 Live</span>
+            </button>
+
+            <a href="/dosha-quiz.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Activity size={18} className="nav-item-icon" />
+              <span>देह प्रकृती व नाडी परीक्षा</span>
+              <span className="nav-chip-badge">Self-Test</span>
             </a>
+
+            <a href="/insurance.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <ShieldCheck size={18} className="nav-item-icon" />
+              <span>Cashless Insurance & Mediclaim</span>
+            </a>
+
+            <a href="/#booking" className="mobile-drawer-book-btn" onClick={() => setMenuOpen(false)}>
+              <Calendar size={18} />
+              <span>Book Appointment</span> 
+              <ArrowUpRight size={16}/>
+            </a>
+
+            {/* Quick contact buttons in mobile drawer */}
+            <div className="mobile-drawer-actions">
+              <a href={`tel:${phonePrimary}`} className="mobile-drawer-btn phone">
+                <Phone size={16} /> Call Hospital
+              </a>
+              <a 
+                href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hello Dr. Manish Yerpude, I am inquiring from the website for an appointment at AayuTatva Hospital in Bhandara.')}`}
+                target="_blank" 
+                rel="noreferrer"
+                className="mobile-drawer-btn whatsapp"
+              >
+                <MessageCircle size={16} /> WhatsApp Desk
+              </a>
+            </div>
           </div>
-        </nav>
-
-        <div className="header-right">
-          <a href={`tel:${phonePrimary}`} className="phone-head" aria-label="Call clinic at +91 77588 16074">
-            <Phone size={16}/><span>Call Clinic</span>
-          </a>
         </div>
-
-        <button 
-          className="menu-toggle" 
-          onClick={() => setMenuOpen(!menuOpen)} 
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? <X size={24}/> : <Menu size={24}/>}
-        </button>
       </header>
 
       {/* Breadcrumbs for easy navigation */}
@@ -314,7 +460,7 @@ export function SiteHeader({ breadcrumb = null }) {
         </nav>
       )}
 
-      {/* Mobile Bottom Navigation Bar (Pattern 1) */}
+      {/* Mobile Bottom Navigation Bar: leads & AI access */}
       <MobileBottomNav />
 
       {/* Admin Leads & Excel Export Dialog */}
