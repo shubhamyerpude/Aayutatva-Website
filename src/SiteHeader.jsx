@@ -188,7 +188,7 @@ export function SiteHeader({ breadcrumb = null }) {
       </div>
 
       {/* 3. Main Header Title Bar (Organized, clean button navigation without clutter) */}
-      <header className="header">
+      <header className={`header ${menuOpen ? 'menu-open' : ''}`}>
         {/* AayuTatva Logo with Home Link */}
         <a 
           href="/" 
