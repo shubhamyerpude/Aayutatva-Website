@@ -102,12 +102,32 @@ input,select,textarea{width:100%;min-height:48px;border:1px solid #dcdad0;backgr
 textarea{padding-top:12px;resize:vertical}input::placeholder,textarea::placeholder{color:#a8a599}input:focus,select:focus,textarea:focus{border-color:#1B3B22;box-shadow:0 0 0 1px #1B3B22}select{appearance:none;color:#545d52}.select-wrap{position:relative}.select-wrap>svg{position:absolute;right:14px;top:15px;color:#77786c;pointer-events:none}.optional{font-size:8px;font-weight:400;color:#aaa99c;margin-left:4px}.submit-btn{width:100%;margin-top:4px;min-height:48px}.privacy-note{text-align:center;font-size:9px;color:#969487;margin:0}.success-state{min-height:385px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}.success-state>span{height:52px;width:52px;border-radius:50%;display:grid;place-items:center;background:#e8eee4;color:#66845a}.success-state h3{font:500 27px 'Playfair Display',serif;margin:18px 0 10px}.success-state p{font-size:12px;line-height:1.8;color:#77786d;max-width:300px;margin-bottom:20px}.visit-band{background:#eee9dd;padding:70px 11.5%;display:grid;grid-template-columns:1fr 1fr;gap:30px;position:relative;overflow:hidden}.visit-text>span{font-size:8px;letter-spacing:1.7px;color:#818276}.visit-band h2{font-size:43px;margin:15px 0 21px}.map-link{display:inline-flex;align-items:center;gap:9px;border-bottom:1px solid #c7ae8c;padding-bottom:8px;font-size:11px;font-weight:600}.map-link svg:first-child{color:#a17d54}.visit-details{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-content:center;padding-right:95px}.visit-details small{font-size:8px;letter-spacing:1.4px;color:#878779}.visit-details p{font-size:11px;line-height:1.8;color:var(--green);margin:11px 0 0}.visit-decoration{position:absolute;right:5%;bottom:-34px;color:rgba(175,145,101,.2);transform:rotate(-18deg)}.footer{background:#1B3B22;color:#fff;padding:44px 7.4% 20px}.footer-main{display:grid;grid-template-columns:1.3fr .9fr 1.2fr 1.2fr;gap:30px;align-items:center;padding-bottom:38px}.footer-brand .brand-mark{border-color:rgba(255,255,255,.27)}.footer-brand .brand-name{color:white}.footer-brand .brand-name>span{color:#d7b386}.footer-brand .brand-name small{color:#bec8b8}.footer-main>p{font:italic 15px/1.5 'Playfair Display',serif;color:#cad1c5;margin:0}.footer-phones{display:flex;flex-direction:column;gap:11px}.footer-phones a{display:flex;align-items:center;gap:9px;font-size:11px;color:#eef0e9;min-height:36px}.footer-phones a svg{color:#d4ae80}.footer-book{justify-self:end;display:flex;align-items:center;gap:12px;font-size:11px;border-bottom:1px solid #a2ad9e;padding-bottom:8px}.footer-bottom{border-top:1px solid rgba(255,255,255,.16);padding-top:17px;display:flex;justify-content:space-between;gap:20px;color:#b5c0b0;font-size:8px;letter-spacing:.65px}.footer-bottom a{color:#e6ddcf}.whatsapp{display:none !important}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(131,160,113,.13)}50%{box-shadow:0 0 0 7px rgba(131,160,113,.05)}}
 @media(max-width:1050px){.header{padding:0 5%}.nav{gap:22px}.open-label{display:none}.hero{padding-left:8%;padding-right:8%;gap:5%}.hero-visual{height:410px}.hero-vertical{display:none}.section-pad{padding-left:8%;padding-right:8%}.trust-strip{padding-left:5%;padding-right:5%;gap:14px}.trust-item b{font-size:9px}.visit-band{padding-left:8%;padding-right:8%}}
+/* Brand Logo Home Link */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  user-select: none;
+}
+
+.brand:hover {
+  opacity: 0.92;
+  transform: translateY(-0.5px);
+}
+
+.brand:focus-visible {
+  outline: 2px solid #17331D;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
 
 /* Modern Desktop Titlebar Navigation Buttons & Dropdown */
 .desktop-titlebar-nav {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .nav-btn {
@@ -356,6 +376,12 @@ textarea{padding-top:12px;resize:vertical}input::placeholder,textarea::placehold
     padding-bottom: 14px;
     border-bottom: 1px solid #eeece5;
     margin-bottom: 12px;
+  }
+  .mobile-drawer-brand-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
   }
   .mobile-drawer-logo {
     max-height: 38px;

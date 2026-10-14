@@ -189,7 +189,13 @@ export function SiteHeader({ breadcrumb = null }) {
 
       {/* 3. Main Header Title Bar (Organized, clean button navigation without clutter) */}
       <header className="header">
-        <a href="/" className="brand" aria-label="AayuTatva Ayurvedic Hospital Home">
+        {/* AayuTatva Logo with Home Link */}
+        <a 
+          href="/" 
+          className="brand" 
+          aria-label="AayuTatva Ayurvedic Hospital Home" 
+          title="AayuTatva Ayurvedic Hospital - Return to Home"
+        >
           <img 
             className="brand-logo" 
             src="/media/aayutatva-logo.png" 
@@ -201,17 +207,11 @@ export function SiteHeader({ breadcrumb = null }) {
         {/* Desktop Web Navigation: Clean, button-styled options with dropdown for secondary tools */}
         <nav className="desktop-titlebar-nav" aria-label="Primary website navigation">
           <a 
-            href="/" 
-            className={`nav-btn ${isHome ? 'active' : ''}`}
-          >
-            Home
-          </a>
-
-          <a 
             href="/treatments.html" 
             className={`nav-btn ${isSpecialities ? 'active' : ''}`}
+            aria-label="Treatments"
           >
-            Our Specialities
+            Specialities
           </a>
 
           <a 
@@ -353,11 +353,19 @@ export function SiteHeader({ breadcrumb = null }) {
         <div className={menuOpen ? 'mobile-drawer open' : 'mobile-drawer'}>
           {/* Mobile drawer header: AayuTatva logo replaces text, keeping close button for mobile */}
           <div className="mobile-drawer-header">
-            <img 
-              src="/media/aayutatva-logo.png" 
-              alt="AayuTatva Ayurvedic Hospital" 
-              className="mobile-drawer-logo"
-            />
+            <a 
+              href="/" 
+              onClick={() => setMenuOpen(false)} 
+              aria-label="AayuTatva Ayurvedic Hospital Home"
+              className="mobile-drawer-brand-link"
+              title="AayuTatva Ayurvedic Hospital - Return to Home"
+            >
+              <img 
+                src="/media/aayutatva-logo.png" 
+                alt="AayuTatva Ayurvedic Hospital" 
+                className="mobile-drawer-logo"
+              />
+            </a>
             <button 
               type="button" 
               className="mobile-drawer-close"
@@ -369,10 +377,6 @@ export function SiteHeader({ breadcrumb = null }) {
           </div>
 
           <div className="mobile-drawer-body">
-            <a href="/" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
-              <Home size={18} className="nav-item-icon" />
-              <span>Home</span>
-            </a>
             <a href="/treatments.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
               <Flower2 size={18} className="nav-item-icon" />
               <span>Our Specialities</span>
