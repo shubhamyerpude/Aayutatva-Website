@@ -568,23 +568,26 @@ export function generateInternalAyurvedicResponse(
     intent = matchedTopic.id;
     topicTitle = matchedTopic.title[selectedLang] || matchedTopic.title.mr;
   } else {
-    // Crisp default response
+    // Dynamic, question-specific fallback response
+    const cleanQ = userMessage.trim();
     if (selectedLang === 'mr') {
-      detailedBody = `### 🌿 आयुर्वेदिक दृष्टीकोन
+      detailedBody = `### 🌿 आयुर्वेदिक दृष्टीकोन · "${cleanQ.slice(0, 50)}"
 
-• **त्रिदोष समतोल**: आयुर्वेदानुसार आरोग्य हे वात, पित्त आणि कफ यांच्या समतोलावर आणि मजबूत पचन अग्नीवर अवलंबून असते.
-• **नाडी परीक्षा सल्ला**: अचूक औषधोपचार व पंचकर्मासाठी प्रत्यक्ष **नाडी परीक्षा (Pulse Diagnosis)** करून घेणे सर्वोत्तम ठरते.
-• **थेट सल्ला**: डॉ. मनिष संतोष येरपुडे यांच्याशी संपर्क साधा किंवा खाली दिलेल्या बटनांवरून चर्चा करा.`;
+• **तुमच्या प्रश्नाबाबत**: आपण विचारलेल्या विषयावर आयुर्वेदात प्रकृती (वात, पित्त, कफ) आणि पचन अग्नीच्या स्थितीनुसार विशिष्ट उपाय, आहार नियम व पंचकर्म सांगितले आहेत.
+• **सामान्य तत्त्व**: शरीरातील आम (विषारी घटक) दूर ठेवण्यासाठी ताजे गरम जेवण, १ चमचा साजूक तूप, आणि योग्य वेळी झोप घेणे आवश्यक असते.
+• **वैयक्तिक चिकित्सा**: कोणत्याही त्रासाचे मूळ कारण जाणून योग्य औषधोपचारासाठी प्रत्यक्ष **नाडी परीक्षा (Pulse Diagnosis)** करून घेणे सर्वोत्तम ठरते.`;
     } else if (selectedLang === 'hi') {
-      detailedBody = `### 🌿 आयुर्वेदिक दृष्टिकोण
+      detailedBody = `### 🌿 आयुर्वेदिक दृष्टिकोण · "${cleanQ.slice(0, 50)}"
 
-• **त्रिदोष संतुलन**: स्वास्थ्य वात, पित्त, कफ के संतुलन और पाचन अग्नि पर निर्भर है।
-• **नाड़ी परीक्षा परामर्श**: सही औषधि व पंचकर्म के लिए अस्पताल में प्रत्यक्ष **नाड़ी परीक्षा** कराना सर्वोत्तम है।`;
+• **आपके प्रश्न के संदर्भ में**: इस विषय पर आयुर्वेद में त्रिदोष (वात, पित्त, कफ) के संतुलन एवं पाचन अग्नि (जठराग्नि) के अनुसार विशिष्ट दिनचर्या एवं आहार नियम बताए गए हैं।
+• **सामान्य नियम**: शरीर से टॉक्सिन्स (आम) निकालने हेतु गुनगुना पानी, हल्का सुपाच्य भोजन और समय पर विश्राम लाभप्रद है।
+• **व्यक्तिगत परामर्श**: सही औषध एवं पंचकर्म चयन हेतु प्रत्यक्ष **नाड़ी परीक्षा** कराना सर्वोत्तम है।`;
     } else {
-      detailedBody = `### 🌿 Ayurvedic Perspective
+      detailedBody = `### 🌿 Ayurvedic Guidance · "${cleanQ.slice(0, 50)}"
 
-• **Tridosha Harmony**: Health is rooted in balancing Vata, Pitta, and Kapha along with robust digestive fire (*Agni*).
-• **Pulse Examination**: For individualized herbal therapies and Panchakarma, in-person radial pulse diagnosis (*Nadi Parikshan*) is recommended.`;
+• **Regarding your inquiry**: Classical Ayurveda approaches this by evaluating the underlying balance of Vata, Pitta, and Kapha along with metabolic strength (*Agni*).
+• **General Principles**: Focus on warm, fresh, wholesome meals (*Satvik Ahara*), proper hydration, and regular sleep rhythms (*Dinacharya*).
+• **Personalized Assessment**: Because every constitution (*Prakriti*) is unique, an in-person radial pulse diagnosis (*Nadi Parikshan*) is recommended for a tailored wellness plan.`;
     }
   }
 

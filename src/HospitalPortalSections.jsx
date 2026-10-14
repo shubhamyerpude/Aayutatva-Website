@@ -164,15 +164,26 @@ export function DoshaQuizTeaserSection() {
           </p>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <a href="/vaidya-ai.html" className="btn-primary" style={{ padding: '0 22px', minHeight: '46px', fontSize: '12px' }}>
+            <button 
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-vaidya-widget'))}
+              className="btn-primary" 
+              style={{ padding: '0 22px', minHeight: '46px', fontSize: '12px', cursor: 'pointer', border: 'none' }}
+              aria-label="Open AayuVaidya AI Assistant side popup"
+            >
               Consult AayuVaidya AI ✨ <ArrowUpRight size={16}/>
-            </a>
+            </button>
             <a href="/prakriti-quiz.html" className="under-link" style={{ fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               Take Nadi & Dosha Quiz <ArrowUpRight size={13}/>
             </a>
-            <a href="/vaidya-ai.html" onClick={() => {}} className="under-link" style={{ fontSize: '11px', color: '#6f5739' }}>
+            <button 
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-vaidya-widget'))} 
+              className="under-link" 
+              style={{ fontSize: '11px', color: '#6f5739', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
               Browse Clinical FAQs <ArrowUpRight size={13}/>
-            </a>
+            </button>
           </div>
         </div>
 

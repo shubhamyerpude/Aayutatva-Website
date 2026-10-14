@@ -42,6 +42,20 @@ export function AayuVaidyaWidget() {
   };
 
   useEffect(() => {
+    const handleOpenWidget = (e) => {
+      setIsOpen(true);
+      if (e?.detail?.query) {
+        // Option to prefill or trigger query
+        setTimeout(() => {
+          handleSend(e.detail.query);
+        }, 150);
+      }
+    };
+    window.addEventListener('open-vaidya-widget', handleOpenWidget);
+    return () => window.removeEventListener('open-vaidya-widget', handleOpenWidget);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       scrollToBottom();
     }
@@ -211,9 +225,15 @@ export function AayuVaidyaWidget() {
         </button>
       )}
 
-      {/* Floating Assistant Modal */}
+      {/* Floating Assistant Modal with Darkened Background Overlay */}
       {isOpen && (
-        <div className="vaidya-floating-modal" role="dialog" aria-modal="true" aria-label="AayuVaidya AI Assistant">
+        <>
+          <div 
+            className="vaidya-widget-backdrop" 
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="vaidya-floating-modal" role="dialog" aria-modal="true" aria-label="AayuVaidya AI Assistant">
           <div className="vaidya-modal-head">
             <h3>
               <Sparkles size={16} color="#e5c38d"/>
@@ -223,15 +243,27 @@ export function AayuVaidyaWidget() {
               type="button" 
               onClick={() => setIsOpen(false)}
               aria-label="Close assistant"
+              style={{
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: '#ffffff',
+                cursor: 'pointer'
+              }}
             >
-              <X size={18}/>
+              <X size={20}/>
             </button>
           </div>
 
           {/* Language Selector Bar */}
           <div style={{
             background: '#ffffff',
-            padding: '7px 14px',
+            padding: '8px 14px',
             borderBottom: '1px solid #e7e0d3',
             display: 'flex',
             alignItems: 'center',
@@ -239,16 +271,17 @@ export function AayuVaidyaWidget() {
             gap: '8px',
             flexWrap: 'wrap'
           }}>
-            <span style={{ fontSize: '11px', fontWeight: '700', color: '#1b3b22', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Globe size={13} color="#2e7d32" /> भाषा / Language:
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#1b3b22', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Globe size={14} color="#2e7d32" /> भाषा / Lang:
             </span>
-            <div style={{ display: 'inline-flex', background: '#f0ece1', padding: '2px', borderRadius: '8px', gap: '2px' }}>
+            <div style={{ display: 'inline-flex', background: '#f0ece1', padding: '3px', borderRadius: '8px', gap: '3px' }}>
               <button
                 type="button"
                 onClick={() => handleLanguageChange('mr')}
                 style={{
-                  padding: '3px 10px',
-                  fontSize: '11px',
+                  padding: '6px 12px',
+                  minHeight: '34px',
+                  fontSize: '12px',
                   fontWeight: language === 'mr' ? '700' : '500',
                   borderRadius: '6px',
                   border: 'none',
@@ -264,8 +297,9 @@ export function AayuVaidyaWidget() {
                 type="button"
                 onClick={() => handleLanguageChange('hi')}
                 style={{
-                  padding: '3px 10px',
-                  fontSize: '11px',
+                  padding: '6px 12px',
+                  minHeight: '34px',
+                  fontSize: '12px',
                   fontWeight: language === 'hi' ? '700' : '500',
                   borderRadius: '6px',
                   border: 'none',
@@ -281,8 +315,9 @@ export function AayuVaidyaWidget() {
                 type="button"
                 onClick={() => handleLanguageChange('en')}
                 style={{
-                  padding: '3px 10px',
-                  fontSize: '11px',
+                  padding: '6px 12px',
+                  minHeight: '34px',
+                  fontSize: '12px',
                   fontWeight: language === 'en' ? '700' : '500',
                   borderRadius: '6px',
                   border: 'none',
@@ -564,7 +599,7 @@ export function AayuVaidyaWidget() {
           {/* Input Form */}
           <form 
             className="vaidya-chat-input-bar" 
-            style={{ padding: '8px 12px' }}
+            style={{ padding: '10px 14px', gap: '8px' }}
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           >
             <input 
@@ -573,18 +608,19 @@ export function AayuVaidyaWidget() {
               onChange={(e) => setInputVal(e.target.value)} 
               placeholder={getPlaceholder()}
               disabled={loading}
-              style={{ height: '38px', fontSize: '12px' }}
+              style={{ minHeight: '46px', height: '46px', fontSize: '15px' }}
             />
             <button 
               type="submit" 
               className="vaidya-send-btn" 
               disabled={loading || !inputVal.trim()}
-              style={{ height: '38px', padding: '0 14px', fontSize: '12px' }}
+              style={{ minHeight: '46px', minWidth: '46px', height: '46px', padding: '0 16px', fontSize: '13px' }}
             >
-              <Send size={13}/>
+              <Send size={16}/>
             </button>
           </form>
         </div>
+        </>
       )}
     </>
   );

@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Analytics } from '@vercel/analytics/react';
+const Analytics = () => null;
 import { motion } from 'framer-motion';
 import { 
   ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3, Flower2, 
   Heart, Leaf, MapPin, Menu, Phone, Play, Sparkles, Stethoscope, Waves, X, MessageCircle, 
   Camera, Star, BadgeCheck, ShieldCheck, Ruler, Video, Building2, Calendar, 
-  Compass, Bed, Pill, Activity, CheckCircle2 
+  Compass, Bed, Pill, Activity, CheckCircle2, CreditCard, RefreshCw 
 } from 'lucide-react';
+import { PaytmPaymentCard } from './HeightMasterclassCampaign.jsx';
 import './styles.css';
 import './sections.css';
 import './portal.css';
 import { TreatmentsPage, InsurancePage, HeightSessionPage } from './subpages.jsx';
+import { LegalCompliancePage } from './LegalCompliancePage.jsx';
 import { 
   SpecialitiesCompactSection, 
   DoctorsCardsMinimal,
@@ -55,20 +57,125 @@ function App() {
   const [heroSlide, setHeroSlide] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', department: '', date: '', note: '' });
+  const [payOnline, setPayOnline] = useState(true);
+  const [bookingStep, setBookingStep] = useState(1); // 1 = Form, 2 = UPI QR & Pay, 3 = Confirmed
+  const [bookingId, setBookingId] = useState('');
+  const [upiRefInput, setUpiRefInput] = useState('');
+  const [submittingBooking, setSubmittingBooking] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const submit = (e) => {
     e.preventDefault();
+    setFormError('');
+    if (!form.name || !form.phone || !form.department || !form.date) {
+      setFormError('Please enter your full name, phone number, area of care, and preferred date.');
+      return;
+    }
+
+    if (!payOnline) {
+      // Pay at counter / Request via WhatsApp
+      const bId = 'AAYU-DOC-' + Math.floor(100000 + Math.random() * 900000);
+      setBookingId(bId);
+      const message = [
+        `*AayuTatva Ayurvedic Hospital — OPD Appointment Request*`,
+        `Hello AayuTatva, I would like to request an in-clinic appointment (Pay at Counter).`,
+        ``,
+        `📋 *Booking ID:* ${bId}`,
+        `👤 *Patient Name:* ${form.name}`,
+        `📞 *Phone Number:* ${form.phone}`,
+        `🌿 *Area of Care:* ${form.department}`,
+        `📅 *Preferred Date:* ${form.date}`,
+        `📝 *Notes:* ${form.note || 'None'}`,
+        `💵 *Consultation Fee:* ₹200 (Pay at Clinic Counter)`,
+        `⏳ *Payment Status:* Counter Payment Pending`,
+        ``,
+        `Kindly check doctor availability and confirm my appointment slot.`
+      ].join('\n');
+      const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+      setSubmitted(true);
+      return;
+    }
+
+    // Pay with UPI - Move to Step 2 (Scan & Pay with UPI)
+    const bId = 'AAYU-DOC-' + Math.floor(100000 + Math.random() * 900000);
+    setBookingId(bId);
+    setBookingStep(2);
+  };
+
+  const handleUpiPaymentConfirm = async () => {
+    setSubmittingBooking(true);
+    const finalUpiRef = upiRefInput.trim() || ('UPI-' + Math.floor(100000 + Math.random() * 900000));
+    const recordEntry = {
+      id: bookingId,
+      name: form.name,
+      whatsapp: form.phone,
+      department: form.department,
+      date: form.date,
+      note: form.note || '',
+      fee: 200,
+      upiRef: finalUpiRef,
+      status: 'Paid ₹200 via UPI (Verification Pending)',
+      submittedAt: new Date().toISOString(),
+    };
+
+    // Save to local storage and sync to sheet backend
+    try {
+      const existing = JSON.parse(localStorage.getItem('aayutatva_opd_bookings') || '[]');
+      existing.unshift(recordEntry);
+      localStorage.setItem('aayutatva_opd_bookings', JSON.stringify(existing));
+    } catch (e) {}
+
+    try {
+      await fetch('/api/height-registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: bookingId,
+          name: form.name,
+          whatsapp: form.phone,
+          city: `OPD Care (${form.department} on ${form.date})`,
+          age: 'Adult',
+          gender: 'OPD',
+          currentHeight: 'N/A',
+          goal: form.note || `Doctor Consultation (${form.department})`,
+          upiRef: finalUpiRef,
+          fee: 200,
+          status: 'Paid ₹200 via UPI (Verification Pending)',
+          submittedAt: new Date().toISOString(),
+        }),
+      });
+    } catch (e) {
+      console.warn('Backend sheet sync note:', e);
+    }
+
+    // WhatsApp redirection with form details, booking ID, payment status
     const message = [
-      'Hello AayuTatva, I would like to request an appointment.',
-      '',
-      `Name: ${form.name}`,
-      `Phone: ${form.phone}`,
-      `Area of care: ${form.department}`,
-      `Preferred date: ${form.date}`,
-      `Notes: ${form.note || 'Not provided'}`,
+      `*AayuTatva Ayurvedic Hospital — Doctor OPD Appointment*`,
+      `Namaste Dr. Yerpude, I have paid the consultation fee of ₹200 via UPI.`,
+      ``,
+      `📋 *Booking ID:* ${bookingId}`,
+      `👤 *Patient Name:* ${form.name}`,
+      `📞 *Phone Number:* ${form.phone}`,
+      `🌿 *Area of Care:* ${form.department}`,
+      `📅 *Preferred Date:* ${form.date}`,
+      `📝 *Notes:* ${form.note || 'None'}`,
+      `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+      `🔢 *UPI UTR / Ref:* ${finalUpiRef}`,
+      `✅ *Payment Status:* Paid ₹200 (Please check sheet and confirm)`,
+      ``,
+      `Kindly verify the payment in your sheet and send my appointment confirmation.`
     ].join('\n');
+
     const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    setTimeout(() => {
+      try {
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+      } catch (e) {}
+    }, 600);
+
+    setSubmittingBooking(false);
+    setBookingStep(3);
     setSubmitted(true);
   };
 
@@ -297,9 +404,106 @@ function App() {
           {submitted ? (
             <div className="success-state">
               <span><Check size={26}/></span>
-              <h3>WhatsApp is ready, {form.name || 'there'}.</h3>
-              <p>We opened your appointment request in WhatsApp. Tap Send there to share it with the clinic.</p>
-              <button className="btn-primary" onClick={()=>setSubmitted(false)}>Request another appointment <ArrowRight size={16}/></button>
+              <h3>Appointment Request Sent, {form.name || 'there'}.</h3>
+              <p>Booking ID: <strong>{bookingId || 'AAYU-DOC'}</strong></p>
+              <p style={{ marginTop: '8px', fontSize: '12px', color: '#555' }}>
+                We have recorded your details in our system and opened WhatsApp with your booking summary and payment status. We will verify the details in our sheet and send your confirmation!
+              </p>
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '320px' }}>
+                <a
+                  href={`https://wa.me/917758816074?text=${encodeURIComponent(`Hello Dr. Yerpude, I have submitted an OPD appointment booking. Booking ID: ${bookingId} (Name: ${form.name}, Phone: ${form.phone}, Department: ${form.department}). Please confirm!`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-primary"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}
+                >
+                  <MessageCircle size={16}/>
+                  <span>Open Clinic WhatsApp</span>
+                </a>
+                <button 
+                  className="btn-text" 
+                  style={{ justifyContent: 'center' }}
+                  onClick={() => { setSubmitted(false); setBookingStep(1); }}
+                >
+                  Book another appointment <ArrowRight size={16}/>
+                </button>
+              </div>
+            </div>
+          ) : bookingStep === 2 ? (
+            <div className="py-2 text-center">
+              <div style={{ marginBottom: '14px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#065f46', background: '#d1fae5', padding: '3px 10px', borderRadius: '99px', textTransform: 'uppercase' }}>
+                  Step 2 of 2: Pay ₹200 via UPI
+                </span>
+                <h3 style={{ font: '500 20px "Playfair Display", serif', color: '#17331D', margin: '8px 0 4px' }}>
+                  Scan & Pay ₹200 Consultation Fee
+                </h3>
+                <p style={{ fontSize: '11px', color: '#666', margin: 0 }}>
+                  Booking ID: <strong style={{ color: '#17331D' }}>{bookingId}</strong> for {form.name} ({form.department})
+                </p>
+              </div>
+
+              {/* Paytm UPI Standee QR Card */}
+              <PaytmPaymentCard 
+                upiId="paytm.s1j7ydq@pty"
+                name="DR YERPUDES AYUTATVA"
+                amount={200}
+              />
+
+              <div style={{ marginTop: '14px', background: '#f4efe6', border: '1px solid #e2cfb5', padding: '14px', borderRadius: '12px', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '12px', color: '#17331D', marginBottom: '6px' }}>
+                  <CheckCircle2 size={16} color="#059669" />
+                  <span>Step 2: Confirm Payment & Update Sheet</span>
+                </div>
+                <p style={{ fontSize: '11px', color: '#555', lineHeight: '1.5', margin: '0 0 10px' }}>
+                  Pay ₹200 via Paytm, GPay, PhonePe, or BHIM. Once payment is done, click below to update your details in our clinic Excel sheet and open WhatsApp with your booking details and payment status. We will check the payment status in our sheet and send confirmation!
+                </p>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#17331D', display: 'block', marginBottom: '4px' }}>
+                    UPI Transaction Ref / UTR No (Optional if available)
+                  </label>
+                  <input
+                    type="text"
+                    value={upiRefInput}
+                    onChange={(e) => setUpiRefInput(e.target.value)}
+                    placeholder="e.g. 427819384920 or last 4 digits"
+                    style={{ width: '100%', height: '42px', minHeight: '42px', textAlign: 'center', fontFamily: 'monospace', fontSize: '12px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setBookingStep(1)}
+                    style={{ flex: '1', minHeight: '46px', background: '#e5e2da', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: '600', color: '#444', cursor: 'pointer' }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="button"
+                    disabled={submittingBooking}
+                    onClick={handleUpiPaymentConfirm}
+                    className="btn-primary"
+                    style={{ flex: '2', minHeight: '46px', background: '#17331D', color: '#E7C697', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    {submittingBooking ? (
+                      <>
+                        <RefreshCw size={15} className="animate-spin" />
+                        <span>Updating Sheet...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle size={16} color="#25D366" />
+                        <span>I Have Paid ₹200 — Update Sheet & Open WhatsApp</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p style={{ fontSize: '10px', color: '#78716c', textAlign: 'center', margin: '8px 0 0' }}>
+                  📋 Details & Booking ID will update the clinic Excel sheet automatically.
+                </p>
+              </div>
             </div>
           ) : (
             <>
@@ -343,8 +547,98 @@ function App() {
                 <label>Anything you’d like us to know? <span className="optional">OPTIONAL</span>
                   <textarea name="note" value={form.note} onChange={update} placeholder="Share a little about what brings you in…" rows="3"/>
                 </label>
-                <button type="submit" className="btn-primary submit-btn">Request an appointment <ArrowUpRight size={16}/></button>
-                <p className="privacy-note">Submitting opens WhatsApp. Review the message and tap Send to contact the clinic.</p>
+
+                {/* Booking & Payment Mode Selection */}
+                <div style={{ marginTop: '12px', marginBottom: '14px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#17331D', display: 'block', marginBottom: '8px' }}>
+                    Payment & Booking Mode
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={() => { setPayOnline(true); setFormError(''); }}
+                      style={{
+                        padding: '12px 10px',
+                        minHeight: '52px',
+                        borderRadius: '10px',
+                        border: payOnline ? '2px solid #17331D' : '1px solid #dcd7ce',
+                        background: payOnline ? '#f4efe6' : '#fff',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: '12px',
+                        color: '#17331D',
+                        fontWeight: payOnline ? '700' : '500',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                        <Sparkles size={16} color="#17331D" />
+                        <span>Pay with UPI (₹200)</span>
+                      </div>
+                      <small style={{ color: '#059669', display: 'block', fontSize: '10.5px', fontWeight: '600' }}>⚡ Scan QR / Any UPI App</small>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setPayOnline(false); setFormError(''); }}
+                      style={{
+                        padding: '12px 10px',
+                        minHeight: '52px',
+                        borderRadius: '10px',
+                        border: !payOnline ? '2px solid #17331D' : '1px solid #dcd7ce',
+                        background: !payOnline ? '#f4efe6' : '#fff',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: '12px',
+                        color: '#17331D',
+                        fontWeight: !payOnline ? '700' : '500',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                        <Building2 size={16} color="#17331D" />
+                        <span>Pay at Counter</span>
+                      </div>
+                      <small style={{ color: '#78716c', display: 'block', fontSize: '10.5px' }}>Request via WhatsApp</small>
+                    </button>
+                  </div>
+                </div>
+
+                {formError && (
+                  <div style={{
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    color: '#b91c1c',
+                    fontWeight: '600',
+                    lineHeight: '1.4'
+                  }}>
+                    ⚠️ {formError}
+                  </div>
+                )}
+
+                {payOnline ? (
+                  <button
+                    type="submit"
+                    className="btn-primary submit-btn"
+                    style={{ background: '#17331D', color: '#E7C697', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <span>Proceed to Pay ₹200 via UPI</span>
+                    <ArrowRight size={16}/>
+                  </button>
+                ) : (
+                  <button type="submit" className="btn-primary submit-btn">
+                    Request an appointment <ArrowUpRight size={16}/>
+                  </button>
+                )}
+
+                <p className="privacy-note">
+                  {payOnline 
+                    ? '📲 Direct UPI Payment (Paytm, GPay, PhonePe). After payment, details & booking ID are logged in clinic sheet and sent to WhatsApp.'
+                    : 'Submitting opens WhatsApp. Review the message and tap Send to contact the clinic.'}
+                </p>
               </form>
             </>
           )}
@@ -393,6 +687,12 @@ function App() {
       <div className="footer-bottom">
         <span>© 2026 AayuTatva Ayurvedic Hospital & Panchakarma Centre</span>
         <span>DR. MANISH SANTOSH YERPUDE · BHANDARA</span>
+        <a href="/privacy.html" style={{ color: '#d5aa7c', textDecoration: 'underline', fontSize: '11px' }}>
+          Privacy Policy & Security Compliance
+        </a>
+        <a href="/terms.html" style={{ color: '#d5aa7c', textDecoration: 'underline', fontSize: '11px' }}>
+          Hospital Terms & Refund Policy
+        </a>
         <button 
           type="button" 
           onClick={() => window.dispatchEvent(new CustomEvent('open-height-admin'))} 
@@ -403,34 +703,6 @@ function App() {
         <a href="#home">BACK TO TOP ↑</a>
       </div>
     </footer>
-
-    {/* Mobile Bottom Action Bar */}
-    <div className="mobile-bottom-bar" aria-label="Mobile hospital shortcuts">
-      <a href="#specialities" className="mobile-bar-btn">
-        <Stethoscope size={18}/>
-        <span>Care</span>
-      </a>
-      <a href="/vaidya-ai.html" className="mobile-bar-btn" style={{ color: '#9e7f59' }}>
-        <Sparkles size={18}/>
-        <span>Vaidya AI</span>
-      </a>
-      <a href="/prakriti-quiz.html" className="mobile-bar-btn">
-        <Activity size={18}/>
-        <span>Quiz</span>
-      </a>
-      <a href="/insurance.html" className="mobile-bar-btn">
-        <ShieldCheck size={18}/>
-        <span>Cashless</span>
-      </a>
-      <a href={`tel:${phonePrimary}`} className="mobile-bar-btn">
-        <Phone size={18}/>
-        <span>Call</span>
-      </a>
-      <a href="#booking" className="mobile-bar-btn cta">
-        <ArrowUpRight size={17}/>
-        <span>Book</span>
-      </a>
-    </div>
 
     {/* Global Floating AI Assistant Widget */}
     <AayuVaidyaWidget />
@@ -490,6 +762,13 @@ function RootRouter() {
   const p = currentPath.replace(/\/$/, '') || '/';
   if (p === '/treatments.html' || p === '/treatments') return <><TreatmentsPage /><AayuVaidyaWidget /></>;
   if (p === '/insurance.html' || p === '/insurance') return <><InsurancePage /><AayuVaidyaWidget /></>;
+  if (
+    p === '/terms.html' || p === '/terms' ||
+    p === '/privacy.html' || p === '/privacy' ||
+    p === '/refund.html' || p === '/refund' ||
+    p === '/compliance.html' || p === '/compliance' ||
+    p === '/merchant-policy.html' || p === '/merchant-policy'
+  ) return <><LegalCompliancePage /><AayuVaidyaWidget /></>;
   if (
     p === '/height-session.html' || p === '/height-session' ||
     p === '/height-growth.html' || p === '/height-growth' ||

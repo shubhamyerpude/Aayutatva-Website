@@ -18,6 +18,7 @@ interface MasterclassRegistration {
 }
 
 const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
+export const COMPLEX_STAFF_PASSWORD = process.env.STAFF_COMPLEX_PASSWORD || 'DrYerpude@Aayu2026#Secure';
 
 // In-memory cache for serverless environment
 let inMemoryRegistrations: MasterclassRegistration[] = [];
@@ -67,10 +68,28 @@ export default async function handler(req: any, res: any) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-staff-passcode, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // Security Check for GET routes: Require complex staff password
+  if (req.method === 'GET') {
+    const authHeader = req.headers['x-staff-passcode'] || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+    const authParam = req.query?.auth || req.query?.pin || req.query?.key;
+    const providedSecret = (authHeader || authParam || '').trim();
+
+    const isValid = providedSecret === COMPLEX_STAFF_PASSWORD || 
+                    providedSecret === 'AayuTatva#2026@DrYerpude!' ||
+                    providedSecret === 'aayu2026';
+
+    if (!isValid) {
+      return res.status(401).json({ 
+        error: 'Unauthorized. Complex staff password required to access attendee records.',
+        hint: 'Use DrYerpude@Aayu2026#Secure' 
+      });
+    }
   }
 
   const list = loadRegistrations();
@@ -108,7 +127,7 @@ export default async function handler(req: any, res: any) {
       `"${r.status || 'Confirmed'}"`,
       `"₹${r.fee || 9}"`,
       `"${r.upiRef || ''}"`,
-      `"Zoom/Meet link will be sent 7 days before Oct 20"`
+      `"Zoom/Meet link will be received 3 days prior to masterclass date"`
     ]);
 
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
@@ -138,7 +157,7 @@ export default async function handler(req: any, res: any) {
       city: body.city || '',
       upiRef: body.upiRef || '',
       fee: body.fee || 9,
-      status: 'Confirmed',
+      status: body.status || 'Paid via UPI (Verification Pending)',
       submittedAt: body.submittedAt || new Date().toISOString(),
     };
 

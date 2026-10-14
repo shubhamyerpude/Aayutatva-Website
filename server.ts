@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import { generateInternalAyurvedicResponse } from './src/ayurvedicInternalEngine.ts';
 import heightRegistrationsHandler from './api/height-registrations.ts';
 
@@ -14,9 +14,27 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = parseInt(process.env.PORT || '3000', 10);
 const isProd = process.env.NODE_ENV === 'production';
-const preferInternalEngine = process.env.USE_INTERNAL_AI !== 'false'; // Default to internal AI assistant
 
 app.use(express.json({ limit: '1mb' }));
+
+// Security & Compliance Headers
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=()');
+  next();
+});
+
+const geminiApiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+const aiClient = new GoogleGenAI({
+  apiKey: geminiApiKey,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    },
+  },
+});
 
 const HOSPITAL_CONTACT_CTA = `
 ---
@@ -26,29 +44,26 @@ const HOSPITAL_CONTACT_CTA = `
 • **Call / WhatsApp**: [+91 77588 16074](tel:+917758816074)
 • **Facilities**: NABH-Accredited Inpatient (IPD) Care · 100% Cashless Mediclaim Insurance with leading providers & TPAs.`;
 
-const AYURVEDA_SYSTEM_INSTRUCTION = `You are "AayuVaidya AI", an authentic educational assistant for AayuTatva Ayurvedic Hospital & Panchakarma Centre in Bhandara, Maharashtra, directed by Dr. Manish Santosh Yerpude [B.A.M.S., MD (AM), P.G.P.P.].
+const AYURVEDA_SYSTEM_INSTRUCTION = `You are "AayuVaidya AI", an intelligent and authentic educational assistant for AayuTatva Ayurvedic Hospital & Panchakarma Centre in Bhandara, Maharashtra, directed by Dr. Manish Santosh Yerpude [B.A.M.S. (MUHS), MD (AM), P.G.P.P. Pune].
 
-CRITICAL COMPLIANCE DIRECTIVES (MUST FOLLOW EVERY SINGLE RULE):
-1. NATURE OF RESPONSE:
-   - Start or clearly mark every answer with: "**[AI-Assisted Educational Response · General Guidance Only]**"
-   - You provide GENERAL EDUCATIONAL INFORMATION about Ayurvedic principles, classical concepts, and hospital facilities.
-2. DO NOT PROVIDE MEDICAL TREATMENTS OR PRESCRIPTIONS:
-   - Strictly DO NOT prescribe specific medicine doses, drug formulations, or customized clinical cure regimes.
-   - Do NOT give medical diagnosis.
-   - If the user asks for treatment, explain general Ayurvedic concepts (e.g. how Panchakarma or diet works in principle) but explicitly state that treatment requires an in-person doctor consultation.
-3. PRIMARY AGENDA IS TO TAKE THE USER TO THE HOSPITAL:
-   - Your primary mission is to guide the user to visit or contact AayuTatva Ayurvedic Hospital in Bhandara to consult Dr. Manish Santosh Yerpude for physical clinical examination (Nadi Parikshan, Darshana, Sparshana, Prashna).
-   - Always conclude your response with a clear call-to-action directing them to contact or visit the hospital:
-   "To know more, contact AayuTatva Ayurvedic Hospital:
-   📞 Call / WhatsApp: +91 77588 16074
-   📍 Location: 1st Floor, Bawankar Bhavan, Khat Road, near Ganesh Marble, Shiv Nagari, Bhandara, Maharashtra 441904
-   👨‍⚕️ Consultation by: Dr. Manish Santosh Yerpude [B.A.M.S., MD (AM), P.G.P.P.]
-   🏥 NABH-Accredited · 100% Cashless Mediclaim Insurance Accepted"
-4. TONE & LANGUAGES:
-   - Respectful, welcoming, informative.
-   - Respond in English, Hindi, or Marathi based on the user's query.`;
+CRITICAL GUIDELINES:
+1. SPECIFIC, PERSONALIZED ANSWERS:
+   - NEVER give repetitive generic boilerplate text. Answer the user's EXACT query with tailored, insightful Ayurvedic knowledge.
+   - Address specific symptoms, herbs, queries, or topics (e.g. slip disc, sciatica, knee pain, acidity, PCOD, skin problems, height growth, diet, stress, seasonal health) explaining relevant Doshas (Vata/Pitta/Kapha), Dhatus, Dinacharya, Ahara rules, and classical Panchakarma procedures (Kati Basti, Janu Basti, Virechana, Vamana, Shirodhara, Nasya).
+   - If the user asks a follow-up question or conversational question, answer directly in context.
+   - Keep answers well-structured, clear, and concise (about 80 to 140 words).
+2. MULTILINGUAL SUPPORT:
+   - Respond in the language of the user's query: Marathi (मराठी), Hindi (हिंदी), or English. Use natural, warm, and authentic vocabulary.
+3. MEDICAL BOUNDARY & HOSPITAL ACTION:
+   - Provide educational guidance and note that actual clinical prescription requires in-person pulse diagnosis (*Nadi Parikshan*) and physical examination by Dr. Manish Santosh Yerpude at AayuTatva Hospital in Bhandara.
+   - Conclude with the hospital contact details:
+   "To know more or book an examination:
+   🏥 AayuTatva Ayurvedic Hospital & Panchakarma Centre
+   📍 1st Floor, Bawankar Bhavan, Khat Road, near Ganesh Marble, Shiv Nagari, Bhandara, Maharashtra 441904
+   👨‍⚕️ Dr. Manish Santosh Yerpude [B.A.M.S., MD (AM), P.G.P.P.]
+   📞 Call / WhatsApp: +91 77588 16074 (NABH-Accredited · 100% Cashless Mediclaim)"`;
 
-function withTimeout<T>(promise: Promise<T>, ms = 3000): Promise<T> {
+function withTimeout<T>(promise: Promise<T>, ms = 20000): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Model timeout')), ms))
@@ -172,7 +187,7 @@ ${body}
 ${HOSPITAL_CONTACT_CTA}`;
 }
 
-// AI Chat Route with Internal Engine & Optional External Fallback
+// AI Chat Route with External Gemini API (Primary) & Internal Fallback
 app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
   try {
     const { message, history = [], userDoshaProfile = null, language = 'mr' } = req.body;
@@ -182,30 +197,18 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
       return;
     }
 
-    // 1. High-Performance Internal AI Engine (No Gemini API required)
-    if (preferInternalEngine) {
-      const internalResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile, language);
-      res.json(internalResult);
-      return;
-    }
-
-    // 2. Optional External Gemini API flow (if specifically opted into via USE_INTERNAL_AI=false)
     const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
 
+    // Primary: Fast, personalized external Gemini API
     if (apiKey) {
-      const candidateModels = [
-        'gemini-3.7-flash',
-        'gemini-3.8-flash',
-        'gemini-3.1-flash-lite',
-        'gemini-flash-latest'
-      ];
-
       let contextualPrompt = message;
       if (userDoshaProfile) {
-        contextualPrompt = `[Context: User constitutional self-assessment: Dominant: ${userDoshaProfile.dominant}, Vata: ${userDoshaProfile.vata}%, Pitta: ${userDoshaProfile.pitta}%, Kapha: ${userDoshaProfile.kapha}%, Pulse Rhythm: ${userDoshaProfile.pulseGati || 'Classical'}].\n\nUser Question: ${message}`;
+        contextualPrompt = `[Context: User constitutional self-assessment: Dominant: ${userDoshaProfile.dominant}, Vata: ${userDoshaProfile.vata}%, Pitta: ${userDoshaProfile.pitta}%, Kapha: ${userDoshaProfile.kapha}%, Pulse Rhythm: ${userDoshaProfile.pulseGati || 'Classical'}, Preferred Language: ${language}].\n\nUser Question: ${message}`;
+      } else {
+        contextualPrompt = `[Preferred Language: ${language}].\n\nUser Question: ${message}`;
       }
 
-      // Build contents
+      // Build conversational history
       const contents: any[] = [];
       if (Array.isArray(history) && history.length > 0) {
         const recentHistory = history.slice(-6);
@@ -219,46 +222,66 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
       }
       contents.push({ role: 'user', parts: [{ text: contextualPrompt }] });
 
-      const ai = new GoogleGenAI({ apiKey });
+      // 1. Try fastest model: gemini-3.1-flash-lite with minimal thinking for ultra-low latency
+      try {
+        const response = await withTimeout(
+          aiClient.models.generateContent({
+            model: 'gemini-3.1-flash-lite',
+            contents: contents,
+            config: {
+              systemInstruction: AYURVEDA_SYSTEM_INSTRUCTION,
+              thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
+              temperature: 0.65,
+            },
+          }),
+          20000
+        );
 
-      for (const modelName of candidateModels) {
-        try {
-          const response = await withTimeout(
-            ai.models.generateContent({
-              model: modelName,
-              contents: contents,
-              config: {
-                systemInstruction: AYURVEDA_SYSTEM_INSTRUCTION,
-                temperature: 0.5,
-              }
-            }),
-            3000
-          );
-
-          let replyText = response.text || '';
-          if (replyText.trim()) {
-            if (!replyText.includes('AI-Assisted Educational Response')) {
-              replyText = `**[AI-Assisted Educational Response · General Guidance Only]**\n\n${replyText}`;
-            }
-            if (!replyText.includes('77588 16074') && !replyText.includes('AayuTatva')) {
-              replyText += `\n\n${HOSPITAL_CONTACT_CTA}`;
-            }
-
-            res.json({ reply: replyText, source: modelName });
-            return;
+        let replyText = response.text || '';
+        if (replyText.trim()) {
+          if (!replyText.includes('77588 16074') && !replyText.includes('AayuTatva')) {
+            replyText += `\n\n${HOSPITAL_CONTACT_CTA}`;
           }
-        } catch {
-          // Model error or timeout - try next candidate
+          res.json({ reply: replyText, source: 'gemini-3.1-flash-lite' });
+          return;
         }
+      } catch (liteErr: any) {
+        console.warn('gemini-3.1-flash-lite attempt failed, trying gemini-3.8-flash:', liteErr?.message || liteErr);
+      }
+
+      // 2. Secondary fallback model: gemini-3.8-flash
+      try {
+        const response = await withTimeout(
+          aiClient.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents: contents,
+            config: {
+              systemInstruction: AYURVEDA_SYSTEM_INSTRUCTION,
+              temperature: 0.65,
+            },
+          }),
+          20000
+        );
+
+        let replyText = response.text || '';
+        if (replyText.trim()) {
+          if (!replyText.includes('77588 16074') && !replyText.includes('AayuTatva')) {
+            replyText += `\n\n${HOSPITAL_CONTACT_CTA}`;
+          }
+          res.json({ reply: replyText, source: 'gemini-3.8-flash' });
+          return;
+        }
+      } catch (flashErr: any) {
+        console.warn('gemini-3.8-flash attempt failed:', flashErr?.message || flashErr);
       }
     }
 
-    // Default to internal engine if Gemini fails or is unconfigured
-    const fallbackResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile);
+    // 3. Fallback to internal engine if external API fails or key is missing
+    const fallbackResult = generateInternalAyurvedicResponse(message, history, userDoshaProfile, language);
     res.json(fallbackResult);
   } catch (err: any) {
     console.error('Error handling /api/ayurveda-chat:', err);
-    const errResult = generateInternalAyurvedicResponse(req.body?.message || 'general');
+    const errResult = generateInternalAyurvedicResponse(req.body?.message || 'general', [], null, req.body?.language || 'mr');
     res.status(200).json(errResult);
   }
 });

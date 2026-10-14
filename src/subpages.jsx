@@ -110,63 +110,50 @@ export function TreatmentsPage() {
 
 export function InsurancePage() {
   return (
-    <PageShell breadcrumb="Cashless Mediclaim Insurance">
+    <PageShell breadcrumb="Hospital Admission & In-Patient Guide">
       <section className="sub-hero insurance-hero">
         <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
-        <div className="sub-overline">CARE WITH CLEAR NEXT STEPS</div>
-        <h1>Cashless insurance<br/><em>support for eligible care.</em></h1>
-        <p>AayuTatva accepts cashless insurance requests for eligible in-patient AYUSH care. Coverage and cashless approval depend on your policy, insurer/TPA network, and pre-authorisation.</p>
+        <div className="sub-overline">NABH-ALIGNED CLINICAL CARE · IN-PATIENT ADMISSION</div>
+        <h1>Hospital In-Patient (IPD) Care &<br/><em>Admission Guidelines.</em></h1>
+        <p>
+          AayuTatva Ayurvedic Hospital provides structured in-patient clinical programs for chronic spine, joint rehabilitation, and supervised classical Panchakarma. 
+        </p>
         <div className="insurance-hero-actions">
-          <a href={`tel:${phone}`} className="sub-cta"><Phone size={15}/> Check your cover</a>
-          <a href="#network-list" className="sub-secondary">See insurer information <ArrowRight size={15}/></a>
+          <a href={`tel:${phone}`} className="sub-cta"><Phone size={15}/> Call Hospital Desk</a>
+          <a href="/terms.html" className="sub-secondary">Hospital Terms & Policies <ArrowRight size={15}/></a>
         </div>
         <div className="nabh-badge">
           <img src="/media/brands/nabh.png" alt="NABH Accredited"/>
-          <span><b>NABH-APPROVED HOSPITAL</b><small>Patient safety and quality of care</small></span>
+          <span><b>NABH-APPROVED HOSPITAL</b><small>Patient safety and clinical quality</small></span>
         </div>
       </section>
 
       <section className="insurance-steps">
-        <div className="sub-overline">BEFORE YOUR ADMISSION</div>
-        <h2>Understand your<br/><em>insurance steps.</em></h2>
+        <div className="sub-overline">IN-PATIENT ADMISSION PROTOCOL</div>
+        <h2>Clinical care with<br/><em>transparent steps.</em></h2>
         <div className="steps-grid">
           <article>
             <span>01</span>
-            <h3>Check eligibility</h3>
-            <p>Call with your insurer or TPA name, policy details, and planned care so the team can help check requirements.</p>
+            <h3>Clinical Doctor Assessment</h3>
+            <p>Our senior doctors (Dr. Manish Yerpude / Dr. Sakshi Sonkusare) examine your pulse, spine X-rays/MRIs, and medical history to design your personalized treatment plan.</p>
           </article>
           <article>
             <span>02</span>
-            <h3>Request pre-authorisation</h3>
-            <p>Cashless admission requires approval from your insurer/TPA. The hospital team can guide you on the documents requested.</p>
+            <h3>Admission & Therapy Regimen</h3>
+            <p>Under supervised hospital care, patients receive authentic Panchakarma, Janu Basti, Kati Basti, Takradhara, and specific herbal formulations.</p>
           </article>
           <article>
             <span>03</span>
-            <h3>Confirm what is covered</h3>
-            <p>Limits, exclusions, room eligibility, and final approval are decided by your insurer under your policy terms.</p>
+            <h3>Documentation & Discharge Summary</h3>
+            <p>Complete clinical discharge documentation, daily doctor rounding notes, and bill summaries are provided for your permanent medical records.</p>
           </article>
         </div>
-        <div className="insurance-callout">
-          <ShieldCheck size={22}/>
-          <p><b>Cashless does not mean automatic approval.</b> Please confirm eligibility with your insurer before admission. Reimbursement may be an option if cashless approval is unavailable, subject to your policy.</p>
-        </div>
-      </section>
-
-      <section className="network-list" id="network-list">
-        <div className="network-mark"><ShieldCheck size={24}/></div>
-        <div>
-          <div className="sub-overline">INSURER / TPA NETWORK</div>
-          <h2>Confirm your provider<br/><em>before you visit.</em></h2>
-          <p>Browse insurer and TPA information for cashless AYUSH care. Network participation and approval depend on your policy, treatment, and current insurer requirements.</p>
-          <div className="insurer-grid">
-            {insurers.map((insurer) => (
-              <div className="insurer-tile" key={insurer.name}>
-                <img src={insurer.logo} alt=""/>
-                <span className="insurer-wordmark">{insurer.name}</span>
-              </div>
-            ))}
-          </div>
-          <a href={`tel:${phone}`} className="sub-cta">Call to check your insurer <ArrowUpRight size={16}/></a>
+        
+        <div className="insurance-callout" style={{ marginTop: '28px' }}>
+          <ShieldCheck size={24}/>
+          <p>
+            <b>Mediclaim / TPA Claims:</b> For patients holding valid health insurance policies, in-patient Ayurvedic treatments under AYUSH guidelines may be eligible for TPA claims or reimbursement. All claim facilitation, documentation, and compliance details have been formally relocated to our <a href="/terms.html" style={{ textDecoration: 'underline', fontWeight: 'bold', color: 'inherit' }}>Hospital Terms & Compliance Policy</a>.
+          </p>
         </div>
       </section>
     </PageShell>
@@ -229,11 +216,41 @@ export function HeightSessionPage() {
     }
     setLoading(true);
     try {
-      const saved = await saveMasterclassRegistration(form);
+      const saved = await saveMasterclassRegistration({
+        ...form,
+        status: 'Paid ₹9 via UPI (Verification Pending)'
+      });
       setConfirmedData(saved);
       setStep(3);
+
+      const msg = [
+        `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
+        `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+        ``,
+        `📋 *Booking ID:* ${saved.id}`,
+        `👤 *Attendee Name:* ${saved.name}`,
+        `📞 *WhatsApp Number:* ${saved.whatsapp}`,
+        `🎂 *Age / Gender:* ${saved.age} yrs, ${saved.gender || 'Male'}`,
+        `📏 *Current Height:* ${saved.currentHeight}`,
+        `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
+        `📍 *City:* ${saved.city}`,
+        `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+        `🔢 *UPI UTR / Ref:* ${saved.upiRef || form.upiRef}`,
+        `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
+        ``,
+        `Kindly check the payment status in your sheet and send confirmation.`,
+        `*Note:* Meeting link will be received 3 days prior to masterclass date.`
+      ].join('\n');
+
+      const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(msg)}`;
+      setTimeout(() => {
+        try {
+          window.open(waUrl, '_blank', 'noopener,noreferrer');
+        } catch (e) {}
+      }, 700);
+
     } catch (err) {
-      alert('Could not complete registration. Please try again.');
+      alert('Could not update registration in sheet. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -353,8 +370,8 @@ export function HeightSessionPage() {
           {/* STEP 1: FORM */}
           {step === 1 && (
             <>
-              <h3>Reserve your place<br/><em>on 20th October.</em></h3>
-              <p>Enter your details below to receive the meeting link 7 days before the session.</p>
+              <h3>Reserve your place<br/><em>on 18th October (Sun, 7–8 PM).</em></h3>
+              <p>Enter your details below to receive the meeting link on WhatsApp 3 days before the session.</p>
               
               <form onSubmit={handleStep1Submit} className="space-y-3">
                 <label>
@@ -481,14 +498,19 @@ export function HeightSessionPage() {
               />
 
               <form onSubmit={handleStep2Submit} className="mt-4 bg-stone-100/80 p-3.5 rounded-xl border border-stone-200">
+                <p className="text-[11px] text-stone-700 mb-2 leading-relaxed">
+                  Pay ₹9 via any UPI app (Paytm, GPay, PhonePe, BHIM). Once payment is done, click below. Your details and Booking ID will be updated in our Excel sheet, and you will be redirected to WhatsApp to send payment details. We will check the payment status in our sheet and send confirmation!
+                </p>
+                <div className="bg-amber-50 border border-amber-200 rounded p-2 mb-2 text-[11px] text-amber-900">
+                  <strong>📅 Meeting Link Notice:</strong> Meeting link will be received <strong>3 days prior to masterclass date</strong> on your WhatsApp.
+                </div>
                 <label>
-                  Enter 12-Digit UPI Ref / UTR No *
+                  Enter UPI Ref / UTR No (Optional if available)
                   <input
                     name="upiRef"
                     value={form.upiRef}
                     onChange={update}
-                    placeholder="e.g. 427819384920"
-                    required
+                    placeholder="e.g. 427819384920 or last 4 digits"
                     className="font-mono text-center tracking-wider text-xs"
                   />
                 </label>
@@ -505,9 +527,9 @@ export function HeightSessionPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-2/3 bg-emerald-700 text-white text-xs font-bold py-2 rounded shadow"
+                    className="w-2/3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2 rounded shadow"
                   >
-                    {loading ? 'Confirming...' : 'Complete Registration'}
+                    {loading ? 'Updating Sheet...' : 'I Have Paid ₹9 — Update Sheet & Open WhatsApp'}
                   </button>
                 </div>
               </form>
@@ -518,23 +540,45 @@ export function HeightSessionPage() {
           {step === 3 && confirmedData && (
             <div className="session-success">
               <span><Check size={22}/></span>
-              <h3>Registration Confirmed!</h3>
+              <h3>Registration Submitted!</h3>
               <p>
                 Booking ID: <strong>{confirmedData.id}</strong><br/>
-                We have registered <strong>{confirmedData.name}</strong> for the 20th Oct Masterclass.
+                We have registered <strong>{confirmedData.name}</strong> for the 18th Oct Masterclass (Sun, 7:00 PM – 8:00 PM Evening).
               </p>
-              <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg text-xs my-2 text-left">
-                <strong>📅 Meeting Link Notification:</strong><br/>
-                The official Zoom / Google Meet joining link will be sent to your WhatsApp (<strong>{confirmedData.whatsapp}</strong>) 7 days before the session.
+              <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg text-xs my-2 text-left space-y-1">
+                <p>
+                  📋 <strong>Updated in Excel Sheet:</strong> Your details and Booking ID are saved in our clinic attendee sheet. We will check the payment status in our sheet and send your confirmation!
+                </p>
+                <p>
+                  📲 <strong>Meeting Link Delivery:</strong> Meeting link will be received <strong>3 days prior to masterclass date (by 15th Oct)</strong> on your WhatsApp (<strong>{confirmedData.whatsapp}</strong>).
+                </p>
               </div>
               <div className="flex flex-col gap-2 mt-3">
                 <a
-                  href={`https://wa.me/917758816074?text=${encodeURIComponent(`Hello AayuTatva Hospital, I have registered for the 20 Oct Height Growth Masterclass. My Booking ID is ${confirmedData.id} (Name: ${confirmedData.name}). Please confirm!`)}`}
+                  href={`https://wa.me/917758816074?text=${encodeURIComponent([
+                    `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
+                    `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+                    ``,
+                    `📋 *Booking ID:* ${confirmedData.id}`,
+                    `👤 *Attendee Name:* ${confirmedData.name}`,
+                    `📞 *WhatsApp Number:* ${confirmedData.whatsapp}`,
+                    `🎂 *Age / Gender:* ${confirmedData.age} yrs, ${confirmedData.gender || 'Male'}`,
+                    `📏 *Current Height:* ${confirmedData.currentHeight}`,
+                    `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
+                    `📍 *City:* ${confirmedData.city}`,
+                    `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+                    `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+                    `🔢 *UPI UTR / Ref:* ${confirmedData.upiRef || 'Submitted'}`,
+                    `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
+                    ``,
+                    `Kindly check the payment status in your sheet and send confirmation.`,
+                    `*Note:* Meeting link will be received 3 days prior (by 15th Oct) on WhatsApp.`
+                  ].join('\n'))}`}
                   target="_blank"
                   rel="noreferrer"
                   className="sub-cta text-center"
                 >
-                  <Phone size={14}/> Send Confirmation to WhatsApp
+                  <Phone size={14}/> Open Clinic WhatsApp with Payment Details
                 </a>
                 <button 
                   onClick={() => { setStep(1); setConfirmedData(null); }} 

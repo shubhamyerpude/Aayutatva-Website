@@ -326,16 +326,23 @@
     bottom: 74px !important;
   }
   .top-portal-bar {
-    flex-direction: column;
-    gap: 6px;
-    text-align: center;
-    font-size: 10px;
-    padding: 8px clamp(16px, 5vw, 24px);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    padding: 6px clamp(12px, 4vw, 16px);
+  }
+  .top-portal-bar .top-portal-city {
+    display: none;
+  }
+  .top-portal-bar .top-portal-mediclaim {
+    display: none;
   }
   .top-portal-bar-left, .top-portal-bar-right {
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
   }
   .portal-quick-strip {
     grid-template-columns: 1fr;

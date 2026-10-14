@@ -47,10 +47,25 @@ body main section .height-review-topline>span{color:#55493B!important}
 @media(max-width:760px){
   .sub-header{height:172px;position:relative;align-items:flex-start;padding-top:10px}
   .sub-header nav{top:67px}
+  .session-card input:not([type=checkbox]),
+  .session-card select,
+  .session-card textarea {
+    font-size: 13.5px !important;
+    min-height: 42px !important;
+    height: 42px;
+  }
+  .session-card textarea {
+    min-height: 80px !important;
+    height: auto !important;
+  }
+}
+@media(max-width:500px){
+  .therapy-detail{grid-template-columns:1fr !important;gap:6px !important;padding:18px 0 !important}
+  .therapy-number{font-size:12px;font-weight:700}
 }
 .session-card .consent-line{flex-direction:row;align-items:center}
-.consent-line input{flex:0 0 18px}
-.consent-line span{flex:1}
+.consent-line input{flex:0 0 20px;width:20px;height:20px}
+.consent-line span{flex:1;font-size:12px}
 @media(max-width:360px){.sub-header nav .sub-book{font-size:10px;padding:0 10px;gap:5px;white-space:nowrap}}
 
 /* ===================================================

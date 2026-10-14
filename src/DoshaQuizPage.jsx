@@ -823,13 +823,21 @@ export function DoshaQuizPage() {
                   <p>{currentLangData.verifyPulseDesc}</p>
                 </div>
                 <div className="action-strip-buttons">
-                  <a 
-                    href="/vaidya-ai.html"
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const doshaName = result?.primaryDosha || '';
+                      window.dispatchEvent(new CustomEvent('open-vaidya-widget', {
+                        detail: {
+                          query: doshaName ? `Tell me more about ${doshaName} Prakriti recommendations and pulse guidelines.` : 'Tell me more about my Dosha analysis.'
+                        }
+                      }));
+                    }}
                     className="btn-primary-action"
-                    style={{ background: '#1b3b22', borderColor: '#1b3b22' }}
+                    style={{ background: '#1b3b22', borderColor: '#1b3b22', cursor: 'pointer' }}
                   >
                     <Sparkles size={16}/> {currentLangData.aiBtn}
-                  </a>
+                  </button>
                   <a 
                     href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(whatsappMessage)}`}
                     target="_blank" 
