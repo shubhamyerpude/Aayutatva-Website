@@ -140,12 +140,17 @@ export function PaytmPaymentCard({
   paymentLink = DEFAULT_PAYMENT_LINK,
   qrImage = DEFAULT_QR_IMAGE
 }) {
+  const [selectedMethod, setSelectedMethod] = useState('paytm'); // 'paytm' | 'direct'
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [desktopNotice, setDesktopNotice] = useState(false);
 
+  const activeUpiId = selectedMethod === 'direct' ? 'yerpudeabhilasha@okhdfcbank' : upiId;
+  const activeName = selectedMethod === 'direct' ? 'SHUBHAM SANTOSH YERPUDE' : name;
+  const activeQrImage = selectedMethod === 'direct' ? '' : qrImage;
+
   // Standard UPI URI format accepted across all UPI apps
-  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 18 Oct')}`;
+  const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 18 Oct')}`;
   
   // Real web payment link if user explicitly configured an http URL
   const hasCustomWebLink = Boolean(paymentLink && paymentLink.trim().startsWith('http'));
@@ -167,7 +172,7 @@ export function PaytmPaymentCard({
   }, [upiUri, directPayUrl, hasCustomWebLink, compact]);
 
   const copyPayInfo = () => {
-    navigator.clipboard.writeText(upiId);
+    navigator.clipboard.writeText(activeUpiId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -179,17 +184,15 @@ export function PaytmPaymentCard({
 
     const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (!isMobile) {
-      // Laptop/Desktop PC browsers cannot handle upi:// links and trigger errors.
-      // Copy UPI ID instead and show clear desktop instructions.
       e.preventDefault();
-      navigator.clipboard.writeText(upiId);
+      navigator.clipboard.writeText(activeUpiId);
       setDesktopNotice(true);
       setTimeout(() => setDesktopNotice(false), 4500);
     }
   };
 
   return (
-    <div className={`bg-[#002970] rounded-xl border border-[#00b9f5] shadow-md overflow-hidden mx-auto text-center font-sans ${compact ? 'max-w-[240px]' : 'max-w-[280px]'}`}>
+    <div className={`bg-[#002970] rounded-xl border border-[#00b9f5] shadow-md overflow-hidden mx-auto text-center font-sans ${compact ? 'max-w-[260px]' : 'max-w-[290px]'}`}>
       
       {/* Top Paytm / Payment Header */}
       <div className={`bg-white border-b border-stone-100 flex items-center justify-between ${compact ? 'py-1 px-2.5' : 'py-1.5 px-3'}`}>
@@ -205,11 +208,33 @@ export function PaytmPaymentCard({
         </span>
       </div>
 
+      {/* Option Selector Toggle: Paytm Merchant QR vs Direct Bank UPI */}
+      <div className="bg-[#001d52] p-1 flex items-center justify-center gap-1 text-[9px] font-semibold text-white">
+        <button
+          type="button"
+          onClick={() => setSelectedMethod('paytm')}
+          className={`flex-1 py-1 px-1.5 rounded transition-colors cursor-pointer ${
+            selectedMethod === 'paytm' ? 'bg-[#00b9f5] text-[#002970] font-black' : 'text-stone-300 hover:text-white'
+          }`}
+        >
+          Paytm QR
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedMethod('direct')}
+          className={`flex-1 py-1 px-1.5 rounded transition-colors cursor-pointer ${
+            selectedMethod === 'direct' ? 'bg-[#00b9f5] text-[#002970] font-black' : 'text-stone-300 hover:text-white'
+          }`}
+        >
+          Direct Bank UPI (PhonePe Fix)
+        </button>
+      </div>
+
       {/* QR Code Container (Displays Attached / Generated QR) */}
       <div className={`bg-white rounded-lg border border-stone-200 ${compact ? 'p-1.5 mx-1.5 my-1' : 'p-2 mx-2 my-1.5'}`}>
         <div className="relative inline-block">
           <img 
-            src={qrImage || qrDataUrl} 
+            src={activeQrImage || qrDataUrl} 
             onError={(e) => {
               if (qrDataUrl && e.currentTarget.src !== qrDataUrl) {
                 e.currentTarget.src = qrDataUrl;
@@ -225,7 +250,7 @@ export function PaytmPaymentCard({
 
         {/* UPI ID & Copy Button */}
         <div className="mt-0.5 flex items-center justify-center gap-1 text-[9px] font-mono font-bold text-stone-800">
-          <span className="truncate max-w-[150px]">{upiId}</span>
+          <span className="truncate max-w-[160px]">{activeUpiId}</span>
           <button 
             type="button" 
             onClick={copyPayInfo}
@@ -254,17 +279,19 @@ export function PaytmPaymentCard({
             </>
           ) : (
             <>
-              <span>Tap to Pay ₹{amount} (Paytm / UPI App)</span>
+              <span>Tap to Pay ₹{amount} ({selectedMethod === 'direct' ? 'Bank UPI' : 'Paytm / UPI'})</span>
               <ExternalLink size={11} />
             </>
           )}
         </a>
         <p className="text-[8.5px] text-sky-200 mt-1 leading-tight font-medium">
-          💡 Pay using your <strong>Bank Savings A/C</strong> on UPI. (Credit Cards on UPI / Overdraft / Wallets are not supported).
+          💡 {selectedMethod === 'direct' 
+            ? 'Works on all apps: PhonePe, GPay, Paytm, BHIM' 
+            : 'If PhonePe gives an error, tap "Direct Bank UPI" above or use GPay/Paytm.'}
         </p>
         {desktopNotice && (
           <p className="text-[9px] text-[#00b9f5] mt-1 leading-tight font-medium">
-            Laptops don't have UPI apps. Scan the QR code with your mobile phone or use copied UPI ID: <span className="font-mono text-white">{upiId}</span>
+            Laptops don't have UPI apps. Scan the QR code with your mobile phone or use copied UPI ID: <span className="font-mono text-white">{activeUpiId}</span>
           </p>
         )}
       </div>
