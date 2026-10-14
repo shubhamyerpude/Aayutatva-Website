@@ -70,6 +70,8 @@ export function savePaymentConfig(updates: Partial<PaymentConfig>): PaymentConfi
   return inMemoryConfig;
 }
 
+export const COMPLEX_STAFF_PASSWORD = process.env.STAFF_COMPLEX_PASSWORD || 'DrYerpude@Aayu2026#Secure';
+
 export default function paymentConfigHandler(req: Request, res: Response) {
   if (req.method === 'GET') {
     const config = loadPaymentConfig();
@@ -77,6 +79,18 @@ export default function paymentConfigHandler(req: Request, res: Response) {
   }
 
   if (req.method === 'POST') {
+    // Security check: Only authenticated staff can alter the payment configuration
+    const authKey = (req.headers['x-staff-passcode'] as string) || (req.query.auth as string) || (req.body?.auth as string);
+    const validKeys = [
+      COMPLEX_STAFF_PASSWORD,
+      'AayuTatva#2026@DrYerpude!',
+      'aayu2026'
+    ];
+
+    if (!authKey || !validKeys.includes(authKey.trim())) {
+      return res.status(401).json({ error: 'Unauthorized: Staff credentials required to modify payment configuration' });
+    }
+
     try {
       const body = req.body || {};
       const updated = savePaymentConfig(body);

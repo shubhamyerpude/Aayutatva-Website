@@ -143,6 +143,7 @@ export function UpdateQrModal({
   currentName = RECIPIENT_NAME,
   currentCustomQr = '',
   amount = REGISTRATION_FEE,
+  authKey = '',
   onSave 
 }) {
   const [upiInput, setUpiInput] = useState(currentUpiId);
@@ -232,12 +233,16 @@ export function UpdateQrModal({
       console.warn('LocalStorage payment config error:', err);
     }
 
-    // 2. Server API sync
+    // 2. Server API sync (Protected with staff auth)
     try {
+      const staffPass = authKey || sessionStorage.getItem('aayutatva_staff_authenticated') || DEFAULT_COMPLEX_ADMIN_PASSWORD;
       fetch('/api/payment-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(configData)
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-staff-passcode': staffPass
+        },
+        body: JSON.stringify({ ...configData, auth: staffPass })
       }).catch(err => console.warn('Server sync error:', err));
     } catch {}
 
@@ -332,18 +337,18 @@ export function UpdateQrModal({
               <button
                 type="button"
                 onClick={() => {
-                  setUpiInput(DEFAULT_PAYTM_UPI_ID);
+                  setUpiInput(DEFAULT_GPAY_UPI_ID);
                   setNameInput(RECIPIENT_NAME);
                   setCustomQrImage('');
                 }}
                 className={`py-1.5 px-2 rounded-lg border text-left cursor-pointer transition-colors ${
-                  upiInput === DEFAULT_PAYTM_UPI_ID && !customQrImage
+                  upiInput === DEFAULT_GPAY_UPI_ID && !customQrImage
                     ? 'bg-blue-50 border-[#002970] text-[#002970] font-bold'
                     : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
                 }`}
               >
-                <div className="font-bold text-[10px] text-[#002970]">Paytm Merchant</div>
-                <div className="font-mono text-[9px] truncate text-stone-600">{DEFAULT_PAYTM_UPI_ID}</div>
+                <div className="font-bold text-[10px] text-sky-700">✓ Google Pay UPI</div>
+                <div className="font-mono text-[9px] truncate text-stone-600">{DEFAULT_GPAY_UPI_ID}</div>
               </button>
             </div>
           </div>
@@ -447,7 +452,7 @@ export function UpdateQrModal({
 }
 
 /* =========================================================================
-   2. UPGRADED UNIVERSAL & PAYTM QR DISPLAY CARD
+   2. VERIFIED HOSPITAL PAYMENT CARD (Locked & End-User Facing)
    ========================================================================= */
 export function PaytmPaymentCard({ 
   upiId = DEFAULT_UPI_ID, 
@@ -469,11 +474,9 @@ export function PaytmPaymentCard({
     };
   });
 
-  const [selectedMethod, setSelectedMethod] = useState('universal'); // 'universal' | 'paytm'
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [desktopNotice, setDesktopNotice] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // Sync with server payment-config if available
   useEffect(() => {
@@ -490,17 +493,9 @@ export function PaytmPaymentCard({
       .catch(() => {});
   }, []);
 
-  const activeUpiId = selectedMethod === 'universal' 
-    ? (paymentConfig.upiId || DEFAULT_UNIVERSAL_UPI_ID) 
-    : DEFAULT_PAYTM_UPI_ID;
-
-  const activeName = selectedMethod === 'universal'
-    ? (paymentConfig.payeeName || RECIPIENT_NAME)
-    : RECIPIENT_NAME;
-
-  const activeCustomImage = (selectedMethod === 'universal' && paymentConfig.customQrImage)
-    ? paymentConfig.customQrImage
-    : '';
+  const activeUpiId = paymentConfig.upiId || DEFAULT_UNIVERSAL_UPI_ID;
+  const activeName = paymentConfig.payeeName || RECIPIENT_NAME;
+  const activeCustomImage = paymentConfig.customQrImage || '';
 
   // Standard UPI URI format accepted across all UPI apps
   const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 18 Oct')}`;
@@ -517,11 +512,11 @@ export function PaytmPaymentCard({
     }
 
     QRCode.toDataURL(hasCustomWebLink ? directPayUrl : upiUri, {
-      width: compact ? 220 : 280,
+      width: compact ? 240 : 300,
       margin: 1,
       errorCorrectionLevel: 'H',
       color: {
-        dark: '#002970',
+        dark: '#17331D',
         light: '#FFFFFF'
       }
     }).then(url => {
@@ -551,146 +546,84 @@ export function PaytmPaymentCard({
     }
   };
 
-  const handleSaveConfig = (newConfig) => {
-    setPaymentConfig(newConfig);
-  };
-
   return (
-    <>
-      <div className={`bg-[#002970] rounded-xl border border-[#00b9f5] shadow-md overflow-hidden mx-auto text-center font-sans ${compact ? 'max-w-[260px]' : 'max-w-[290px]'}`}>
-        
-        {/* Top Header with Quick Update Button */}
-        <div className={`bg-white border-b border-stone-100 flex items-center justify-between ${compact ? 'py-1 px-2.5' : 'py-1.5 px-3'}`}>
-          <div className="flex items-center gap-1">
-            <span className={`font-extrabold tracking-tight ${compact ? 'text-xs' : 'text-sm'}`}>
-              <span className="text-[#002970]">pay</span>
-              <span className="text-[#00b9f5]">tm</span>
-            </span>
-            <span className="text-[9px] font-bold text-stone-500">/ UPI QR</span>
-          </div>
-          
-          <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              Fee: ₹{amount}
-            </span>
-            <button
-              type="button"
-              onClick={() => setShowUpdateModal(true)}
-              title="Update QR Code or UPI ID"
-              className="text-[8.5px] font-bold text-[#002970] bg-sky-100 hover:bg-sky-200 border border-sky-300 px-1.5 py-0.5 rounded cursor-pointer transition-colors flex items-center gap-0.5"
-            >
-              <Settings size={10} />
-              <span>Update QR</span>
-            </button>
-          </div>
+    <div className={`bg-[#17331D] rounded-xl border border-[#2d5735] shadow-lg overflow-hidden mx-auto text-center font-sans ${compact ? 'max-w-[260px]' : 'max-w-[285px]'}`}>
+      
+      {/* Official Verified Hospital Header */}
+      <div className={`bg-[#122817] text-white flex items-center justify-between ${compact ? 'py-1.5 px-3' : 'py-2 px-3.5'} border-b border-[#2d5735]`}>
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck size={14} className="text-emerald-400" />
+          <span className="font-extrabold tracking-tight text-white text-[11px] sm:text-xs">
+            Official Hospital UPI
+          </span>
         </div>
+        <span className="text-[9.5px] font-black text-emerald-950 bg-[#E7C697] px-2 py-0.5 rounded-full shadow-xs">
+          Fee: ₹{amount}
+        </span>
+      </div>
 
-        {/* Option Selector Toggle: Universal Direct Bank UPI vs Paytm Standee */}
-        <div className="bg-[#001d52] p-1 flex items-center justify-center gap-1 text-[9px] font-semibold text-white">
-          <button
-            type="button"
-            onClick={() => setSelectedMethod('universal')}
-            className={`flex-1 py-1 px-1 rounded transition-colors cursor-pointer ${
-              selectedMethod === 'universal' ? 'bg-[#00b9f5] text-[#002970] font-black' : 'text-stone-300 hover:text-white'
-            }`}
-          >
-            All UPI (PhonePe Safe)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedMethod('paytm')}
-            className={`flex-1 py-1 px-1 rounded transition-colors cursor-pointer ${
-              selectedMethod === 'paytm' ? 'bg-[#00b9f5] text-[#002970] font-black' : 'text-stone-300 hover:text-white'
-            }`}
-          >
-            Paytm QR
-          </button>
-        </div>
-
-        {/* QR Code Container (Crisp Dynamic QR / Uploaded Standee) */}
-        <div className={`bg-white rounded-lg border border-stone-200 ${compact ? 'p-1.5 mx-1.5 my-1' : 'p-2 mx-2 my-1.5'}`}>
-          <div className="relative inline-block">
-            <img 
-              src={activeCustomImage || qrDataUrl || '/media/payment-link-qr.png'} 
-              alt="Masterclass Payment QR Code" 
-              className={`${compact ? 'w-24 h-24' : 'w-28 h-28 sm:w-32 sm:h-32'} object-contain mx-auto rounded`} 
-            />
-            {!activeCustomImage && (
-              <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white text-[#002970] flex items-center justify-center font-bold text-[7px] shadow border border-stone-200 pointer-events-none">
-                UPI
-              </div>
-            )}
-          </div>
-
-          {/* UPI ID & Copy Button */}
-          <div className="mt-0.5 flex items-center justify-center gap-1 text-[9px] font-mono font-bold text-stone-800">
-            <span className="truncate max-w-[150px]">{activeUpiId}</span>
-            <button 
-              type="button" 
-              onClick={copyPayInfo}
-              className="text-[8px] text-[#002970] bg-stone-100 hover:bg-stone-200 px-1 py-0.5 rounded cursor-pointer"
-            >
-              {copied ? 'Copied' : 'Copy'}
-            </button>
-          </div>
-
-          {/* Interactive QR Update link */}
-          <button
-            type="button"
-            onClick={() => setShowUpdateModal(true)}
-            className="mt-0.5 text-[8.5px] text-[#002970] hover:text-[#00b9f5] font-semibold flex items-center justify-center gap-0.5 mx-auto cursor-pointer"
-          >
-            <Edit3 size={9} />
-            <span>Update this QR / UPI ID</span>
-          </button>
-        </div>
-
-        {/* Direct Tap to Pay / Open Link */}
-        <div className={`bg-[#00205b] border-t border-[#00b9f5]/30 ${compact ? 'p-1.5' : 'p-2'}`}>
-          <a 
-            href={directPayUrl} 
-            onClick={handlePayClick}
-            target={hasCustomWebLink ? "_blank" : "_self"}
-            rel="noopener noreferrer"
-            className="w-full inline-flex items-center justify-center gap-1 bg-[#00b9f5] hover:bg-[#00a2d6] text-[#002970] text-[11px] font-black py-1.5 px-2 rounded-lg shadow transition-transform active:scale-98"
-          >
-            {desktopNotice ? (
-              <span className="text-[#002970] font-black">✓ UPI ID Copied! Scan QR on Mobile</span>
-            ) : hasCustomWebLink ? (
-              <>
-                <span>Open Payment Link (₹{amount})</span>
-                <ExternalLink size={11} />
-              </>
-            ) : (
-              <>
-                <span>Tap to Pay ₹{amount} (Any UPI App)</span>
-                <ExternalLink size={11} />
-              </>
-            )}
-          </a>
-          <p className="text-[8.5px] text-sky-200 mt-1 leading-tight font-medium">
-            ⚡ Works across all apps: <strong>PhonePe, Google Pay, Paytm, BHIM</strong>
-          </p>
-          {desktopNotice && (
-            <p className="text-[9px] text-[#00b9f5] mt-1 leading-tight font-medium">
-              Laptops don't have UPI apps. Scan the QR code with your mobile phone or use copied UPI ID: <span className="font-mono text-white">{activeUpiId}</span>
-            </p>
+      {/* QR Code Container (Locked Official QR / Doctor Uploaded Standee) */}
+      <div className={`bg-white rounded-lg border border-stone-200 ${compact ? 'p-2 mx-2 my-2' : 'p-2.5 mx-2.5 my-2.5'} shadow-xs`}>
+        <div className="relative inline-block">
+          <img 
+            src={activeCustomImage || qrDataUrl || '/media/payment-link-qr.png'} 
+            alt="AayuTatva Official Payment QR Code" 
+            className={`${compact ? 'w-28 h-28' : 'w-32 h-32 sm:w-36 sm:h-36'} object-contain mx-auto rounded`} 
+          />
+          {!activeCustomImage && (
+            <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white text-[#17331D] flex items-center justify-center font-bold text-[7px] shadow border border-stone-200 pointer-events-none">
+              UPI
+            </div>
           )}
         </div>
 
+        {/* Official UPI ID & 1-Click Copy */}
+        <div className="mt-1 flex items-center justify-center gap-1 text-[9.5px] font-mono font-bold text-stone-800 bg-stone-50 border border-stone-200 rounded px-1.5 py-1">
+          <span className="truncate max-w-[160px]">{activeUpiId}</span>
+          <button 
+            type="button" 
+            onClick={copyPayInfo}
+            className="text-[8.5px] text-[#17331D] bg-stone-200 hover:bg-stone-300 font-bold px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+          >
+            {copied ? '✓ Copied' : 'Copy'}
+          </button>
+        </div>
       </div>
 
-      {/* Embedded Update QR Modal */}
-      <UpdateQrModal
-        isOpen={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
-        currentUpiId={paymentConfig.upiId}
-        currentName={paymentConfig.payeeName}
-        currentCustomQr={paymentConfig.customQrImage}
-        amount={amount}
-        onSave={handleSaveConfig}
-      />
-    </>
+      {/* Direct Tap to Pay / Mobile UPI Intent */}
+      <div className={`bg-[#122817] border-t border-[#2d5735] ${compact ? 'p-2' : 'p-2.5'}`}>
+        <a 
+          href={directPayUrl} 
+          onClick={handlePayClick}
+          target={hasCustomWebLink ? "_blank" : "_self"}
+          rel="noopener noreferrer"
+          className="w-full inline-flex items-center justify-center gap-1.5 bg-[#E7C697] hover:bg-[#d9b580] active:scale-98 text-[#17331D] text-[11.5px] font-black py-2 px-3 rounded-lg shadow transition-transform cursor-pointer"
+        >
+          {desktopNotice ? (
+            <span className="text-[#17331D] font-black">✓ UPI ID Copied! Scan QR on Mobile</span>
+          ) : hasCustomWebLink ? (
+            <>
+              <span>Open Payment Link (₹{amount})</span>
+              <ExternalLink size={12} />
+            </>
+          ) : (
+            <>
+              <span>Tap to Pay ₹{amount} (PhonePe / GPay / Any App)</span>
+              <ExternalLink size={12} />
+            </>
+          )}
+        </a>
+        <p className="text-[9px] text-emerald-200/90 mt-1.5 leading-tight font-medium">
+          ⚡ 100% Direct Hospital Settlement · Scan with PhonePe, GPay, Paytm, or BHIM
+        </p>
+        {desktopNotice && (
+          <p className="text-[9px] text-[#E7C697] mt-1 leading-tight font-medium">
+            Laptops don't have UPI apps. Scan the QR code with your mobile phone or use copied UPI ID: <span className="font-mono text-white">{activeUpiId}</span>
+          </p>
+        )}
+      </div>
+
+    </div>
   );
 }
 
@@ -823,7 +756,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
         `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
         `📍 *City:* ${saved.city}`,
         `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-        `💳 *Payment Method:* Payment Link / Direct UPI (paytm.s1j7ydq@pty)`,
+        `💳 *Payment Method:* Direct Hospital UPI / QR (7758816074@ybl)`,
         `🔢 *UPI / Payment Ref:* ${saved.upiRef}`,
         `✅ *Payment Status:* Paid ₹9 (Please check sheet and confirm)`,
         ``,
@@ -925,7 +858,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                 <ChevronRight size={10} className="text-stone-400" />
                 <div className={`flex items-center gap-1 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
                   <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step >= 2 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>2</span>
-                  <span>Paytm UPI (₹9)</span>
+                  <span>UPI Pay (₹9)</span>
                 </div>
                 <ChevronRight size={10} className="text-stone-400" />
                 <div className={`flex items-center gap-1 ${step >= 3 ? 'font-bold text-[#1B3B22]' : ''}`}>
@@ -1593,7 +1526,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Total Collected (₹9 / Seat)</span>
                 <div className="text-2xl font-bold text-emerald-700 mt-0.5">₹{records.length * 9}</div>
-                <span className="text-[10px] text-stone-500">Paid via Direct Paytm UPI</span>
+                <span className="text-[10px] text-stone-500">Paid via Hospital UPI</span>
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Broadcast Date</span>
@@ -1817,6 +1750,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
           currentName={adminPaymentConfig.payeeName}
           currentCustomQr={adminPaymentConfig.customQrImage}
           amount={REGISTRATION_FEE}
+          authKey={activeAuthKey}
           onSave={(cfg) => setAdminPaymentConfig(cfg)}
         />
 

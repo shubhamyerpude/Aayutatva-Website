@@ -160,7 +160,7 @@ function App() {
       `🌿 *Area of Care:* ${form.department}`,
       `📅 *Preferred Date:* ${form.date}`,
       `📝 *Notes:* ${form.note || 'None'}`,
-      `💳 *Payment Method:* Direct UPI (paytm.s1j7ydq@pty)`,
+      `💳 *Payment Method:* Direct Hospital UPI (7758816074@ybl)`,
       `🔢 *UPI UTR / Ref:* ${finalUpiRef}`,
       `✅ *Payment Status:* Paid ₹200 (Please check sheet and confirm)`,
       ``,
