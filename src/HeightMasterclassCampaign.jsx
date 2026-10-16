@@ -16,6 +16,7 @@ export const SESSION_DATE = 'Sunday, 25th October 2026';
 export const SESSION_TIME = 'Evening 7:00 PM – 8:00 PM (IST)';
 export const DEFAULT_PAYMENT_LINK = '';
 export const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
+export const WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/F13Vq4it2tfHeucc0x12w2?s=cl&p=a&mlu=4&ilr=4';
 
 // Helper to save registration locally and attempt server sync
 export async function saveMasterclassRegistration(data) {
@@ -94,7 +95,7 @@ export function exportRegistrationsToCSV(records) {
     'Gender',
     'Current Height',
     'Target / Growth Goals',
-    'City & State',
+    'City',
     'Payment Status',
     'Fee Paid (INR)',
     'UPI Transaction Ref / UTR',
@@ -623,6 +624,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
   const [step, setStep] = useState(0); // 0 = Pitch Teaser, 1 = Form, 2 = Paytm QR, 3 = Confirmed Ticket
   const [loading, setLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
+  const [heightUnit, setHeightUnit] = useState('FT'); // 'FT' or 'CM'
 
   const [formData, setFormData] = useState({
     name: '',
@@ -653,7 +655,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       if (!dismissed) {
         const timer = setTimeout(() => {
           setIsOpen(true);
-        }, 900); // 900ms smooth delay after page loads
+        }, 800); // 800ms smooth delay after page loads
         return () => clearTimeout(timer);
       }
     }
@@ -694,8 +696,10 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       errs.whatsapp = 'Enter a valid 10-digit WhatsApp number';
     }
     if (!formData.age) errs.age = 'Please enter age';
-    if (!formData.city.trim()) errs.city = 'Please enter your city/state';
-    if (!formData.currentHeight.trim()) errs.currentHeight = 'Please enter current height (e.g., 5 ft 4 in)';
+    if (!formData.city.trim()) errs.city = 'Please enter your city';
+    if (!formData.currentHeight.trim()) {
+      errs.currentHeight = heightUnit === 'FT' ? 'Please enter height (e.g. 5ft 4 in)' : 'Please enter height (e.g. 150 CM)';
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -706,44 +710,37 @@ export function HeightCampaignPopup({ autoOpen = false }) {
 
     setLoading(true);
     try {
+      // Format height cleanly with unit
+      const rawHeight = formData.currentHeight.trim();
+      let formattedHeight = rawHeight;
+      if (heightUnit === 'CM' && !rawHeight.toLowerCase().includes('cm')) {
+        formattedHeight = `${rawHeight} CM`;
+      } else if (heightUnit === 'FT' && !rawHeight.toLowerCase().includes('ft') && !rawHeight.includes("'")) {
+        formattedHeight = `${rawHeight} ft`;
+      }
+
       const dataToSave = { 
         ...formData, 
+        currentHeight: formattedHeight,
+        whatsappGroup: WHATSAPP_GROUP_LINK,
         fee: 0,
         upiRef: 'FREE-WORKSHOP',
         status: 'Free Workshop Registration Confirmed'
       };
-      // 1. Update attendee details in clinic registry / backend data store
+      
+      // 1. Update attendee details in clinic registry / backend data store & Google Sheet
       const saved = await saveMasterclassRegistration(dataToSave);
       setConfirmedData(saved);
       setStep(3); // Direct confirmation - no payment step!
 
-      // 2. Pre-craft WhatsApp confirmation message for Free Workshop
-      const msg = [
-        `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
-        `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
-        ``,
-        `📋 *Booking ID:* ${saved.id}`,
-        `👤 *Attendee Name:* ${saved.name}`,
-        `📞 *WhatsApp Number:* ${saved.whatsapp}`,
-        `🎂 *Age / Gender:* ${saved.age} yrs, ${saved.gender || 'Male'}`,
-        `📏 *Current Height:* ${saved.currentHeight}`,
-        `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
-        `📍 *City:* ${saved.city}`,
-        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-        `🎟️ *Workshop Fee:* ₹0 (Free Workshop)`,
-        `✅ *Status:* Confirmed in Attendee Sheet`,
-        ``,
-        `Kindly confirm my seat for the 25th Oct live session.`,
-        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
-      ].join('\n');
-
-      // 3. Redirect user to WhatsApp link
-      const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(msg)}`;
+      // 2. Automatically redirect user to the WhatsApp group
       setTimeout(() => {
         try {
-          window.open(waUrl, '_blank', 'noopener,noreferrer');
-        } catch (err) {}
-      }, 700);
+          window.location.href = WHATSAPP_GROUP_LINK;
+        } catch (err) {
+          window.open(WHATSAPP_GROUP_LINK, '_blank');
+        }
+      }, 1000);
 
     } catch (err) {
       alert('Could not update registration in sheet. Please try again.');
@@ -797,22 +794,27 @@ export function HeightCampaignPopup({ autoOpen = false }) {
           role="dialog"
           aria-modal="true"
         >
-          {/* Card Container: Reduced width & height to fit mobile viewports */}
-          <div className="bg-[#FDFBF7] text-[#1B3B22] w-full max-w-[340px] sm:max-w-[360px] rounded-2xl shadow-2xl border-2 border-[#D4A373] overflow-hidden max-h-[82vh] sm:max-h-[86vh] flex flex-col relative animate-in zoom-in-95 duration-200 campaign-modal">
+          {/* Card Container: Spacious, responsive, fits mobile and desktop viewports gracefully */}
+          <div className="bg-[#FDFBF7] text-[#1B3B22] w-full max-w-[390px] sm:max-w-[430px] rounded-2xl shadow-2xl border-2 border-[#D4A373] overflow-hidden max-h-[88vh] sm:max-h-[90vh] flex flex-col relative animate-in zoom-in-95 duration-200 campaign-modal">
             
-            {/* Compact Header with Live Badge & Close Button */}
-            <div className="bg-[#17331D] text-white px-3 py-2 flex items-center justify-between border-b border-[#D4A373]/30 flex-shrink-0">
-              <div className="pr-1.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 bg-[#D4A373] text-[#17331D] text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">
+            {/* Header of masterclass form: generous padding, proper spacing and elegant typography */}
+            <div className="bg-[#17331D] text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-start justify-between border-b border-[#D4A373]/30 flex-shrink-0 gap-3">
+              <div className="space-y-1.5 flex-1 pr-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 bg-[#D4A373] text-[#17331D] text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full tracking-wide shadow-xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
-                    25 OCT · 7-8 PM · FREE WORKSHOP
+                    25 OCT · 7:00 PM · FREE WORKSHOP
                   </span>
-                  <span className="text-emerald-300 text-[10px] font-bold">100% Free</span>
+                  <span className="bg-emerald-800/80 text-emerald-200 border border-emerald-600/40 text-[9.5px] font-bold px-2 py-0.5 rounded-full">
+                    100% Free Entry
+                  </span>
                 </div>
-                <h2 className="text-xs sm:text-sm font-serif font-bold text-white mt-0.5 leading-tight">
+                <h2 className="text-sm sm:text-base font-serif font-bold text-white leading-snug tracking-tight">
                   Natural Height Growth Masterclass
                 </h2>
+                <p className="text-[10px] sm:text-[11px] text-stone-300 font-medium leading-snug">
+                  Live Doctor Guidance · Ages 12–25 · Ayurvedic Health Education
+                </p>
               </div>
 
               {/* Close Button */}
@@ -820,68 +822,69 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                 type="button"
                 onClick={handleClose} 
                 aria-label="Close masterclass popup"
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-stone-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-stone-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 mt-0.5"
               >
-                <X size={16} />
+                <X size={17} />
               </button>
             </div>
 
-            {/* Compact Step Indicator if not in step 0 */}
+            {/* Step Indicator if not in step 0 */}
             {step > 0 && (
-              <div className="bg-[#f4efe4] px-3 py-1 border-b border-[#e2dacf] flex items-center justify-between text-[9px] text-stone-600 flex-shrink-0">
-                <div className={`flex items-center gap-1 ${step === 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step === 1 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>1</span>
+              <div className="bg-[#f4efe4] px-4 py-1.5 border-b border-[#e2dacf] flex items-center justify-between text-[10px] text-stone-600 flex-shrink-0">
+                <div className={`flex items-center gap-1.5 ${step === 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${step === 1 ? 'bg-[#1B3B22] text-white font-bold' : 'bg-stone-300'}`}>1</span>
                   <span>Attendee Details</span>
                 </div>
-                <ChevronRight size={10} className="text-stone-400" />
-                <div className={`flex items-center gap-1 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step >= 2 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>2</span>
-                  <span>Free Ticket Confirmed</span>
+                <ChevronRight size={12} className="text-stone-400" />
+                <div className={`flex items-center gap-1.5 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${step >= 2 ? 'bg-[#1B3B22] text-white font-bold' : 'bg-stone-300'}`}>2</span>
+                  <span>Free Seat Confirmed</span>
                 </div>
               </div>
             )}
 
             {/* Scrollable Modal Body */}
-            <div className="p-2.5 sm:p-3 overflow-y-auto flex-1 overscroll-contain">
+            <div className="p-3.5 sm:p-4 overflow-y-auto flex-1 overscroll-contain">
 
               {/* STEP 0: ULTRA-COMPACT STREAMLINED INVITATION PITCH */}
               {step === 0 && (
-                <div className="space-y-2 text-center">
-                  {/* Doctor Row (Compact) */}
-                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-stone-200 shadow-2xs text-left">
+                <div className="space-y-3 text-center">
+                  {/* Doctor Row */}
+                  <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-stone-200 shadow-2xs text-left">
                     <img 
                       src="/media/dr-manish-yerpude.jpg" 
                       alt="Dr. Manish Santosh Yerpude" 
-                      className="w-8 h-8 rounded-full object-cover border border-[#D4A373] flex-shrink-0"
+                      className="w-10 h-10 rounded-full object-cover border border-[#D4A373] flex-shrink-0"
                     />
                     <div className="leading-tight">
-                      <div className="font-bold text-stone-900 text-xs">Dr. Manish Santosh Yerpude</div>
-                      <div className="text-[9px] text-stone-500">[B.A.M.S., MD (AM)] · NABH Centre</div>
+                      <div className="font-bold text-stone-900 text-xs sm:text-sm">Dr. Manish Santosh Yerpude</div>
+                      <div className="text-[10px] text-stone-500">[B.A.M.S., MD (AM)] · AayuTatva Ayurvedic Hospital</div>
                     </div>
                   </div>
 
                   {/* Concise Highlights & Notice */}
-                  <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-2 text-left space-y-1">
-                    <div className="flex items-center justify-between text-[#17331D] font-bold text-[10px]">
+                  <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl p-3 text-left space-y-1.5">
+                    <div className="flex items-center justify-between text-[#17331D] font-bold text-[11px]">
                       <span>📅 Sun, 25 Oct 2026 · 7:00 PM – 8:00 PM (Evening)</span>
-                      <span className="bg-[#17331D] text-[#E7C697] text-[9px] px-2 py-0.5 rounded-full">Free Entry</span>
+                      <span className="bg-[#17331D] text-[#E7C697] text-[9.5px] px-2 py-0.5 rounded-full font-bold">Free Entry</span>
                     </div>
-                    <p className="text-[10px] text-stone-700 leading-snug">
-                      60-min live doctor workshop (7–8 PM) on bone growth plate reactivation, spinal decompression & Ayurvedic nutrition for ages 12–25.
+                    <p className="text-[11px] text-stone-700 leading-snug">
+                      60-min live doctor workshop on bone growth plate reactivation, spinal decompression & Ayurvedic nutrition for ages 12–25.
                     </p>
-                    <p className="text-[9px] text-emerald-900 font-semibold">
-                      📲 Meeting link delivered <strong>3 days prior (by 22nd Oct)</strong> directly on WhatsApp.
+                    <p className="text-[10px] text-emerald-900 font-semibold flex items-center gap-1.5 pt-0.5">
+                      <span>📲</span>
+                      <span>You will be added to the official <strong>WhatsApp Group</strong> immediately upon registration!</span>
                     </p>
                   </div>
 
-                  {/* Primary CTA Button (Always visible on mobile without scrolling) */}
+                  {/* Primary CTA Button */}
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-transform cursor-pointer"
+                    className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-transform cursor-pointer"
                   >
                     <span>Claim Your Free Seat Now</span>
-                    <ArrowRight size={14} />
+                    <ArrowRight size={15} />
                   </button>
 
                   {/* Secondary Dismiss */}
@@ -889,7 +892,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     <button 
                       type="button"
                       onClick={handleClose}
-                      className="text-[10px] text-stone-400 hover:text-stone-600 cursor-pointer"
+                      className="text-[11px] text-stone-400 hover:text-stone-600 cursor-pointer transition-colors"
                     >
                       Maybe later
                     </button>
@@ -899,17 +902,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
 
               {/* STEP 1: COMPACT ATTENDEE DETAILS FORM */}
               {step === 1 && (
-                <div className="space-y-2 text-left">
-                  <div className="mb-1">
+                <div className="space-y-3 text-left">
+                  <div className="mb-2 pb-2 border-b border-stone-200">
                     <h3 className="font-bold text-xs sm:text-sm text-[#1B3B22]">Attendee & Contact Information</h3>
-                    <p className="text-[10px] text-stone-500">
-                      Meeting link will be received 3 days prior on WhatsApp.
+                    <p className="text-[10.5px] text-stone-500 mt-0.5">
+                      Fill the form to get added to the official WhatsApp Group and attendee sheet.
                     </p>
                   </div>
 
-                  <form onSubmit={handleStep1Submit} className="space-y-2 text-left">
+                  <form onSubmit={handleStep1Submit} className="space-y-2.5 text-left">
                     <div>
-                      <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
+                      <label className="block text-[11px] font-semibold text-stone-700 mb-1">
                         Full Name *
                       </label>
                       <input
@@ -918,13 +921,13 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         placeholder="e.g. Aryan Sharma"
                         value={formData.name}
                         onChange={handleChange}
-                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
                       />
-                      {errors.name && <p className="text-[9px] text-red-600 mt-0.5">{errors.name}</p>}
+                      {errors.name && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.name}</p>}
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
+                      <label className="block text-[11px] font-semibold text-stone-700 mb-1">
                         WhatsApp Number *
                       </label>
                       <input
@@ -933,14 +936,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         placeholder="e.g. 9876543210"
                         value={formData.whatsapp}
                         onChange={handleChange}
-                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
                       />
-                      {errors.whatsapp && <p className="text-[9px] text-red-600 mt-0.5">{errors.whatsapp}</p>}
+                      {errors.whatsapp && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.whatsapp}</p>}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
+                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
                           Age *
                         </label>
                         <input
@@ -949,20 +952,20 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                           placeholder="e.g. 18"
                           value={formData.age}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
                         />
-                        {errors.age && <p className="text-[9px] text-red-600 mt-0.5">{errors.age}</p>}
+                        {errors.age && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.age}</p>}
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
+                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
                           Gender
                         </label>
                         <select
                           name="gender"
                           value={formData.gender}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9 cursor-pointer"
                         >
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
@@ -971,25 +974,56 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {/* Current Height with FT / CM Unit Selector */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
-                          Current Height *
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px] font-semibold text-stone-700">
+                            Current Height *
+                          </label>
+                          <div className="flex items-center bg-stone-200/90 rounded-md p-0.5 text-[9.5px] font-bold">
+                            <button
+                              type="button"
+                              onClick={() => setHeightUnit('FT')}
+                              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                                heightUnit === 'FT' 
+                                  ? 'bg-[#17331D] text-[#E7C697] shadow-xs' 
+                                  : 'text-stone-600 hover:text-stone-900'
+                              }`}
+                            >
+                              FT
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setHeightUnit('CM')}
+                              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                                heightUnit === 'CM' 
+                                  ? 'bg-[#17331D] text-[#E7C697] shadow-xs' 
+                                  : 'text-stone-600 hover:text-stone-900'
+                              }`}
+                            >
+                              CM
+                            </button>
+                          </div>
+                        </div>
                         <input
                           type="text"
                           name="currentHeight"
-                          placeholder="e.g. 5 ft 4 in"
+                          placeholder={heightUnit === 'FT' ? 'e.g. 5ft 4 in' : 'e.g. 150 CM'}
                           value={formData.currentHeight}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
                         />
-                        {errors.currentHeight && <p className="text-[9px] text-red-600 mt-0.5">{errors.currentHeight}</p>}
+                        <span className="text-[9px] text-stone-500 mt-0.5 block">
+                          {heightUnit === 'FT' ? 'Example: 5ft 4 in' : 'Example: 150 CM'}
+                        </span>
+                        {errors.currentHeight && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.currentHeight}</p>}
                       </div>
 
+                      {/* City Field (Updated Header from City/State to City) */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-0.5">
-                          City / State *
+                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
+                          City *
                         </label>
                         <input
                           type="text"
@@ -997,50 +1031,57 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                           placeholder="e.g. Bhandara"
                           value={formData.city}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-1.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
                         />
-                        {errors.city && <p className="text-[9px] text-red-600 mt-0.5">{errors.city}</p>}
+                        {errors.city && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.city}</p>}
                       </div>
                     </div>
 
-                    <div className="flex gap-2 pt-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setStep(0)}
-                        className="w-1/3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold py-2 rounded-xl text-xs cursor-pointer transition-colors"
-                      >
-                        Back
-                      </button>
+                    {/* Submit Button & Back Action: Pristine Full-Width Layout, Zero Distortion */}
+                    <div className="pt-2 space-y-2">
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-2/3 bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 shadow cursor-pointer transition-all"
+                        className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-[0.99] text-[#E7C697] font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all min-h-[44px]"
                       >
-                        <span>{loading ? 'Confirming Seat…' : 'Register Free Seat (25 Oct)'}</span>
-                        <ArrowRight size={13} />
+                        <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0" />
+                        <span className="font-bold tracking-wide">
+                          {loading ? 'Confirming Seat…' : 'Register Free & Join WhatsApp'}
+                        </span>
+                        <ArrowRight size={15} className="flex-shrink-0 ml-0.5" />
                       </button>
+
+                      <div className="flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setStep(0)}
+                          className="text-[11px] text-stone-500 hover:text-stone-800 font-medium py-1 px-3 cursor-pointer transition-colors"
+                        >
+                          ← Back to Masterclass Details
+                        </button>
+                      </div>
                     </div>
                   </form>
                 </div>
               )}
 
-              {/* STEP 3: CONFIRMED TICKET FOR FREE WORKSHOP */}
+              {/* STEP 3: CONFIRMED TICKET FOR FREE WORKSHOP & WHATSAPP REDIRECTION */}
               {step === 3 && confirmedData && (
-                <div className="text-center py-1 space-y-2">
-                  <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-xs">
-                    <CheckCircle2 size={24} />
+                <div className="text-center py-1 space-y-3">
+                  <div className="w-11 h-11 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-xs">
+                    <CheckCircle2 size={26} />
                   </div>
 
                   <div>
-                    <span className="text-[9px] font-bold text-emerald-800 uppercase bg-emerald-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[9.5px] font-bold text-emerald-800 uppercase bg-emerald-100 px-2.5 py-0.5 rounded-full">
                       Free Workshop Confirmed
                     </span>
-                    <h3 className="text-sm font-serif font-bold text-[#1B3B22] mt-0.5">
+                    <h3 className="text-sm sm:text-base font-serif font-bold text-[#1B3B22] mt-1">
                       Seat Reserved for Sun, 25th Oct (7–8 PM)!
                     </h3>
                   </div>
 
-                  <div className="bg-white border border-dashed border-[#1B3B22]/30 rounded-xl p-2.5 text-left text-[11px] text-stone-700 space-y-1.5">
+                  <div className="bg-white border border-dashed border-[#1B3B22]/30 rounded-xl p-3 text-left text-[11px] text-stone-700 space-y-1.5 shadow-2xs">
                     <div className="flex justify-between border-b border-stone-200 pb-1">
                       <span className="text-stone-400 font-bold uppercase text-[9px]">Booking ID</span>
                       <strong className="font-mono text-emerald-800">{confirmedData.id}</strong>
@@ -1054,22 +1095,38 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       <strong>{confirmedData.whatsapp}</strong>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-stone-500">City:</span>
+                      <strong>{confirmedData.city}</strong>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-stone-500">Workshop Fee:</span>
-                      <span className="bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded text-[9px] font-bold">
+                      <span className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded text-[9.5px] font-bold">
                         100% Free Workshop (₹0)
                       </span>
                     </div>
-                    <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-200 text-[10px] text-emerald-950 mt-1 space-y-0.5">
+                    <div className="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-[10.5px] text-emerald-950 mt-1 space-y-1">
                       <p>
-                        📋 <strong>Recorded in Attendee Sheet:</strong> Your details and Booking ID are confirmed.
+                        📋 <strong>Recorded in Attendee Sheet:</strong> Details synced successfully in real-time.
                       </p>
                       <p>
-                        📲 <strong>Meeting Link:</strong> Received <strong>3 days prior (by 22nd Oct)</strong> on WhatsApp.
+                        📲 <strong>Redirecting to WhatsApp Group:</strong> You will be redirected to the workshop group.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 pt-1">
+                  {/* Primary WhatsApp Group Join CTA */}
+                  <div className="flex flex-col gap-2 pt-1">
+                    <a
+                      href={WHATSAPP_GROUP_LINK}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-98 cursor-pointer"
+                    >
+                      <MessageCircle size={18} className="fill-white flex-shrink-0" />
+                      <span>Join Official WhatsApp Group Now</span>
+                      <ArrowRight size={15} className="flex-shrink-0" />
+                    </a>
+                    
                     <a
                       href={`https://wa.me/917758816074?text=${encodeURIComponent([
                         `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
@@ -1080,25 +1137,22 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         `📞 *WhatsApp Number:* ${confirmedData.whatsapp}`,
                         `🎂 *Age / Gender:* ${confirmedData.age} yrs, ${confirmedData.gender || 'Male'}`,
                         `📏 *Current Height:* ${confirmedData.currentHeight}`,
-                        `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
                         `📍 *City:* ${confirmedData.city}`,
                         `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-                        `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`,
-                        ``,
-                        `Kindly verify my free registration in your sheet.`,
-                        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
+                        `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`
                       ].join('\n'))}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow"
+                      className="bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                     >
-                      <Phone size={13} />
-                      <span>Open WhatsApp with Booking Details</span>
+                      <Phone size={12} />
+                      <span>Send Confirmation Copy to Dr. Yerpude</span>
                     </a>
+
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="bg-stone-200 text-stone-800 text-xs font-bold py-2 rounded-xl"
+                      className="text-stone-500 hover:text-stone-800 text-[11px] font-medium py-1 cursor-pointer transition-colors"
                     >
                       Done & Close
                     </button>

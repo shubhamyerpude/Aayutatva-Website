@@ -14,6 +14,7 @@ interface MasterclassRegistration {
   upiRef: string;
   fee: number;
   status: string;
+  whatsappGroup?: string;
   submittedAt: string;
 }
 
@@ -106,7 +107,7 @@ export default async function handler(req: any, res: any) {
       'Gender',
       'Current Height',
       'Target / Growth Goals',
-      'City & State',
+      'City',
       'Payment Status',
       'Fee Paid (INR)',
       'UPI Transaction Ref / UTR',
@@ -124,10 +125,10 @@ export default async function handler(req: any, res: any) {
       `"${r.currentHeight || ''}"`,
       `"${(r.goal || '').replace(/"/g, '""')}"`,
       `"${(r.city || '').replace(/"/g, '""')}"`,
-      `"${r.status || 'Confirmed'}"`,
-      `"₹${r.fee || 9}"`,
-      `"${r.upiRef || ''}"`,
-      `"Zoom/Meet link will be received 3 days prior to masterclass date"`
+      `"${r.status || 'Free Workshop Confirmed'}"`,
+      `"₹${r.fee !== undefined ? r.fee : 0}"`,
+      `"${r.upiRef || 'FREE-WORKSHOP'}"`,
+      `"WhatsApp group invitation sent & Zoom/Meet link will be received 3 days prior"`
     ]);
 
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
@@ -155,9 +156,10 @@ export default async function handler(req: any, res: any) {
       currentHeight: body.currentHeight || '',
       goal: body.goal || '',
       city: body.city || '',
-      upiRef: body.upiRef || '',
-      fee: body.fee || 9,
-      status: body.status || 'Paid via UPI (Verification Pending)',
+      upiRef: body.upiRef || 'FREE-WORKSHOP',
+      fee: body.fee !== undefined ? body.fee : 0,
+      status: body.status || 'Free Workshop Confirmed',
+      whatsappGroup: body.whatsappGroup || 'https://chat.whatsapp.com/F13Vq4it2tfHeucc0x12w2?s=cl&p=a&mlu=4&ilr=4',
       submittedAt: body.submittedAt || new Date().toISOString(),
     };
 

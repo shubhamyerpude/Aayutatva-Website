@@ -170,8 +170,8 @@ export function SiteHeader({ breadcrumb = null }) {
 
   return (
     <>
-      {/* 1. Campaign Popup Trigger (Opens on click or direct URL parameter) */}
-      <HeightCampaignPopup autoOpen={false} />
+      {/* 1. Campaign Popup Trigger (Auto-appears on visit & opens on click or direct URL parameter) */}
+      <HeightCampaignPopup autoOpen={true} />
 
       {/* 2. Top Portal Status Bar (Call hospital removed from title bar) */}
       <div className="top-portal-bar">

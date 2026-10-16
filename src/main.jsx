@@ -47,131 +47,156 @@ const patientReviews = [
 ];
 
 function PatientReviewsAutoScroll({ reviews }) {
-  const railRef = React.useRef(null);
-  const [isPaused, setIsPaused] = React.useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  React.useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % reviews.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isPaused, reviews.length]);
 
-    let animId;
-    let lastTime = performance.now();
-
-    const step = (time) => {
-      const delta = time - lastTime;
-      lastTime = time;
-
-      if (!isPaused && rail) {
-        // Continuous smooth auto-scroll (~34px per sec)
-        rail.scrollLeft += (34 * delta) / 1000;
-        const halfScroll = rail.scrollWidth / 2;
-        if (halfScroll > 0 && rail.scrollLeft >= halfScroll) {
-          rail.scrollLeft -= halfScroll;
-        }
-      }
-      animId = requestAnimationFrame(step);
-    };
-
-    animId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animId);
-  }, [isPaused]);
-
-  const scrollByAmount = (amount) => {
-    if (railRef.current) {
-      railRef.current.scrollBy({ left: amount, behavior: 'smooth' });
-    }
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
 
-  // Duplicate list to support seamless continuous scrolling loop
-  const displayReviews = [...reviews, ...reviews];
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const current = reviews[currentIndex];
 
   return (
     <div 
-      className="reviews-autoscroll-container"
+      className="reviews-animated-carousel"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
       onTouchEnd={() => setTimeout(() => setIsPaused(false), 2400)}
+      style={{ maxWidth: '780px', margin: '0 auto', position: 'relative' }}
     >
-      <div className="review-carousel-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', color: '#5A6B5C', fontWeight: '600' }}>
-            {isPaused ? '⏸ Auto-scroll paused' : '▶ Continuous auto-scroll (Hover or touch to pause)'}
+      {/* Header controls: Status, review counter & manual navigation arrows */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ 
+            fontSize: '11px', 
+            fontWeight: '700', 
+            letterSpacing: '0.8px', 
+            color: '#1C3B24', 
+            background: '#EAF0E7', 
+            padding: '4px 12px', 
+            borderRadius: '20px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isPaused ? '#B45309' : '#15803D', display: 'inline-block' }} />
+            {isPaused ? 'Paused (hovered)' : 'Auto-sliding (every 3 sec)'}
+          </span>
+          <span style={{ fontSize: '11.5px', color: '#6A786A', fontWeight: '600' }}>
+            Review {currentIndex + 1} of {reviews.length}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button 
             type="button" 
-            onClick={() => scrollByAmount(-340)} 
-            aria-label="Scroll reviews left"
-            title="Scroll left"
-            style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #D8D2C4', background: '#FFFFFF', color: '#1C3B24', display: 'grid', placeItems: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+            onClick={handlePrev} 
+            aria-label="Previous review"
+            title="Previous review"
+            style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #D8D2C4', background: '#FFFFFF', color: '#1C3B24', display: 'grid', placeItems: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
           >
             <ChevronLeft size={18} />
           </button>
           <button 
             type="button" 
-            onClick={() => scrollByAmount(340)} 
-            aria-label="Scroll reviews right"
-            title="Scroll right"
-            style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #D8D2C4', background: '#FFFFFF', color: '#1C3B24', display: 'grid', placeItems: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+            onClick={handleNext} 
+            aria-label="Next review"
+            title="Next review"
+            style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #D8D2C4', background: '#FFFFFF', color: '#1C3B24', display: 'grid', placeItems: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
           >
             <ChevronRight size={18} />
           </button>
         </div>
       </div>
 
-      <div 
-        ref={railRef}
-        className="reviews-grid review-rail"
-        style={{ 
-          display: 'flex', 
-          overflowX: 'auto', 
-          gap: '16px', 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none', 
-          paddingBottom: '12px',
-          scrollBehavior: 'auto',
-          scrollSnapType: 'none'
-        }}
-      >
-        {displayReviews.map((review, i) => (
-          <article 
-            className="home-review-card" 
-            key={i} 
-            style={{ 
-              flex: '0 0 min(340px, 80vw)', 
-              background: '#FFFFFF', 
-              border: '1px solid #E4DFD5', 
-              borderRadius: '14px', 
-              padding: '22px', 
-              display: 'flex', 
-              flexDirection: 'column',
-              boxShadow: '0 4px 18px rgba(28, 59, 36, 0.04)',
-              userSelect: 'none'
+      {/* Main Animated Review Card */}
+      <div style={{ minHeight: '220px', position: 'relative' }}>
+        <motion.article 
+          key={currentIndex}
+          initial={{ opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -28 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          style={{ 
+            background: '#FFFFFF', 
+            border: '1px solid #E2DCD2', 
+            borderRadius: '16px', 
+            padding: 'clamp(20px, 4vw, 32px)', 
+            display: 'flex', 
+            flexDirection: 'column',
+            boxShadow: '0 8px 30px rgba(28, 59, 36, 0.06)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Subtle animated progress bar for 3-second interval */}
+          {!isPaused && (
+            <motion.div 
+              key={`progress-${currentIndex}`}
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 3, ease: 'linear' }}
+              style={{ position: 'absolute', top: 0, left: 0, height: '3px', background: '#D4A373' }}
+            />
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.9px', color: '#9B784E', background: '#F8F5EE', padding: '4px 11px', borderRadius: '20px' }}>
+              {current.type}
+            </span>
+            <div style={{ display: 'flex', gap: '3px', color: '#D4A373' }}>
+              {[...Array(5)].map((_, s) => <Star key={s} size={14} fill="#D4A373" />)}
+            </div>
+          </div>
+
+          <p style={{ fontSize: 'clamp(14.5px, 2.2vw, 17px)', lineHeight: '1.7', color: '#1E3524', margin: '0 0 20px', fontStyle: 'italic', fontFamily: 'Playfair Display, Georgia, serif' }}>
+            {current.text}
+          </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderTop: '1px solid #F0EAE1', paddingTop: '14px', marginTop: 'auto' }}>
+            <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#EAF0E7', color: '#1C3B24', display: 'grid', placeItems: 'center', fontWeight: '700', fontSize: '14px' }}>
+              {current.initial}
+            </span>
+            <div>
+              <b style={{ display: 'block', fontSize: '13.5px', color: '#1C3B24' }}>{current.name}</b>
+              <small style={{ fontSize: '10.5px', color: '#6A786A', fontWeight: '500' }}>Google Verified Patient</small>
+            </div>
+          </div>
+        </motion.article>
+      </div>
+
+      {/* Pagination dot indicators */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '18px' }} aria-label="Review pagination">
+        {reviews.map((_, idx) => (
+          <button
+            type="button"
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            aria-label={`Go to review ${idx + 1}`}
+            style={{
+              width: idx === currentIndex ? '24px' : '8px',
+              height: '8px',
+              borderRadius: '99px',
+              background: idx === currentIndex ? '#1C3B24' : '#D5CFC3',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              padding: 0
             }}
-          >
-            <div className="review-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span className="review-source" style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '0.8px', color: '#9B784E', background: '#F8F5EE', padding: '3px 9px', borderRadius: '20px' }}>
-                {review.type}
-              </span>
-              <div className="stars" style={{ display: 'flex', gap: '2px', color: '#D4A373' }}>
-                {[...Array(5)].map((_, s) => <Star key={s} size={12} fill="#D4A373" />)}
-              </div>
-            </div>
-            <p className="review-quote" style={{ fontSize: '13.5px', lineHeight: '1.65', color: '#263E2C', margin: '0 0 16px', flex: 1, fontStyle: 'italic' }}>
-              {review.text}
-            </p>
-            <div className="reviewer" style={{ display: 'flex', alignItems: 'center', gap: '10px', borderTop: '1px solid #F0EAE1', paddingTop: '12px', marginTop: 'auto' }}>
-              <span style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#EAF0E7', color: '#1C3B24', display: 'grid', placeItems: 'center', fontWeight: '700', fontSize: '13px' }}>
-                {review.initial}
-              </span>
-              <div>
-                <b style={{ display: 'block', fontSize: '12.5px', color: '#1C3B24' }}>{review.name}</b>
-                <small style={{ fontSize: '10px', color: '#778879' }}>Google Verified Patient</small>
-              </div>
-            </div>
-          </article>
+          />
         ))}
       </div>
     </div>
@@ -300,7 +325,7 @@ function App() {
           </h2>
           <div className="intro-text">
             <p>
-              At AayuTatva, ancient Ayurvedic wisdom meets dedicated, personal care. Directed by <strong>Dr. Manish Santosh Yerpude</strong> (15+ years experience, 15,000+ patients healed) and <strong>Dr. Sakshi Sonkusare</strong>, our government-registered hospital provides authentic Panchakarma, non-surgical spine care, and 24/7 in-patient hospital facilities in Bhandara.
+              At AayuTatva, ancient Ayurvedic wisdom meets dedicated, personal care. Directed by <strong>Dr. Manish Santosh Yerpude</strong> and <strong>Dr. Sakshi Sonkusare</strong>, our government-registered hospital provides authentic Panchakarma, non-surgical spine care, and 24/7 in-patient hospital facilities in Bhandara.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '16px' }}>
               <a href="/about.html" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
@@ -314,8 +339,8 @@ function App() {
           </div>
         </div>
 
-        {/* Doctor and Staff Preview Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginTop: '28px' }}>
+        {/* Doctor Preview Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: '28px' }}>
           <a href="/about.html" style={{ background: '#fff', border: '1px solid #ebe5da', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none', transition: 'all 0.2s ease', boxShadow: '0 2px 10px rgba(34,67,42,0.03)' }}>
             <img src="/media/dr-manish-yerpude.jpg" alt="Dr. Manish Yerpude" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
             <div>
@@ -331,15 +356,6 @@ function App() {
               <small style={{ fontSize: '9px', fontWeight: '700', color: '#98744e', letterSpacing: '0.8px', display: 'block' }}>CONSULTING PHYSICIAN</small>
               <h4 style={{ margin: '2px 0', fontSize: '15.5px', color: '#22432a', fontFamily: 'Playfair Display, serif' }}>Dr. Sakshi G. Sonkusare</h4>
               <p style={{ margin: 0, fontSize: '11px', color: '#667364' }}>Women's Health, Skin & Cosmetology</p>
-            </div>
-          </a>
-
-          <a href="/about.html" style={{ background: '#fff', border: '1px solid #ebe5da', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none', transition: 'all 0.2s ease', boxShadow: '0 2px 10px rgba(34,67,42,0.03)' }}>
-            <img src="/media/height-care-team.jpg" alt="Hospital Care Staff" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
-            <div>
-              <small style={{ fontSize: '9px', fontWeight: '700', color: '#98744e', letterSpacing: '0.8px', display: 'block' }}>NABH CLINICAL STAFF</small>
-              <h4 style={{ margin: '2px 0', fontSize: '15.5px', color: '#22432a', fontFamily: 'Playfair Display, serif' }}>Hospital Care & Nursing Team</h4>
-              <p style={{ margin: 0, fontSize: '11px', color: '#667364' }}>24/7 Supervised Inpatient Care</p>
             </div>
           </a>
         </div>

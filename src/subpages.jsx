@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, 
-  Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video 
+  Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video, MessageCircle 
 } from 'lucide-react';
 import './subpages.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
@@ -9,7 +9,8 @@ import {
   saveMasterclassRegistration, 
   exportRegistrationsToCSV, 
   getAllRegistrations,
-  HeightAdminModal 
+  HeightAdminModal,
+  WHATSAPP_GROUP_LINK 
 } from './HeightMasterclassCampaign.jsx';
 
 const phone = phonePrimary;
@@ -171,6 +172,7 @@ export function HeightSessionPage() {
   const [adminOpen, setAdminOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
+  const [heightUnit, setHeightUnit] = useState('FT'); // 'FT' or 'CM'
 
   const [form, setForm] = useState({
     name: '',
@@ -199,8 +201,10 @@ export function HeightSessionPage() {
       errs.whatsapp = 'Enter a valid 10-digit WhatsApp number';
     }
     if (!form.age) errs.age = 'Please enter your age';
-    if (!form.city.trim()) errs.city = 'Please enter your location/city';
-    if (!form.currentHeight.trim()) errs.currentHeight = 'Please enter current height (e.g. 5 ft 3 in or 160 cm)';
+    if (!form.city.trim()) errs.city = 'Please enter your city';
+    if (!form.currentHeight.trim()) {
+      errs.currentHeight = heightUnit === 'FT' ? 'Please enter height (e.g. 5ft 4 in)' : 'Please enter height (e.g. 150 CM)';
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -211,8 +215,18 @@ export function HeightSessionPage() {
 
     setLoading(true);
     try {
+      const rawHeight = form.currentHeight.trim();
+      let formattedHeight = rawHeight;
+      if (heightUnit === 'CM' && !rawHeight.toLowerCase().includes('cm')) {
+        formattedHeight = `${rawHeight} CM`;
+      } else if (heightUnit === 'FT' && !rawHeight.toLowerCase().includes('ft') && !rawHeight.includes("'")) {
+        formattedHeight = `${rawHeight} ft`;
+      }
+
       const saved = await saveMasterclassRegistration({
         ...form,
+        currentHeight: formattedHeight,
+        whatsappGroup: WHATSAPP_GROUP_LINK,
         fee: 0,
         upiRef: 'FREE-WORKSHOP',
         status: 'Free Workshop Registration Confirmed'
@@ -220,30 +234,14 @@ export function HeightSessionPage() {
       setConfirmedData(saved);
       setStep(3);
 
-      const msg = [
-        `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
-        `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
-        ``,
-        `📋 *Booking ID:* ${saved.id}`,
-        `👤 *Attendee Name:* ${saved.name}`,
-        `📞 *WhatsApp Number:* ${saved.whatsapp}`,
-        `🎂 *Age / Gender:* ${saved.age} yrs, ${saved.gender || 'Male'}`,
-        `📏 *Current Height:* ${saved.currentHeight}`,
-        `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
-        `📍 *City:* ${saved.city}`,
-        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-        `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`,
-        ``,
-        `Kindly verify my free registration in your sheet.`,
-        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
-      ].join('\n');
-
-      const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(msg)}`;
+      // Automatically redirect user to WhatsApp Group
       setTimeout(() => {
         try {
-          window.open(waUrl, '_blank', 'noopener,noreferrer');
-        } catch (e) {}
-      }, 700);
+          window.location.href = WHATSAPP_GROUP_LINK;
+        } catch (e) {
+          window.open(WHATSAPP_GROUP_LINK, '_blank');
+        }
+      }, 1000);
 
     } catch (err) {
       alert('Could not update registration in sheet. Please try again.');
@@ -420,19 +418,54 @@ export function HeightSessionPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <label>
-                    Current Height *
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span>Current Height *</span>
+                      <span style={{ display: 'inline-flex', background: '#e9e3d7', borderRadius: '4px', padding: '2px', fontSize: '10px', fontWeight: 'bold' }}>
+                        <button
+                          type="button"
+                          onClick={() => setHeightUnit('FT')}
+                          style={{
+                            border: 'none',
+                            padding: '2px 7px',
+                            borderRadius: '3px',
+                            cursor: 'pointer',
+                            background: heightUnit === 'FT' ? '#1c3b24' : 'transparent',
+                            color: heightUnit === 'FT' ? '#f4eedb' : '#687566'
+                          }}
+                        >
+                          FT
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHeightUnit('CM')}
+                          style={{
+                            border: 'none',
+                            padding: '2px 7px',
+                            borderRadius: '3px',
+                            cursor: 'pointer',
+                            background: heightUnit === 'CM' ? '#1c3b24' : 'transparent',
+                            color: heightUnit === 'CM' ? '#f4eedb' : '#687566'
+                          }}
+                        >
+                          CM
+                        </button>
+                      </span>
+                    </div>
                     <input 
                       name="currentHeight" 
                       value={form.currentHeight} 
                       onChange={update} 
-                      placeholder="e.g. 5 ft 3 in" 
+                      placeholder={heightUnit === 'FT' ? 'e.g. 5ft 4 in' : 'e.g. 150 CM'} 
                       required
                     />
+                    <small style={{ display: 'block', fontSize: '10px', color: '#687566', marginTop: '2px' }}>
+                      {heightUnit === 'FT' ? 'Example: 5ft 4 in' : 'Example: 150 CM'}
+                    </small>
                     {errors.currentHeight && <span className="text-[10px] text-red-600">{errors.currentHeight}</span>}
                   </label>
 
                   <label>
-                    City / Location *
+                    City *
                     <input 
                       name="city" 
                       value={form.city} 
@@ -465,8 +498,15 @@ export function HeightSessionPage() {
                   />
                 </label>
 
-                <button className="sub-cta form-cta cursor-pointer" type="submit" disabled={loading}>
-                  {loading ? 'Confirming Seat…' : 'Register Free Seat (25 Oct Sunday)'} <ArrowUpRight size={16}/>
+                <button 
+                  className="sub-cta form-cta cursor-pointer" 
+                  type="submit" 
+                  disabled={loading}
+                  style={{ width: '100%', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px', fontWeight: '700' }}
+                >
+                  <Check size={18}/>
+                  <span>{loading ? 'Confirming Seat…' : 'Register Free & Join WhatsApp Group'}</span>
+                  <ArrowUpRight size={16}/>
                 </button>
                 <small className="form-privacy">100% Free Workshop. Meeting link sent via WhatsApp 3 days prior (by 22nd Oct).</small>
               </form>
@@ -487,10 +527,19 @@ export function HeightSessionPage() {
                   📋 <strong>Updated in Attendee Sheet:</strong> Your details and Booking ID are confirmed in our clinic register.
                 </p>
                 <p>
-                  📲 <strong>Meeting Link Delivery:</strong> Meeting link will be received <strong>3 days prior to masterclass date (by 22nd Oct)</strong> on your WhatsApp (<strong>{confirmedData.whatsapp}</strong>).
+                  📲 <strong>WhatsApp Group Redirection:</strong> You are being redirected to the workshop group.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 mt-3">
+              <div className="flex flex-col gap-2.5 mt-3">
+                <a
+                  href={WHATSAPP_GROUP_LINK}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sub-cta text-center"
+                  style={{ background: '#25D366', borderColor: '#1EBE5D', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700' }}
+                >
+                  <MessageCircle size={18} fill="#ffffff"/> Join Official WhatsApp Group Now
+                </a>
                 <a
                   href={`https://wa.me/917758816074?text=${encodeURIComponent([
                     `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
@@ -501,20 +550,16 @@ export function HeightSessionPage() {
                     `📞 *WhatsApp Number:* ${confirmedData.whatsapp}`,
                     `🎂 *Age / Gender:* ${confirmedData.age} yrs, ${confirmedData.gender || 'Male'}`,
                     `📏 *Current Height:* ${confirmedData.currentHeight}`,
-                    `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
                     `📍 *City:* ${confirmedData.city}`,
                     `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-                    `🎟️ *Workshop Fee:* ₹0 (Free Workshop)`,
-                    `✅ *Status:* Confirmed in Attendee Sheet`,
-                    ``,
-                    `Kindly verify my free registration in your sheet.`,
-                    `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
+                    `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`
                   ].join('\n'))}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="sub-cta text-center"
+                  className="session-reset text-center"
+                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <Phone size={14}/> Open Clinic WhatsApp with Registration Details
+                  <Phone size={13}/> Send Confirmation Copy to Dr. Yerpude
                 </a>
                 <button 
                   onClick={() => { setStep(1); setConfirmedData(null); }} 
