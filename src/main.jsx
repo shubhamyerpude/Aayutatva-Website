@@ -74,28 +74,16 @@ function PatientReviewsAutoScroll({ reviews }) {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
-      onTouchEnd={() => setTimeout(() => setIsPaused(false), 2400)}
+      onTouchEnd={() => setIsPaused(false)}
+      onTouchCancel={() => setIsPaused(false)}
+      onPointerDown={() => setIsPaused(true)}
+      onPointerUp={() => setIsPaused(false)}
       style={{ maxWidth: '780px', margin: '0 auto', position: 'relative' }}
     >
-      {/* Header controls: Status, review counter & manual navigation arrows */}
+      {/* Header controls: Review counter & manual navigation arrows (status badge hidden as requested) */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ 
-            fontSize: '11px', 
-            fontWeight: '700', 
-            letterSpacing: '0.8px', 
-            color: '#1C3B24', 
-            background: '#EAF0E7', 
-            padding: '4px 12px', 
-            borderRadius: '20px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isPaused ? '#B45309' : '#15803D', display: 'inline-block' }} />
-            {isPaused ? 'Paused (hovered)' : 'Auto-sliding (every 3 sec)'}
-          </span>
-          <span style={{ fontSize: '11.5px', color: '#6A786A', fontWeight: '600' }}>
+          <span style={{ fontSize: '12px', color: '#556353', fontWeight: '600', letterSpacing: '0.3px' }}>
             Review {currentIndex + 1} of {reviews.length}
           </span>
         </div>
@@ -391,8 +379,8 @@ function App() {
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 4vw, 42px)', color: '#ffffff', margin: '14px 0 14px' }}>
             Let’s talk about <em>your wellbeing.</em>
           </h2>
-          <p style={{ color: '#d4ded2', fontSize: '14px', lineHeight: '1.75', maxWidth: '620px', margin: '0 auto 24px' }}>
-            Schedule an OPD doctor consultation with Dr. Manish Yerpude or Dr. Sakshi Sonkusare at our Bhandara clinic, view OPD timetables, or coordinate 100% cashless hospital in-patient admissions.
+          <p style={{ color: '#FFFFFF', fontSize: '15.5px', lineHeight: '1.8', maxWidth: '660px', margin: '0 auto 24px', fontWeight: '400' }}>
+            <strong style={{ color: '#FEE5B5', fontWeight: '700' }}>Schedule an OPD doctor consultation</strong> with Dr. Manish Yerpude or Dr. Sakshi Sonkusare at our Bhandara clinic, view OPD timetables, or coordinate 100% cashless hospital in-patient admissions.
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>

@@ -234,14 +234,14 @@ export function HeightSessionPage() {
       setConfirmedData(saved);
       setStep(3);
 
-      // Automatically redirect user to WhatsApp Group
+      // Safely open WhatsApp group in a new tab (prevents "whatsapp refused to connect" iframe error)
       setTimeout(() => {
         try {
-          window.location.href = WHATSAPP_GROUP_LINK;
+          window.open(WHATSAPP_GROUP_LINK, '_blank', 'noopener,noreferrer');
         } catch (e) {
-          window.open(WHATSAPP_GROUP_LINK, '_blank');
+          console.warn('Popup blocked by browser, user can click join button', e);
         }
-      }, 1000);
+      }, 600);
 
     } catch (err) {
       alert('Could not update registration in sheet. Please try again.');
@@ -505,7 +505,7 @@ export function HeightSessionPage() {
                   style={{ width: '100%', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px', fontWeight: '700' }}
                 >
                   <Check size={18}/>
-                  <span>{loading ? 'Confirming Seat…' : 'Register Free & Join WhatsApp Group'}</span>
+                  <span>{loading ? 'Registering…' : 'Register Now'}</span>
                   <ArrowUpRight size={16}/>
                 </button>
                 <small className="form-privacy">100% Free Workshop. Meeting link sent via WhatsApp 3 days prior (by 22nd Oct).</small>

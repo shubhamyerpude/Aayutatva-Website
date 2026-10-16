@@ -171,11 +171,11 @@ export function AboutUsPage() {
 
             {/* Staff Card 3: Hospital Care Team */}
             <article className="about-staff-card">
-              <div className="about-staff-photo-wrap" style={{ height: '270px' }}>
+              <div className="about-staff-photo-wrap" style={{ height: '270px', background: '#F8F5EE' }}>
                 <img 
-                  src="/media/height-care-team.jpg" 
-                  alt="Hospital Clinical Care Staff and Consultation Team" 
-                  style={{ objectPosition: 'center 25%' }}
+                  src="/media/hospital-care-team.png" 
+                  alt="AayuTatva Ayurvedic Hospital In-Patient Facility & Clinical Care Staff" 
+                  style={{ objectPosition: 'center top', objectFit: 'contain', width: '100%', height: '100%', padding: '6px' }}
                 />
                 <span className="about-staff-status-badge">
                   <i/> 24/7 Supervised Inpatient Care

@@ -649,15 +649,12 @@ export function HeightCampaignPopup({ autoOpen = false }) {
   };
 
   useEffect(() => {
-    // 1. Auto-open popup on page load if user hasn't explicitly dismissed it this session
+    // 1. Auto-open popup as soon as user visits / logs in to website
     if (autoOpen) {
-      const dismissed = sessionStorage.getItem('aayutatva_height_popup_closed');
-      if (!dismissed) {
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, 800); // 800ms smooth delay after page loads
-        return () => clearTimeout(timer);
-      }
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 500); // Prompt appearance when landing on site
+      return () => clearTimeout(timer);
     }
 
     // 2. Custom event listener from any button on site
@@ -673,7 +670,6 @@ export function HeightCampaignPopup({ autoOpen = false }) {
 
   const handleClose = () => {
     setIsOpen(false);
-    sessionStorage.setItem('aayutatva_height_popup_closed', 'true');
   };
 
   const handleCloseBanner = (e) => {
@@ -733,14 +729,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       setConfirmedData(saved);
       setStep(3); // Direct confirmation - no payment step!
 
-      // 2. Automatically redirect user to the WhatsApp group
+      // 2. Open WhatsApp group safely in a new tab (prevents "whatsapp refused to connect" iframe error)
       setTimeout(() => {
         try {
-          window.location.href = WHATSAPP_GROUP_LINK;
+          window.open(WHATSAPP_GROUP_LINK, '_blank', 'noopener,noreferrer');
         } catch (err) {
-          window.open(WHATSAPP_GROUP_LINK, '_blank');
+          console.warn('Popup blocked by browser, user can click the join button', err);
         }
-      }, 1000);
+      }, 600);
 
     } catch (err) {
       alert('Could not update registration in sheet. Please try again.');
@@ -1046,7 +1042,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       >
                         <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0" />
                         <span className="font-bold tracking-wide">
-                          {loading ? 'Confirming Seat…' : 'Register Free & Join WhatsApp'}
+                          {loading ? 'Registering…' : 'Register Now'}
                         </span>
                         <ArrowRight size={15} className="flex-shrink-0 ml-0.5" />
                       </button>

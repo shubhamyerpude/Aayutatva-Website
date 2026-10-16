@@ -218,7 +218,7 @@ export function HospitalAboutStaffSection() {
       role: 'Hospital Care & Nursing Team',
       badge: 'NABH Standard In-Patient Care',
       degrees: 'Trained Ayurvedic Therapists & Nursing Staff',
-      image: '/media/height-care-team.jpg',
+      image: '/media/hospital-care-team.png',
       alt: 'AayuTatva Ayurvedic Hospital clinical care staff & consultation team',
       status: '24/7 Supervised Inpatient Care',
       bio: 'Dedicated nursing staff, wooden Droni Panchakarma therapists, and clinical attendants ensuring hygienic, compassionate in-patient healing.',
