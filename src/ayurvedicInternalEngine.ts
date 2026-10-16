@@ -531,6 +531,184 @@ const TOPICS: TopicDefinition[] = [
   }
 ];
 
+const SYMPTOM_OR_TOPIC_TERMS = [
+  'pain', 'disc', 'spine', 'spinal', 'sciatica', 'gridhrasi', 'cervical', 'spondylosis',
+  'lumbar', 'knee', 'joint', 'arthritis', 'osteoarthritis', 'amavata', 'sandhigata',
+  'swelling', 'gout', 'cartilage', 'acidity', 'gas', 'bloating', 'constipation', 'digestion',
+  'piles', 'fissure', 'fistula', 'bleeding', 'skin', 'psoriasis', 'eczema', 'kushtha',
+  'pcod', 'pcos', 'period', 'menses', 'weight', 'fat', 'obesity', 'slimming', 'cholesterol',
+  'sleep', 'insomnia', 'stress', 'anxiety', 'depression', 'height', 'growth', 'pediatric',
+  'suvarnaprashan', 'insurance', 'mediclaim', 'cashless', 'tpa', 'appointment', 'booking',
+  'timing', 'hours', 'fee', 'charge', 'cost', 'where is', 'address', 'location',
+  'कंबर', 'मणका', 'मणके', 'सायटिका', 'पाठ', 'मान', 'नस', 'स्लिप डिस्क',
+  'गुडघे', 'सांधे', 'संधिवात', 'आमवात', 'सूज', 'वंगण',
+  'पोट', 'गॅस', 'ऍसिडिटी', 'बद्धकोष्ठता', 'अपचन', 'हगवण',
+  'मूळव्याध', 'फिशर', 'भगंदर', 'रक्त', 'मसा',
+  'त्वचा', 'खाज', 'सोरायसिस', 'एक्झिमा', 'कोड',
+  'पाळी', 'पीसीओडी', 'पीसीओएस', 'मासिक पाळी', 'गर्भाशय',
+  'वजन', 'चरबी', 'लठ्ठपणा', 'मेद',
+  'झोप', 'निद्रानाश', 'ताण', 'चिंता',
+  'उंची', 'वाढ', 'सुवर्णप्राशन',
+  'विमा', 'कॅशलेस', 'पॉलिसी', 'टीपीए',
+  'अपॉइंटमेंट', 'वेळ', 'पत्ता', 'फी', 'खर्च',
+  'कमर दर्द', 'साइटिका', 'रीढ़', 'घुटने', 'जोड़ों का दर्द', 'गठिया',
+  'कब्ज', 'एसिडिटी', 'पेट', 'बवासीर', 'मस्से', 'बीमा'
+];
+
+export function isGreetingQuery(message: string): boolean {
+  if (!message || typeof message !== 'string') return false;
+  const raw = message.trim().toLowerCase();
+
+  // If the query contains any specific clinical, disease, or administrative terms, it is not a pure greeting
+  if (SYMPTOM_OR_TOPIC_TERMS.some(term => raw.includes(term))) {
+    return false;
+  }
+
+  // Strip common punctuation and emojis
+  const clean = raw
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"“”‘’🙏🌿✨👋🙂😊🤝!]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!clean) return false;
+
+  // Single word or fixed phrase greetings
+  const exactGreetings = new Set([
+    'hello', 'hi', 'hey', 'hii', 'hiii', 'helo', 'hlo', 'hola', 'yo',
+    'namaste', 'namastey', 'namaskar', 'namaskara', 'namaskaram', 'pranam', 'pranaam',
+    'good morning', 'good afternoon', 'good evening', 'good day', 'good night',
+    'greetings', 'greeting',
+    'start', 'who are you', 'how are you', 'what can you do', 'what is your name',
+    'help', 'help me', 'can you help me', 'i need help',
+    'नमस्कार', 'नमस्ते', 'प्रणाम', 'हॅलो', 'हेलो', 'हाय', 'शुभ सकाळ', 'शुभ प्रभात', 'शुभ संध्याकाळ', 'सुप्रभात',
+    'तुम्ही कोण आहात', 'तुम्ही काय करू शकता', 'आप कौन हैं', 'आप क्या कर सकते हैं',
+    'कसे आहात', 'कसा आहात', 'कशी आहात', 'कैसे हो', 'कैसे हैं', 'काय मदत करू शकता'
+  ]);
+
+  if (exactGreetings.has(clean)) return true;
+
+  // Short phrases starting with greetings (e.g., "hello doctor", "hi dr manish", "namaste sir")
+  const greetingStarters = [
+    'hello', 'hi', 'hey', 'hii', 'namaste', 'namaskar', 'pranam',
+    'good morning', 'good afternoon', 'good evening',
+    'नमस्कार', 'नमस्ते', 'हॅलो', 'हेलो', 'हाय', 'शुभ सकाळ', 'शुभ प्रभात'
+  ];
+
+  const honorifics = new Set([
+    'dr', 'doctor', 'manish', 'yerpude', 'vaidya', 'aayuvaidya', 'sir', 'madam', 'maam', 'team',
+    'ji', 'जी', 'डॉक्टर', 'सर', 'वैद्य', 'मनिष', 'मनीष', 'there', 'to', 'all', 'everyone',
+    'friend', 'bot', 'assistant'
+  ]);
+
+  const tokens = clean.split(' ').filter(Boolean);
+  if (tokens.length <= 5) {
+    const isStarter = greetingStarters.some(s => clean.startsWith(s));
+    if (isStarter) {
+      const otherTokens = tokens.slice(1);
+      const isAllSafe = otherTokens.every(t =>
+        honorifics.has(t) ||
+        ['how', 'are', 'you', 'is', 'it', 'going', 'doing', 'today'].includes(t)
+      );
+      if (isAllSafe) return true;
+    }
+  }
+
+  return false;
+}
+
+export function isGratitudeQuery(message: string): boolean {
+  if (!message || typeof message !== 'string') return false;
+  const clean = message
+    .trim()
+    .toLowerCase()
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?'"“”‘’🙏🌿✨👋🙂😊!]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const gratitudePhrases = new Set([
+    'thanks', 'thank you', 'thank u', 'thx', 'thankyou', 'many thanks', 'thanks a lot',
+    'धन्यवाद', 'खूप खूप धन्यवाद', 'आभार', 'खूप आभार', 'मनःपूर्वक आभार', 'शुक्रिया', 'बहुत धन्यवाद',
+    'dhanyawad', 'dhanyavad', 'shukriya', 'ok thanks', 'okay thanks', 'got it thanks'
+  ]);
+
+  return gratitudePhrases.has(clean);
+}
+
+const GREETING_RESPONSES: Record<SupportedLanguage, { title: string; body: string }> = {
+  mr: {
+    title: 'नमस्कार! आपले स्वागत आहे',
+    body: `### 🙏 नमस्कार! आयुतत्व आयुर्वेदिक हॉस्पिटलमध्ये आपले सहर्ष स्वागत आहे.
+
+मी **आयुवैद्य (AayuVaidya AI)** — डॉ. मनिष संतोष येरपुडे [B.A.M.S., MD (AM), P.G.P.P. पुणे] यांच्या मार्गदर्शनाखाली कार्य करणारा आपला डिजिटल स्वास्थ्य मार्गदर्शक.
+
+मी आपल्याला खालील विषयांवर अधिकृत व शास्त्रीय माहिती देऊ शकतो:
+• **मणके व सांधे विकार**: स्लिप डिस्क, सायटिका (गृध्रसी), कंबरदुखी व गुडघेदुखी विना-शस्त्रक्रिया उपचार.
+• **शास्त्रीय नाडी परीक्षा (Nadi Parikshan)**: वात, पित्त, कफ त्रिदोष असंतुलन व देहप्रकृती ओळखणे.
+• **पंचकर्म चिकित्सा**: कटी बस्ती, जानू बस्ती, विरेचन, वमन, शिरोधारा इत्यादी शास्त्रीय शुद्धीक्रिया.
+• **पचन, ऍसिडिटी व मूळव्याध**: क्षारसूत्र व आयुर्वेदीय दिनचर्या नियम.
+• **हॉस्पिटल ओपीडी व विमा**: तपासणी वेळ, भंडारा क्लिनिक पत्ता आणि १००% कॅशलेस मेडिक्लेम.
+
+आपल्याला आज कोणत्या विषयाबद्दल माहिती हवी आहे किंवा कोणता त्रास जाणून घ्यायचा आहे? कृपया सांगा, मी मार्गदर्शन करतो.`
+  },
+  hi: {
+    title: 'नमस्ते! आपका स्वागत है',
+    body: `### 🙏 नमस्ते! आयुतत्व आयुर्वेदिक हॉस्पिटल में आपका सहर्ष स्वागत है।
+
+मैं **आयुवैद्य (AayuVaidya AI)** — डॉ. मनीष संतोष येरपुडे [B.A.M.S., MD (AM), P.G.P.P.] के मार्गदर्शन में आपका डिजिटल स्वास्थ्य मार्गदर्शक।
+
+मैं आपकी इन विषयों पर सहायता कर सकता हूँ:
+• **रीढ़ एवं जोड़ों का दर्द**: स्लिप डिस्क, साइटिका, कमर दर्द व घुटनों का दर्द (बिना सर्जरी उपचार)।
+• **शास्त्रीय नाड़ी परीक्षा**: वात, पित्त, कफ त्रिदोष संतुलन एवं देह प्रकृति की पहचान।
+• **पंचकर्म चिकित्सा**: कटी बस्ती, जानू बस्ती, विरेचन, शिरोधारा आदि शोधन क्रियाएं।
+• **पेट संबंधी समस्याएं**: गैस, एसिडिटी, कब्ज व पाइल्स का आयुर्वेदिक समाधान।
+• **हॉस्पिटल ओपीडी एवं बीमा**: क्लिनिक का समय, भंडारा का पता व 100% कैशलेस मेडिक्लेम।
+
+आप आज किस समस्या या विषय पर जानकारी चाहते हैं? कृपया अपना प्रश्न पूछें।`
+  },
+  en: {
+    title: 'Namaste! Welcome to AayuTatva',
+    body: `### 🙏 Namaste! Welcome to AayuTatva Ayurvedic Hospital
+
+I am **AayuVaidya AI**, your educational health guide supervised by Dr. Manish Santosh Yerpude [B.A.M.S. (MUHS), MD (AM), P.G.P.P. Pune] at AayuTatva Ayurvedic Hospital & Panchakarma Centre in Bhandara.
+
+I can assist you with comprehensive information on:
+• **Spine & Joint Health**: Non-surgical management for Slip Disc, Sciatica (Gridhrasi), and Knee Osteoarthritis.
+• **Classical Nadi Parikshan**: Radial pulse diagnosis to understand your Vata, Pitta, and Kapha constitution.
+• **Panchakarma Detoxification**: Classical therapies like Kati Basti, Janu Basti, Virechana, Shirodhara, etc.
+• **Digestive Health & Lifestyle**: Acidity, Constipation, Piles (*Ksharasutra*), and Ayurvedic diet (*Ahara*).
+• **OPD Consultation & Cashless Insurance**: Clinic timings, location in Bhandara, and 100% cashless Mediclaim.
+
+How may I assist your health journey today? Please feel free to describe any symptom or health inquiry.`
+  }
+};
+
+const GRATITUDE_RESPONSES: Record<SupportedLanguage, { title: string; body: string }> = {
+  mr: {
+    title: 'आपले स्वागत आहे',
+    body: `### 🙏 आपले मनःपूर्वक स्वागत आहे!
+
+डॉ. मनिष संतोष येरपुडे व **आयुतत्व आयुर्वेदिक हॉस्पिटल, भंडारा** यांची संपूर्ण टीम आपल्या आरोग्य सेवेसाठी सदैव तत्पर आहे.
+
+आपल्याला अधिक माहिती हवी असल्यास किंवा प्रत्यक्ष नाडी परीक्षा व ओपीडी तपासणी करायची असल्यास आपण कधीही संपर्क साधू शकता. आपले आरोग्य उत्तम व निरोगी राहो, हीच प्रार्थना!`
+  },
+  hi: {
+    title: 'आपका स्वागत है',
+    body: `### 🙏 आपका बहुत-बहुत स्वागत है!
+
+डॉ. मनीष संतोष येरपुडे एवं **आयुतत्व आयुर्वेदिक हॉस्पिटल, भंडारा** की टीम आपके स्वास्थ्य व सेवा के लिए सदैव तत्पर है।
+
+यदि आपको आगे परामर्श, प्रत्यक्ष नाड़ी परीक्षा या ओपीडी अपॉइंटमेंट की आवश्यकता हो, तो आप निसंकोच संपर्क कर सकते हैं। आप सदैव स्वस्थ व दीर्घायु रहें!`
+  },
+  en: {
+    title: 'You are welcome',
+    body: `### 🙏 You are very welcome!
+
+Dr. Manish Santosh Yerpude and the entire clinical team at **AayuTatva Ayurvedic Hospital, Bhandara** are always here to support your health and wellbeing.
+
+If you ever need an in-person pulse diagnosis (*Nadi Parikshan*), Panchakarma consultation, or OPD appointment, feel free to reach out. Wishing you vibrant health and vitality!`
+  }
+};
+
 function matchesKeyword(query: string, keyword: string): boolean {
   if (keyword.length <= 4) {
     const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -549,7 +727,66 @@ export function generateInternalAyurvedicResponse(
   const query = (userMessage || '').toLowerCase().trim();
   const selectedLang: SupportedLanguage = ['mr', 'hi', 'en'].includes(language) ? language : 'mr';
 
-  // 1. Find matching topic
+  // 1. Pure Greeting / Introduction: Warmly welcome user without medical treatments or therapies
+  if (isGreetingQuery(userMessage)) {
+    const greeting = GREETING_RESPONSES[selectedLang] || GREETING_RESPONSES.mr;
+    const whatsappQuery = selectedLang === 'mr'
+      ? encodeURIComponent('नमस्कार डॉ. मनिष येरपुडे, मी आयुतत्व हॉस्पिटलच्या वेबसाईटवरून माहिती व तपासणीसाठी संपर्क करत आहे.')
+      : selectedLang === 'hi'
+      ? encodeURIComponent('नमस्ते डॉ. मनीष येरपुडे, मैं आयुतत्व हॉस्पिटल की वेबसाइट से परामर्श एवं जानकारी हेतु संपर्क कर रहा हूँ।')
+      : encodeURIComponent('Hello Dr. Manish Yerpude, I am inquiring from the AayuTatva Hospital website for consultation and appointments.');
+    
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappQuery}`;
+    const phoneDialUrl = `tel:${PRIMARY_PHONE}`;
+    
+    let footer = '';
+    if (selectedLang === 'mr') {
+      footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करा: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हॉट्सॲपवर संपर्क करा**](${whatsappUrl})`;
+    } else if (selectedLang === 'hi') {
+      footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हाट्सएप पर संपर्क करें**](${whatsappUrl})`;
+    } else {
+      footer = `---\n📍 **AayuTatva Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](${phoneDialUrl}) | 💬 [**Contact on WhatsApp**](${whatsappUrl})`;
+    }
+
+    return {
+      reply: `${greeting.body}\n\n${footer}`,
+      source: 'aayutatva-internal-engine',
+      intent: 'GREETING',
+      topicTitle: greeting.title,
+      language: selectedLang,
+      phone: PRIMARY_PHONE,
+      whatsappUrl
+    };
+  }
+
+  // 2. Pure Gratitude / Thank you: Polite acknowledgment without disease treatments
+  if (isGratitudeQuery(userMessage)) {
+    const gratitude = GRATITUDE_RESPONSES[selectedLang] || GRATITUDE_RESPONSES.mr;
+    const phoneDialUrl = `tel:${PRIMARY_PHONE}`;
+    const whatsappQuery = encodeURIComponent('Hello Dr. Manish Yerpude, thank you for the guidance on AayuTatva Hospital website.');
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappQuery}`;
+
+    let footer = '';
+    if (selectedLang === 'mr') {
+      footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करा: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हॉट्सॲप**](${whatsappUrl})`;
+    } else if (selectedLang === 'hi') {
+      footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हाट्सएप**](${whatsappUrl})`;
+    } else {
+      footer = `---\n📍 **AayuTatva Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](${phoneDialUrl}) | 💬 [**WhatsApp**](${whatsappUrl})`;
+    }
+
+    return {
+      reply: `${gratitude.body}\n\n${footer}`,
+      source: 'aayutatva-internal-engine',
+      intent: 'GRATITUDE',
+      topicTitle: gratitude.title,
+      language: selectedLang,
+      phone: PRIMARY_PHONE,
+      whatsappUrl
+    };
+  }
+
+  // 3. Clinical & Hospital Topics Matching
   let matchedTopic: TopicDefinition | null = null;
   for (const topic of TOPICS) {
     if (topic.keywords.some(kw => matchesKeyword(query, kw))) {
@@ -558,7 +795,7 @@ export function generateInternalAyurvedicResponse(
     }
   }
 
-  // 2. Generate crisp response
+  // 4. Generate structured response
   let detailedBody = '';
   let intent = 'GENERAL_GUIDANCE';
   let topicTitle = selectedLang === 'mr' ? 'आयुर्वेदिक मार्गदर्शन' : selectedLang === 'hi' ? 'आयुर्वेदिक परामर्श' : 'Ayurvedic Guidance';
@@ -568,26 +805,26 @@ export function generateInternalAyurvedicResponse(
     intent = matchedTopic.id;
     topicTitle = matchedTopic.title[selectedLang] || matchedTopic.title.mr;
   } else {
-    // Dynamic, question-specific fallback response
+    // Dynamic, question-specific fallback response (philosophical guidance, not presumptive treatment)
     const cleanQ = userMessage.trim();
     if (selectedLang === 'mr') {
       detailedBody = `### 🌿 आयुर्वेदिक दृष्टीकोन · "${cleanQ.slice(0, 50)}"
 
-• **तुमच्या प्रश्नाबाबत**: आपण विचारलेल्या विषयावर आयुर्वेदात प्रकृती (वात, पित्त, कफ) आणि पचन अग्नीच्या स्थितीनुसार विशिष्ट उपाय, आहार नियम व पंचकर्म सांगितले आहेत.
-• **सामान्य तत्त्व**: शरीरातील आम (विषारी घटक) दूर ठेवण्यासाठी ताजे गरम जेवण, १ चमचा साजूक तूप, आणि योग्य वेळी झोप घेणे आवश्यक असते.
-• **वैयक्तिक चिकित्सा**: कोणत्याही त्रासाचे मूळ कारण जाणून योग्य औषधोपचारासाठी प्रत्यक्ष **नाडी परीक्षा (Pulse Diagnosis)** करून घेणे सर्वोत्तम ठरते.`;
+• **आयुर्वेदिक तत्त्व**: आयुर्वेदानुसार शरीरातील कोणत्याही लक्षणाचे मूळ वात, पित्त आणि कफ या त्रिदोषांच्या आणि पचन अग्नीच्या (Agni) स्थितीवर अवलंबून असते.
+• **दिनचर्या व सात्त्विक जीवनशैली**: ताजे सात्त्विक अन्न, योग्य वेळी विश्रांती आणि ताणतणाव नियंत्रण हे निरोगी आयुष्याचा पाया मानले जातात.
+• **वैयक्तिक सल्ला व नाडी परीक्षा**: कोणत्याही तक्रारीचे मूळ कारण जाणून वैयक्तिक मार्गदर्शन मिळवण्यासाठी डॉ. मनिष येरपुडे यांच्याकडे प्रत्यक्ष **नाडी परीक्षा (Pulse Diagnosis)** करून घेणे अधिक सयुक्तिक ठरते.`;
     } else if (selectedLang === 'hi') {
       detailedBody = `### 🌿 आयुर्वेदिक दृष्टिकोण · "${cleanQ.slice(0, 50)}"
 
-• **आपके प्रश्न के संदर्भ में**: इस विषय पर आयुर्वेद में त्रिदोष (वात, पित्त, कफ) के संतुलन एवं पाचन अग्नि (जठराग्नि) के अनुसार विशिष्ट दिनचर्या एवं आहार नियम बताए गए हैं।
-• **सामान्य नियम**: शरीर से टॉक्सिन्स (आम) निकालने हेतु गुनगुना पानी, हल्का सुपाच्य भोजन और समय पर विश्राम लाभप्रद है।
-• **व्यक्तिगत परामर्श**: सही औषध एवं पंचकर्म चयन हेतु प्रत्यक्ष **नाड़ी परीक्षा** कराना सर्वोत्तम है।`;
+• **आयुर्वेदिक सिद्धांत**: आयुर्वेद के अनुसार स्वास्थ्य का मूल वात, पित्त और कफ त्रिदोषों के संतुलन एवं पाचन अग्नि (जठराग्नि) की सम्यक स्थिति पर निर्भर करता है।
+• **दिनचर्या एवं सात्विक जीवन**: ताजा सुपाच्य भोजन, पर्याप्त विश्राम और नियमित दिनचर्या आरोग्य की आधारशिला हैं।
+• **व्यक्तिगत परामर्श**: किसी भी शारीरिक असंतुलन की सटीक पहचान हेतु डॉ. मनीष येरपुडे से प्रत्यक्ष **नाड़ी परीक्षा (Pulse Diagnosis)** कराना सर्वोत्तम रहता है।`;
     } else {
-      detailedBody = `### 🌿 Ayurvedic Guidance · "${cleanQ.slice(0, 50)}"
+      detailedBody = `### 🌿 Ayurvedic Perspective · "${cleanQ.slice(0, 50)}"
 
-• **Regarding your inquiry**: Classical Ayurveda approaches this by evaluating the underlying balance of Vata, Pitta, and Kapha along with metabolic strength (*Agni*).
-• **General Principles**: Focus on warm, fresh, wholesome meals (*Satvik Ahara*), proper hydration, and regular sleep rhythms (*Dinacharya*).
-• **Personalized Assessment**: Because every constitution (*Prakriti*) is unique, an in-person radial pulse diagnosis (*Nadi Parikshan*) is recommended for a tailored wellness plan.`;
+• **Foundational Principle**: In classical Ayurveda, vitality and wellness rely on the balance of the Tridoshas (Vata, Pitta, Kapha) and digestive metabolic fire (*Agni*).
+• **Daily Regimen (*Dinacharya*)**: Fresh wholesome nutrition, consistent rest rhythms, and mental tranquility form the pillars of long-term vitality.
+• **Clinical Evaluation**: For individualized guidance, an in-person pulse examination (*Nadi Parikshan*) with Dr. Manish Santosh Yerpude at AayuTatva Hospital in Bhandara is recommended.`;
     }
   }
 
@@ -597,17 +834,14 @@ export function generateInternalAyurvedicResponse(
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedQuery}`;
   const phoneDialUrl = `tel:${PRIMARY_PHONE}`;
 
-  // Crisp, clean footer (2 lines only, no massive walls of text)
+  // Crisp, clean footer
   let footer = '';
   if (selectedLang === 'mr') {
-    footer = `---
-📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करा: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हॉट्सॲपवर चॅट करा**](${whatsappUrl})`;
+    footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करा: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हॉट्सॲपवर चॅट करा**](${whatsappUrl})`;
   } else if (selectedLang === 'hi') {
-    footer = `---
-📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हाट्सएप पर चैट करें**](${whatsappUrl})`;
+    footer = `---\n📍 **आयुतत्व हॉस्पिटल, भंडारा** | 📞 [**कॉल करें: +91 77588 16074**](${phoneDialUrl}) | 💬 [**व्हाट्सएप पर चैट करें**](${whatsappUrl})`;
   } else {
-    footer = `---
-📍 **AayuTatva Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](${phoneDialUrl}) | 💬 [**Chat on WhatsApp**](${whatsappUrl})`;
+    footer = `---\n📍 **AayuTatva Hospital, Bhandara** | 📞 [**Call: +91 77588 16074**](${phoneDialUrl}) | 💬 [**Chat on WhatsApp**](${whatsappUrl})`;
   }
 
   const completeReply = `${detailedBody}\n\n${footer}`;

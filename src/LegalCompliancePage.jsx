@@ -73,8 +73,7 @@ export function LegalCompliancePage() {
             <ul style={{ paddingLeft: '20px', listStyleType: 'disc', fontSize: '13px', lineHeight: '1.7', color: '#444' }}>
               <li><strong>Doctor OPD Consultation Fee:</strong> ₹200 (In-Clinic OPD Appointment with Dr. Manish Santosh Yerpude or Dr. Sakshi G. Sonkusare).</li>
               <li><strong>Follow-up Consultation Fee:</strong> ₹200 (Follow-up Doctor Evaluation & Review).</li>
-              <li><strong>Appointment Slot Reservations:</strong> Advance booking deposit for specialized Panchakarma therapy sessions.</li>
-              <li><strong>Educational Webinars & Workshops:</strong> Specialized live health education masterclasses (such as Pediatric & Adolescent Natural Growth Guidance). Registration fee is configured per session and payable via direct UPI.</li>
+              <li><strong>Educational Webinars & Workshops:</strong> Specialized live health education masterclasses (such as the 25 Oct Sunday Natural Growth Masterclass) are complimentary (₹0 Free Workshop) requiring no advance payment.</li>
             </ul>
           </div>
 
@@ -134,7 +133,7 @@ export function LegalCompliancePage() {
               <ul style={{ paddingLeft: '20px', listStyleType: 'disc', marginBottom: '12px' }}>
                 <li><strong>No Cardholder Data Storage:</strong> We do NOT collect, store, or process debit/credit card numbers, CVVs, or bank net-banking passwords. Transactions occur inside the patient's authenticated banking or UPI application.</li>
                 <li><strong>Official Verified Hospital UPI ID:</strong> The official clinic recipient UPI ID is strictly <code>7758816074@ybl</code> (Payee: <strong>DR YERPUDES AYUTATVA</strong>). Patients should verify this name before approving payments.</li>
-                <li><strong>Token Masterclass Fee:</strong> The live natural height growth masterclass fee is fixed at ₹9 only. No additional hidden charges or automated recurring debits are applied.</li>
+                <li><strong>Free Masterclass Workshop:</strong> The live natural height growth masterclass is a 100% free educational workshop (₹0). No hidden charges or automated recurring debits are applied.</li>
                 <li><strong>Bank-Grade 256-Bit Encryption:</strong> UPI transaction authorizations and handshakes occur under end-to-end multi-factor authentication (UPI PIN) managed directly by the issuing bank and NPCI.</li>
               </ul>
             </div>

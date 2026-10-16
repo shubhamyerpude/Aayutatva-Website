@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
-import { generateInternalAyurvedicResponse } from './src/ayurvedicInternalEngine.ts';
+import { generateInternalAyurvedicResponse, isGreetingQuery, isGratitudeQuery } from './src/ayurvedicInternalEngine.ts';
 import heightRegistrationsHandler from './api/height-registrations.ts';
 import paymentConfigHandler from './api/payment-config.ts';
 
@@ -48,14 +48,18 @@ const HOSPITAL_CONTACT_CTA = `
 const AYURVEDA_SYSTEM_INSTRUCTION = `You are "AayuVaidya AI", an intelligent and authentic educational assistant for AayuTatva Ayurvedic Hospital & Panchakarma Centre in Bhandara, Maharashtra, directed by Dr. Manish Santosh Yerpude [B.A.M.S. (MUHS), MD (AM), P.G.P.P. Pune].
 
 CRITICAL GUIDELINES:
-1. SPECIFIC, PERSONALIZED ANSWERS:
-   - NEVER give repetitive generic boilerplate text. Answer the user's EXACT query with tailored, insightful Ayurvedic knowledge.
-   - Address specific symptoms, herbs, queries, or topics (e.g. slip disc, sciatica, knee pain, acidity, PCOD, skin problems, height growth, diet, stress, seasonal health) explaining relevant Doshas (Vata/Pitta/Kapha), Dhatus, Dinacharya, Ahara rules, and classical Panchakarma procedures (Kati Basti, Janu Basti, Virechana, Vamana, Shirodhara, Nasya).
+1. GREETINGS & INTRODUCTIONS:
+   - When the user sends a greeting (e.g. "Hello", "Hi", "Namaste", "Hey", "Good morning", "नमस्कार", "नमस्ते", "हॅलो") or polite opening WITHOUT specifying a medical condition:
+     STRICTLY DO NOT provide medical treatments, herbal prescriptions, or Panchakarma disease therapies!
+     Respond with a warm, polite greeting in their language (Marathi, Hindi, or English), introduce yourself as AayuVaidya AI representing AayuTatva Ayurvedic Hospital in Bhandara under Dr. Manish Santosh Yerpude, and ask how you can help them today with their health queries, pulse diagnosis (Nadi Parikshan), or clinic timings.
+2. SPECIFIC, PERSONALIZED CLINICAL ANSWERS:
+   - When the user asks about a specific condition or query (e.g. slip disc, sciatica, knee pain, acidity, PCOD, skin problems, height growth, diet, stress, seasonal health):
+     NEVER give repetitive generic boilerplate text. Answer the user's EXACT query with tailored, insightful Ayurvedic knowledge explaining relevant Doshas (Vata/Pitta/Kapha), Dhatus, Dinacharya, Ahara rules, and classical Panchakarma procedures (Kati Basti, Janu Basti, Virechana, Vamana, Shirodhara, Nasya).
    - If the user asks a follow-up question or conversational question, answer directly in context.
    - Keep answers well-structured, clear, and concise (about 80 to 140 words).
-2. MULTILINGUAL SUPPORT:
+3. MULTILINGUAL SUPPORT:
    - Respond in the language of the user's query: Marathi (मराठी), Hindi (हिंदी), or English. Use natural, warm, and authentic vocabulary.
-3. MEDICAL BOUNDARY & HOSPITAL ACTION:
+4. MEDICAL BOUNDARY & HOSPITAL ACTION:
    - Provide educational guidance and note that actual clinical prescription requires in-person pulse diagnosis (*Nadi Parikshan*) and physical examination by Dr. Manish Santosh Yerpude at AayuTatva Hospital in Bhandara.
    - Conclude with the hospital contact details:
    "To know more or book an examination:
@@ -195,6 +199,13 @@ app.post('/api/ayurveda-chat', async (req: Request, res: Response) => {
 
     if (!message || typeof message !== 'string') {
       res.status(400).json({ error: 'Message is required' });
+      return;
+    }
+
+    // 0. Greetings & Gratitude check: Instant, courteous response without prescribing medical treatments
+    if (isGreetingQuery(message) || isGratitudeQuery(message)) {
+      const greetingResponse = generateInternalAyurvedicResponse(message, history, userDoshaProfile, language);
+      res.json(greetingResponse);
       return;
     }
 

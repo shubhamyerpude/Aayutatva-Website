@@ -1319,7 +1319,7 @@ export function AayuVaidyaAIPage() {
           <div className="footer-phones">
             <a href={`tel:${phonePrimary}`}><Phone size={16}/> +91 77588 16074</a>
           </div>
-          <a className="footer-book" href="/#booking">Book your consultation <ArrowUpRight size={16}/></a>
+          <a className="footer-book" href="/book-appointment.html">Book your consultation <ArrowUpRight size={16}/></a>
         </div>
         <div className="footer-bottom">
           <span>© 2026 AayuTatva Ayurvedic Hospital & Panchakarma Centre</span>

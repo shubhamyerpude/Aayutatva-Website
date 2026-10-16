@@ -6,8 +6,6 @@ import {
 import './subpages.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
 import { 
-  PaytmPaymentCard,
-  PhonePePaymentCard, 
   saveMasterclassRegistration, 
   exportRegistrationsToCSV, 
   getAllRegistrations,
@@ -79,7 +77,7 @@ export function TreatmentsPage() {
         <div className="sub-overline">THOUGHTFUL, PERSONAL AYURVEDIC CARE</div>
         <h1>Our Specialities, with<br/><em>you at the centre.</em></h1>
         <p>Explore consultations across joint and spine care, Panchakarma, women’s health, skin and hair, digestion, fertility, and lifestyle concerns. Each recommendation begins with a personal assessment.</p>
-        <a href="/#booking" className="sub-cta">Book a consultation <ArrowUpRight size={16}/></a>
+        <a href="/book-appointment.html" className="sub-cta">Book a consultation <ArrowUpRight size={16}/></a>
       </section>
 
       <section className="treatment-directory">
@@ -101,7 +99,7 @@ export function TreatmentsPage() {
                   <ShieldCheck size={16}/>
                   <span>{t.note}</span>
                 </div>
-                <a href="/#booking" className="therapy-book">Ask about this care <ArrowUpRight size={14}/></a>
+                <a href="/book-appointment.html" className="therapy-book">Ask about this care <ArrowUpRight size={14}/></a>
               </div>
             </article>
           ))}
@@ -207,33 +205,24 @@ export function HeightSessionPage() {
     return Object.keys(errs).length === 0;
   }
 
-  function handleStep1Submit(e) {
+  async function handleStep1Submit(e) {
     e.preventDefault();
-    if (validateStep1()) {
-      setStep(2);
-      const el = document.getElementById('register');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
+    if (!validateStep1()) return;
 
-  async function handleStep2Submit(e) {
-    e.preventDefault();
-    if (!form.upiRef.trim() || form.upiRef.trim().length < 6) {
-      setErrors({ upiRef: 'Please enter the 12-digit UPI UTR / Transaction Reference ID' });
-      return;
-    }
     setLoading(true);
     try {
       const saved = await saveMasterclassRegistration({
         ...form,
-        status: 'Paid ₹9 via UPI (Verification Pending)'
+        fee: 0,
+        upiRef: 'FREE-WORKSHOP',
+        status: 'Free Workshop Registration Confirmed'
       });
       setConfirmedData(saved);
       setStep(3);
 
       const msg = [
-        `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
-        `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+        `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
+        `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
         ``,
         `📋 *Booking ID:* ${saved.id}`,
         `👤 *Attendee Name:* ${saved.name}`,
@@ -242,12 +231,11 @@ export function HeightSessionPage() {
         `📏 *Current Height:* ${saved.currentHeight}`,
         `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
         `📍 *City:* ${saved.city}`,
-        `💳 *Payment Method:* Direct Hospital UPI (7758816074@ybl)`,
-        `🔢 *UPI UTR / Ref:* ${saved.upiRef || form.upiRef}`,
-        `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
+        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+        `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`,
         ``,
-        `Kindly check the payment status in your sheet and send confirmation.`,
-        `*Note:* Meeting link will be received 3 days prior to masterclass date.`
+        `Kindly verify my free registration in your sheet.`,
+        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
       ].join('\n');
 
       const waUrl = `https://wa.me/917758816074?text=${encodeURIComponent(msg)}`;
@@ -264,13 +252,18 @@ export function HeightSessionPage() {
     }
   }
 
+  async function handleStep2Submit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    setStep(3);
+  }
+
   return (
     <PageShell breadcrumb="Height Growth Guidance">
       {/* Masterclass Hero Section */}
       <section className="sub-hero height-hero">
         <a className="back-link" href="/"><ArrowLeft size={14}/> BACK TO HOME</a>
         <div className="sub-overline">
-          🔴 AYURVEDIC PEDIATRIC & ADOLESCENT GROWTH GUIDANCE · FEE: ₹9 ONLY
+          🔴 AYURVEDIC PEDIATRIC & ADOLESCENT GROWTH GUIDANCE · 100% FREE WORKSHOP
         </div>
         <h1>Unlock Your Natural Height:<br/><em>60-Minute Ayurvedic Growth Masterclass</em></h1>
         <p>
@@ -280,7 +273,7 @@ export function HeightSessionPage() {
 
         <div className="insurance-hero-actions">
           <a className="sub-cta" href="#register">
-            <Video size={16}/> Register Now (₹9) <ArrowDownIcon/>
+            <Video size={16}/> Register Free Seat (25 Oct) <ArrowDownIcon/>
           </a>
         </div>
 
@@ -337,14 +330,14 @@ export function HeightSessionPage() {
         </div>
       </section>
 
-      {/* Registration Section with Direct ₹9 PhonePe UPI Payment */}
+      {/* Registration Section: 100% Free Workshop */}
       <section className="height-content" id="register">
         <div className="height-copy">
           <div className="sub-overline">AYURVEDIC GROWTH SESSION DETAILS</div>
-          <h2>Join the live session<br/><em>for just ₹9.</em></h2>
+          <h2>Join the live session<br/><em>100% Free Workshop.</em></h2>
           <p>
-            We are charging a nominal commitment fee of <strong>₹9</strong> to ensure serious participants. 
-            The session link (Zoom / Google Meet) will be shared directly to your WhatsApp and Email.
+            Complimentary doctor-led guidance on <strong>Sunday, 25th October 2026 (7:00 PM – 8:00 PM IST)</strong>. 
+            The session link (Zoom / Google Meet) will be shared directly to your WhatsApp.
           </p>
           
           <div className="growth-points">
@@ -357,7 +350,7 @@ export function HeightSessionPage() {
 
           <div className="growth-caveat">
             <ShieldCheck size={17}/>
-            <p>100% direct hospital settlement via Verified Bank UPI / QR (7758816074@ybl). Transparent, doctor-led clinical education.</p>
+            <p>100% free clinical health education by Dr. Manish Santosh Yerpude at AayuTatva Ayurvedic Hospital, Bhandara.</p>
           </div>
         </div>
 
@@ -365,14 +358,14 @@ export function HeightSessionPage() {
         <div className="session-card">
           <div className="session-card-head">
             <span><CalendarDays size={17}/> CLINICAL GROWTH SESSION</span>
-            <span className="session-pill">₹9 REGISTRATION FEE</span>
+            <span className="session-pill">100% FREE WORKSHOP</span>
           </div>
 
           {/* STEP 1: FORM */}
           {step === 1 && (
             <>
-              <h3>Reserve your place<br/><em>on 18th October (Sun, 7–8 PM).</em></h3>
-              <p>Enter your details below to receive the meeting link on WhatsApp 3 days before the session.</p>
+              <h3>Reserve your free place<br/><em>on 25th October (Sun, 7–8 PM).</em></h3>
+              <p>Enter your details below to receive the meeting link on WhatsApp 3 days before the session (by 22nd Oct).</p>
               
               <form onSubmit={handleStep1Submit} className="space-y-3">
                 <label>
@@ -472,93 +465,36 @@ export function HeightSessionPage() {
                   />
                 </label>
 
-                <button className="sub-cta form-cta cursor-pointer" type="submit">
-                  Proceed to Pay ₹9 Fee <ArrowUpRight size={16}/>
+                <button className="sub-cta form-cta cursor-pointer" type="submit" disabled={loading}>
+                  {loading ? 'Confirming Seat…' : 'Register Free Seat (25 Oct Sunday)'} <ArrowUpRight size={16}/>
                 </button>
-                <small className="form-privacy">Nominal fee of ₹9 ensures dedicated attendees. Meeting link sent via WhatsApp.</small>
+                <small className="form-privacy">100% Free Workshop. Meeting link sent via WhatsApp 3 days prior (by 22nd Oct).</small>
               </form>
             </>
-          )}
-
-          {/* STEP 2: PHONEPE UPI PAYMENT */}
-          {step === 2 && (
-            <div className="py-2">
-              <div className="text-center mb-3">
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full uppercase">
-                  Step 2 of 2: Pay ₹9 Fee
-                </span>
-                <h4 className="text-sm font-bold text-[#1B3B22] mt-1">
-                  Scan & Pay ₹9 to Confirm Seat
-                </h4>
-              </div>
-
-              <PaytmPaymentCard 
-                upiId="7758816074@ybl"
-                name="DR YERPUDES AYUTATVA"
-                amount={9}
-              />
-
-              <form onSubmit={handleStep2Submit} className="mt-4 bg-stone-100/80 p-3.5 rounded-xl border border-stone-200">
-                <p className="text-[11px] text-stone-700 mb-2 leading-relaxed">
-                  Pay ₹9 via any UPI app (Paytm, GPay, PhonePe, BHIM). Once payment is done, click below. Your details and Booking ID will be updated in our Excel sheet, and you will be redirected to WhatsApp to send payment details. We will check the payment status in our sheet and send confirmation!
-                </p>
-                <div className="bg-amber-50 border border-amber-200 rounded p-2 mb-2 text-[11px] text-amber-900">
-                  <strong>📅 Meeting Link Notice:</strong> Meeting link will be received <strong>3 days prior to masterclass date</strong> on your WhatsApp.
-                </div>
-                <label>
-                  Enter UPI Ref / UTR No (Optional if available)
-                  <input
-                    name="upiRef"
-                    value={form.upiRef}
-                    onChange={update}
-                    placeholder="e.g. 427819384920 or last 4 digits"
-                    className="font-mono text-center tracking-wider text-xs"
-                  />
-                </label>
-                {errors.upiRef && <span className="text-[10px] text-red-600 block">{errors.upiRef}</span>}
-
-                <div className="flex gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="w-1/3 bg-stone-200 text-stone-700 text-xs font-bold py-2 rounded"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-2/3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold py-2 rounded shadow"
-                  >
-                    {loading ? 'Updating Sheet...' : 'I Have Paid ₹9 — Update Sheet & Open WhatsApp'}
-                  </button>
-                </div>
-              </form>
-            </div>
           )}
 
           {/* STEP 3: TICKET CONFIRMATION */}
           {step === 3 && confirmedData && (
             <div className="session-success">
               <span><Check size={22}/></span>
-              <h3>Registration Submitted!</h3>
+              <h3>Free Workshop Confirmed!</h3>
               <p>
                 Booking ID: <strong>{confirmedData.id}</strong><br/>
-                We have registered <strong>{confirmedData.name}</strong> for the 18th Oct Masterclass (Sun, 7:00 PM – 8:00 PM Evening).
+                We have registered <strong>{confirmedData.name}</strong> for the 25th Oct Masterclass (Sun, 7:00 PM – 8:00 PM Evening).
               </p>
               <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg text-xs my-2 text-left space-y-1">
                 <p>
-                  📋 <strong>Updated in Excel Sheet:</strong> Your details and Booking ID are saved in our clinic attendee sheet. We will check the payment status in our sheet and send your confirmation!
+                  📋 <strong>Updated in Attendee Sheet:</strong> Your details and Booking ID are confirmed in our clinic register.
                 </p>
                 <p>
-                  📲 <strong>Meeting Link Delivery:</strong> Meeting link will be received <strong>3 days prior to masterclass date (by 15th Oct)</strong> on your WhatsApp (<strong>{confirmedData.whatsapp}</strong>).
+                  📲 <strong>Meeting Link Delivery:</strong> Meeting link will be received <strong>3 days prior to masterclass date (by 22nd Oct)</strong> on your WhatsApp (<strong>{confirmedData.whatsapp}</strong>).
                 </p>
               </div>
               <div className="flex flex-col gap-2 mt-3">
                 <a
                   href={`https://wa.me/917758816074?text=${encodeURIComponent([
-                    `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
-                    `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+                    `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
+                    `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
                     ``,
                     `📋 *Booking ID:* ${confirmedData.id}`,
                     `👤 *Attendee Name:* ${confirmedData.name}`,
@@ -567,19 +503,18 @@ export function HeightSessionPage() {
                     `📏 *Current Height:* ${confirmedData.currentHeight}`,
                     `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
                     `📍 *City:* ${confirmedData.city}`,
-                    `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-                    `💳 *Payment Method:* Direct Hospital UPI (7758816074@ybl)`,
-                    `🔢 *UPI UTR / Ref:* ${confirmedData.upiRef || 'Submitted'}`,
-                    `✅ *Payment Status:* Paid ₹9 via UPI (Please check sheet and confirm)`,
+                    `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+                    `🎟️ *Workshop Fee:* ₹0 (Free Workshop)`,
+                    `✅ *Status:* Confirmed in Attendee Sheet`,
                     ``,
-                    `Kindly check the payment status in your sheet and send confirmation.`,
-                    `*Note:* Meeting link will be received 3 days prior (by 15th Oct) on WhatsApp.`
+                    `Kindly verify my free registration in your sheet.`,
+                    `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
                   ].join('\n'))}`}
                   target="_blank"
                   rel="noreferrer"
                   className="sub-cta text-center"
                 >
-                  <Phone size={14}/> Open Clinic WhatsApp with Payment Details
+                  <Phone size={14}/> Open Clinic WhatsApp with Registration Details
                 </a>
                 <button 
                   onClick={() => { setStep(1); setConfirmedData(null); }} 

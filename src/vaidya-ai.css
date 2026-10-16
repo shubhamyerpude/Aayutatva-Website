@@ -714,8 +714,8 @@
    ======================================================== */
 .vaidya-floating-trigger {
   position: fixed;
-  bottom: 84px;
-  right: 22px;
+  bottom: 24px;
+  right: 24px;
   z-index: 990;
   display: flex;
   align-items: center;

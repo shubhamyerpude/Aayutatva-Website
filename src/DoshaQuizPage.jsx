@@ -846,7 +846,7 @@ export function DoshaQuizPage() {
                   >
                     <MessageCircle size={18}/> {currentLangData.whatsappBtn}
                   </a>
-                  <a href="/#booking" className="btn-primary-action">
+                  <a href="/book-appointment.html" className="btn-primary-action">
                     {currentLangData.inPersonBtn} <ArrowUpRight size={16}/>
                   </a>
                   <button type="button" onClick={resetQuiz} className="btn-retake">

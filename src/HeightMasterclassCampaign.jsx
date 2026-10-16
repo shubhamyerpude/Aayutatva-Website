@@ -9,16 +9,12 @@ import {
 } from 'lucide-react';
 
 export const DEFAULT_COMPLEX_ADMIN_PASSWORD = 'DrYerpude@Aayu2026#Secure';
-export const DEFAULT_UNIVERSAL_UPI_ID = '7758816074@ybl'; // Hospital PhonePe Direct Bank UPI - 0% error on PhonePe
-export const DEFAULT_PAYTM_UPI_ID = 'paytm.s1j7ydq@pty';
-export const DEFAULT_GPAY_UPI_ID = 'yerpudeabhilasha@okhdfcbank';
-export const DEFAULT_UPI_ID = '7758816074@ybl';
+export const DEFAULT_UNIVERSAL_UPI_ID = '7758816074@ybl';
 export const RECIPIENT_NAME = 'DR YERPUDES AYUTATVA';
-export const REGISTRATION_FEE = 9;
-export const SESSION_DATE = 'Sunday, 18th October 2026';
+export const REGISTRATION_FEE = 0; // 100% Free Workshop
+export const SESSION_DATE = 'Sunday, 25th October 2026';
 export const SESSION_TIME = 'Evening 7:00 PM – 8:00 PM (IST)';
 export const DEFAULT_PAYMENT_LINK = '';
-export const DEFAULT_QR_IMAGE = '/media/payment-link-qr.png';
 export const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
 
 // Helper to save registration locally and attempt server sync
@@ -116,10 +112,10 @@ export function exportRegistrationsToCSV(records) {
     `"${r.currentHeight || ''}"`,
     `"${(r.goal || '').replace(/"/g, '""')}"`,
     `"${(r.city || '').replace(/"/g, '""')}"`,
-    `"${r.status || 'Paid via UPI (Verification Pending)'}"`,
-    `"₹${r.fee || 9}"`,
-    `"${r.upiRef || ''}"`,
-    `"Zoom/Meet link will be received 3 days prior to masterclass date"`
+    `"${r.status || 'Free Workshop Confirmed'}"`,
+    `"${r.fee ? '₹' + r.fee : '₹0 (Free Workshop)'}"`,
+    `"${r.upiRef || 'N/A (Free)'}"`,
+    `"Zoom/Meet link will be received 3 days prior (by 22nd Oct) on WhatsApp"`
   ]);
 
   const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
@@ -171,7 +167,7 @@ export function UpdateQrModal({
       return;
     }
 
-    const uri = `upi://pay?pa=${encodeURIComponent(upiInput.trim() || DEFAULT_UNIVERSAL_UPI_ID)}&pn=${encodeURIComponent(nameInput.trim() || RECIPIENT_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 18 Oct')}`;
+    const uri = `upi://pay?pa=${encodeURIComponent(upiInput.trim() || DEFAULT_UNIVERSAL_UPI_ID)}&pn=${encodeURIComponent(nameInput.trim() || RECIPIENT_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 25 Oct')}`;
     QRCode.toDataURL(uri, {
       width: 260,
       margin: 1,
@@ -452,29 +448,18 @@ export function UpdateQrModal({
 }
 
 /* =========================================================================
-   2. VERIFIED HOSPITAL PAYMENT CARD (Locked & End-User Facing)
+   2. PAYMENT / QR CODE REMOVED (100% Free Workshop)
    ========================================================================= */
-export function PaytmPaymentCard({ 
-  upiId = DEFAULT_UPI_ID, 
-  name = RECIPIENT_NAME, 
-  amount = REGISTRATION_FEE, 
-  compact = false,
-  paymentLink = DEFAULT_PAYMENT_LINK,
-  qrImage = DEFAULT_QR_IMAGE
-}) {
-  const [paymentConfig, setPaymentConfig] = useState(() => {
-    try {
-      const saved = localStorage.getItem('aayutatva_payment_config');
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return {
-      upiId: upiId || DEFAULT_UNIVERSAL_UPI_ID,
-      payeeName: name || RECIPIENT_NAME,
-      customQrImage: ''
-    };
-  });
+export function PaytmPaymentCard() {
+  return null;
+}
+export const PhonePePaymentCard = PaytmPaymentCard;
 
-  const [qrDataUrl, setQrDataUrl] = useState('');
+function _OldPaytmPaymentCard_Disabled() {
+  return null;
+}
+
+function _UnusedDeadCode() {
   const [copied, setCopied] = useState(false);
   const [desktopNotice, setDesktopNotice] = useState(false);
 
@@ -498,7 +483,7 @@ export function PaytmPaymentCard({
   const activeCustomImage = paymentConfig.customQrImage || '';
 
   // Standard UPI URI format accepted across all UPI apps
-  const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 18 Oct')}`;
+  const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 25 Oct')}`;
   
   // Real web payment link if user explicitly configured an http URL
   const hasCustomWebLink = Boolean(paymentLink && paymentLink.trim().startsWith('http'));
@@ -627,8 +612,7 @@ export function PaytmPaymentCard({
   );
 }
 
-// Backward compatibility alias
-export const PhonePePaymentCard = PaytmPaymentCard;
+
 
 /* =========================================================================
    2. HIGH-CONVERTING MOBILE-FIRST POPUP & FLOATING CAMPAIGN WIDGET
@@ -716,37 +700,27 @@ export function HeightCampaignPopup({ autoOpen = false }) {
     return Object.keys(errs).length === 0;
   };
 
-  const handleStep1Submit = (e) => {
+  const handleStep1Submit = async (e) => {
     e.preventDefault();
-    if (validateStep1()) {
-      setStep(2);
-    }
-  };
-
-  const handleStep2PaymentSubmit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    
-    let finalUpiRef = formData.upiRef.trim();
-    if (!finalUpiRef) {
-      finalUpiRef = 'UPI-' + Math.floor(100000 + Math.random() * 900000);
-    }
+    if (!validateStep1()) return;
 
     setLoading(true);
     try {
       const dataToSave = { 
         ...formData, 
-        upiRef: finalUpiRef,
-        status: 'Paid ₹9 via UPI (Verification Pending)'
+        fee: 0,
+        upiRef: 'FREE-WORKSHOP',
+        status: 'Free Workshop Registration Confirmed'
       };
-      // 1. Update attendee details in Excel sheet / backend data store
+      // 1. Update attendee details in clinic registry / backend data store
       const saved = await saveMasterclassRegistration(dataToSave);
       setConfirmedData(saved);
-      setStep(3);
+      setStep(3); // Direct confirmation - no payment step!
 
-      // 2. Pre-craft WhatsApp confirmation message containing form details, booking ID, payment status
+      // 2. Pre-craft WhatsApp confirmation message for Free Workshop
       const msg = [
-        `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
-        `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+        `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
+        `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
         ``,
         `📋 *Booking ID:* ${saved.id}`,
         `👤 *Attendee Name:* ${saved.name}`,
@@ -755,13 +729,12 @@ export function HeightCampaignPopup({ autoOpen = false }) {
         `📏 *Current Height:* ${saved.currentHeight}`,
         `🎯 *Target / Goal:* ${saved.goal || 'Natural Height Growth Guidance'}`,
         `📍 *City:* ${saved.city}`,
-        `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-        `💳 *Payment Method:* Direct Hospital UPI / QR (7758816074@ybl)`,
-        `🔢 *UPI / Payment Ref:* ${saved.upiRef}`,
-        `✅ *Payment Status:* Paid ₹9 (Please check sheet and confirm)`,
+        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+        `🎟️ *Workshop Fee:* ₹0 (Free Workshop)`,
+        `✅ *Status:* Confirmed in Attendee Sheet`,
         ``,
-        `Kindly check the payment status in your sheet and send confirmation.`,
-        `*Note:* Meeting link will be received 3 days prior (by 15th Oct) on WhatsApp.`
+        `Kindly confirm my seat for the 25th Oct live session.`,
+        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
       ].join('\n');
 
       // 3. Redirect user to WhatsApp link
@@ -769,7 +742,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       setTimeout(() => {
         try {
           window.open(waUrl, '_blank', 'noopener,noreferrer');
-        } catch (e) {}
+        } catch (err) {}
       }, 700);
 
     } catch (err) {
@@ -779,12 +752,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
     }
   };
 
+  const handleStep2PaymentSubmit = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setStep(3);
+  };
+
   return (
     <>
       {/* 1. Elevated Floating Live Masterclass Banner with Dismiss/Close Button */}
       {!isOpen && !isBannerDismissed && (
         <div
-          className="fixed bottom-[84px] right-3 sm:bottom-6 sm:right-6 z-[950] flex items-center bg-[#17331D] text-[#E7C697] border-2 border-[#D4A373] rounded-full shadow-2xl overflow-hidden text-xs font-bold transition-all duration-200 max-w-[calc(100vw-28px)]"
+          className="fixed bottom-[138px] right-3 sm:bottom-6 sm:left-6 sm:right-auto z-[950] flex items-center bg-[#17331D] text-[#E7C697] border-2 border-[#D4A373] rounded-full shadow-2xl overflow-hidden text-xs font-bold transition-all duration-200 max-w-[calc(100vw-28px)]"
           role="region"
           aria-label="Live Masterclass Announcement"
         >
@@ -792,13 +770,13 @@ export function HeightCampaignPopup({ autoOpen = false }) {
             type="button"
             onClick={() => { setStep(0); setIsOpen(true); }}
             className="flex items-center gap-2 px-3.5 py-2 hover:bg-[#1f4628] active:scale-95 transition-all text-xs font-bold cursor-pointer text-[#E7C697] whitespace-nowrap"
-            aria-label="Open 18 Oct Height Masterclass details"
+            aria-label="Open 25 Oct Free Height Masterclass details"
           >
             <span className="relative flex h-2 w-2 flex-shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Live Masterclass (18 Oct · 7-8 PM · ₹9)</span>
+            <span>Free Workshop (25 Oct Sun · 7-8 PM)</span>
           </button>
           <button
             type="button"
@@ -827,10 +805,10 @@ export function HeightCampaignPopup({ autoOpen = false }) {
               <div className="pr-1.5">
                 <div className="flex items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 bg-[#D4A373] text-[#17331D] text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
-                    18 OCT · 7-8 PM · LIVE
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
+                    25 OCT · 7-8 PM · FREE WORKSHOP
                   </span>
-                  <span className="text-[#E7C697] text-[10px] font-bold">Fee: ₹9 Only</span>
+                  <span className="text-emerald-300 text-[10px] font-bold">100% Free</span>
                 </div>
                 <h2 className="text-xs sm:text-sm font-serif font-bold text-white mt-0.5 leading-tight">
                   Natural Height Growth Masterclass
@@ -851,19 +829,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
             {/* Compact Step Indicator if not in step 0 */}
             {step > 0 && (
               <div className="bg-[#f4efe4] px-3 py-1 border-b border-[#e2dacf] flex items-center justify-between text-[9px] text-stone-600 flex-shrink-0">
-                <div className={`flex items-center gap-1 ${step >= 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step >= 1 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>1</span>
-                  <span>Details</span>
+                <div className={`flex items-center gap-1 ${step === 1 ? 'font-bold text-[#1B3B22]' : ''}`}>
+                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step === 1 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>1</span>
+                  <span>Attendee Details</span>
                 </div>
                 <ChevronRight size={10} className="text-stone-400" />
                 <div className={`flex items-center gap-1 ${step >= 2 ? 'font-bold text-[#1B3B22]' : ''}`}>
                   <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step >= 2 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>2</span>
-                  <span>UPI Pay (₹9)</span>
-                </div>
-                <ChevronRight size={10} className="text-stone-400" />
-                <div className={`flex items-center gap-1 ${step >= 3 ? 'font-bold text-[#1B3B22]' : ''}`}>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] ${step >= 3 ? 'bg-[#1B3B22] text-white' : 'bg-stone-300'}`}>3</span>
-                  <span>Ticket</span>
+                  <span>Free Ticket Confirmed</span>
                 </div>
               </div>
             )}
@@ -890,14 +863,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                   {/* Concise Highlights & Notice */}
                   <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-2 text-left space-y-1">
                     <div className="flex items-center justify-between text-[#17331D] font-bold text-[10px]">
-                      <span>📅 Sun, 18 Oct 2026 · 7:00 PM – 8:00 PM (Evening)</span>
-                      <span className="bg-[#17331D] text-[#E7C697] text-[9px] px-2 py-0.5 rounded-full">₹9 Only</span>
+                      <span>📅 Sun, 25 Oct 2026 · 7:00 PM – 8:00 PM (Evening)</span>
+                      <span className="bg-[#17331D] text-[#E7C697] text-[9px] px-2 py-0.5 rounded-full">Free Entry</span>
                     </div>
                     <p className="text-[10px] text-stone-700 leading-snug">
-                      60-min doctor session (7–8 PM) on bone growth plates, spine decompression & Ayurvedic nutrition for ages 12–25.
+                      60-min live doctor workshop (7–8 PM) on bone growth plate reactivation, spinal decompression & Ayurvedic nutrition for ages 12–25.
                     </p>
                     <p className="text-[9px] text-emerald-900 font-semibold">
-                      📲 Meeting link delivered <strong>3 days prior (by 15th Oct)</strong> on WhatsApp.
+                      📲 Meeting link delivered <strong>3 days prior (by 22nd Oct)</strong> directly on WhatsApp.
                     </p>
                   </div>
 
@@ -907,7 +880,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     onClick={() => setStep(1)}
                     className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-transform cursor-pointer"
                   >
-                    <span>Claim Your Seat Now (Pay ₹9 Fee)</span>
+                    <span>Claim Your Free Seat Now</span>
                     <ArrowRight size={14} />
                   </button>
 
@@ -1040,9 +1013,10 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       </button>
                       <button
                         type="submit"
+                        disabled={loading}
                         className="w-2/3 bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 shadow cursor-pointer transition-all"
                       >
-                        <span>Proceed to Pay ₹9</span>
+                        <span>{loading ? 'Confirming Seat…' : 'Register Free Seat (25 Oct)'}</span>
                         <ArrowRight size={13} />
                       </button>
                     </div>
@@ -1050,97 +1024,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                 </div>
               )}
 
-              {/* STEP 2: COMPACT PAYMENT & WHATSAPP REDIRECTION */}
-              {step === 2 && (
-                <div className="space-y-2 text-center">
-                  <div className="flex items-center justify-between text-left">
-                    <div>
-                      <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full uppercase">
-                        Step 2: Pay ₹9 via UPI
-                      </span>
-                      <h3 className="text-xs font-serif font-bold text-[#1B3B22] mt-0.5">
-                        Scan or Tap to Pay ₹9
-                      </h3>
-                    </div>
-                    <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      <ShieldCheck size={11} className="text-emerald-600" />
-                      <span>Verified QR (All Apps)</span>
-                    </span>
-                  </div>
-
-                  {/* Ultra-Compact Paytm Card */}
-                  <PaytmPaymentCard 
-                    upiId={DEFAULT_UPI_ID}
-                    name={RECIPIENT_NAME}
-                    amount={REGISTRATION_FEE}
-                    compact={true}
-                  />
-
-                  {/* Payment account guidance notice */}
-                  <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-2 text-left text-[9.5px] leading-snug flex items-start gap-1.5">
-                    <span className="font-bold text-xs shrink-0">💡</span>
-                    <span>
-                      <strong>Important:</strong> In your UPI app (GPay / PhonePe / Paytm), select your <strong>Bank Savings Account</strong> to pay. Do not select Credit Card or Wallet on UPI.
-                    </span>
-                  </div>
-
-                  {/* Single Clean Confirmation Action */}
-                  <div className="bg-emerald-50/90 border border-emerald-300 p-2 rounded-xl text-left shadow-xs space-y-1.5">
-                    <p className="text-[10px] text-stone-700 leading-snug">
-                      Once payment is done, click below. Your details will update our clinic sheet and you will open WhatsApp to confirm.
-                    </p>
-
-                    <div>
-                      <input
-                        type="text"
-                        name="upiRef"
-                        value={formData.upiRef}
-                        onChange={handleChange}
-                        placeholder="UPI UTR / Ref No (Optional)"
-                        className="campaign-input w-full bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-mono text-center h-9 focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D]"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={handleStep2PaymentSubmit}
-                      className="w-full bg-[#17331D] hover:bg-[#1f4628] active:scale-98 text-[#E7C697] font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-transform"
-                    >
-                      {loading ? (
-                        <>
-                          <RefreshCw size={13} className="animate-spin" />
-                          <span>Updating Sheet & Opening WhatsApp...</span>
-                        </>
-                      ) : (
-                        <>
-                          <MessageCircle size={14} className="text-[#25D366]" />
-                          <span>I Have Paid ₹9 — Update Sheet & Open WhatsApp</span>
-                        </>
-                      )}
-                    </button>
-
-                    <p className="text-[9px] text-stone-500 text-center leading-tight">
-                      📅 Meeting link will be received <strong>3 days prior (by 15th Oct)</strong> on WhatsApp.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between text-[10px] text-stone-500 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="text-stone-600 hover:underline font-semibold cursor-pointer text-[10px]"
-                    >
-                      ← Back to Details
-                    </button>
-                    <span className="text-[9px] text-emerald-800 font-semibold">
-                      Sheet & WhatsApp Sync
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: CONFIRMED TICKET */}
+              {/* STEP 3: CONFIRMED TICKET FOR FREE WORKSHOP */}
               {step === 3 && confirmedData && (
                 <div className="text-center py-1 space-y-2">
                   <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-xs">
@@ -1149,10 +1033,10 @@ export function HeightCampaignPopup({ autoOpen = false }) {
 
                   <div>
                     <span className="text-[9px] font-bold text-emerald-800 uppercase bg-emerald-100 px-2 py-0.5 rounded-full">
-                      Registration Submitted
+                      Free Workshop Confirmed
                     </span>
                     <h3 className="text-sm font-serif font-bold text-[#1B3B22] mt-0.5">
-                      Seat Reserved for Sun, 18th Oct (7–8 PM)!
+                      Seat Reserved for Sun, 25th Oct (7–8 PM)!
                     </h3>
                   </div>
 
@@ -1170,17 +1054,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       <strong>{confirmedData.whatsapp}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone-500">Payment Status:</span>
-                      <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded text-[9px] font-bold">
-                        Paid ₹9 via UPI (Pending Verification)
+                      <span className="text-stone-500">Workshop Fee:</span>
+                      <span className="bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded text-[9px] font-bold">
+                        100% Free Workshop (₹0)
                       </span>
                     </div>
                     <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-200 text-[10px] text-emerald-950 mt-1 space-y-0.5">
                       <p>
-                        📋 <strong>Recorded in Sheet:</strong> Details & Booking ID saved. We will check sheet and confirm.
+                        📋 <strong>Recorded in Attendee Sheet:</strong> Your details and Booking ID are confirmed.
                       </p>
                       <p>
-                        📲 <strong>Meeting Link:</strong> Received <strong>3 days prior (by 15th Oct)</strong> on WhatsApp.
+                        📲 <strong>Meeting Link:</strong> Received <strong>3 days prior (by 22nd Oct)</strong> on WhatsApp.
                       </p>
                     </div>
                   </div>
@@ -1188,8 +1072,8 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                   <div className="flex flex-col gap-1.5 pt-1">
                     <a
                       href={`https://wa.me/917758816074?text=${encodeURIComponent([
-                        `*AayuTatva Ayurvedic Hospital — Height Masterclass Registration*`,
-                        `Namaste Dr. Yerpude, I have paid the registration fee of ₹9 via UPI.`,
+                        `*AayuTatva Ayurvedic Hospital — Height Masterclass Free Registration*`,
+                        `Namaste Dr. Yerpude, I have registered for the Free Natural Height Growth Masterclass.`,
                         ``,
                         `📋 *Booking ID:* ${confirmedData.id}`,
                         `👤 *Attendee Name:* ${confirmedData.name}`,
@@ -1198,13 +1082,11 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         `📏 *Current Height:* ${confirmedData.currentHeight}`,
                         `🎯 *Target / Goal:* ${confirmedData.goal || 'Natural Height Growth Guidance'}`,
                         `📍 *City:* ${confirmedData.city}`,
-                        `📅 *Session Date & Time:* Sunday, 18 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
-                        `💳 *Payment Method:* Direct Hospital UPI / QR (7758816074@ybl)`,
-                        `🔢 *UPI / Payment Ref:* ${confirmedData.upiRef}`,
-                        `✅ *Payment Status:* Paid ₹9 (Please check sheet and confirm)`,
+                        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+                        `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`,
                         ``,
-                        `Kindly check the payment status in your sheet and send confirmation.`,
-                        `*Note:* Meeting link will be received 3 days prior (by 15th Oct) on WhatsApp.`
+                        `Kindly verify my free registration in your sheet.`,
+                        `*Note:* Meeting link will be received 3 days prior (by 22nd Oct) on WhatsApp.`
                       ].join('\n'))}`}
                       target="_blank"
                       rel="noreferrer"
@@ -1261,8 +1143,8 @@ export function HeightCampaignBanner() {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
         </span>
-        <span className="font-bold">Live Masterclass:</span>
-        <span>Natural Height Growth (18 Oct · 7-8 PM IST · ₹9)</span>
+        <span className="font-bold">Free Live Workshop:</span>
+        <span>Natural Height Growth (25 Oct Sun · 7-8 PM IST · Free Workshop)</span>
       </div>
       <button 
         type="button"
@@ -1454,7 +1336,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
                 AayuTatva Height Masterclass · Staff Portal
               </h2>
               <p className="text-xs text-stone-300">
-                Encrypted attendee lead management & Excel export for 18th Oct session
+                Attendee lead management & Excel export for 25th Oct Free Workshop
               </p>
             </div>
           </div>
@@ -1521,16 +1403,16 @@ export function HeightAdminModal({ isOpen, onClose }) {
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Total Registrations</span>
                 <div className="text-2xl font-bold text-[#1B3B22] mt-0.5">{records.length}</div>
-                <span className="text-[10px] text-emerald-600">Active leads for 18 Oct session</span>
+                <span className="text-[10px] text-emerald-600">Active leads for 25 Oct session</span>
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
-                <span className="text-[10px] text-stone-500 font-bold uppercase">Total Collected (₹9 / Seat)</span>
-                <div className="text-2xl font-bold text-emerald-700 mt-0.5">₹{records.length * 9}</div>
-                <span className="text-[10px] text-stone-500">Paid via Hospital UPI</span>
+                <span className="text-[10px] text-stone-500 font-bold uppercase">Workshop Entry Fee</span>
+                <div className="text-2xl font-bold text-emerald-700 mt-0.5">₹0</div>
+                <span className="text-[10px] text-stone-500">100% Free Workshop</span>
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Broadcast Date</span>
-                <div className="text-base font-bold text-stone-800 mt-0.5">15th Oct 2026</div>
+                <div className="text-base font-bold text-stone-800 mt-0.5">22nd Oct 2026</div>
                 <span className="text-[10px] text-stone-500">Send Zoom/Meet link 3 days prior</span>
               </div>
             </div>
@@ -1585,14 +1467,6 @@ export function HeightAdminModal({ isOpen, onClose }) {
                   <KeyRound size={13} />
                   <span>Change Password</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAdminQrModal(true)}
-                  className="bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer"
-                >
-                  <QrCode size={13} />
-                  <span>Update Payment QR</span>
-                </button>
               </div>
 
               <div className="text-xs text-stone-500">
@@ -1641,8 +1515,8 @@ export function HeightAdminModal({ isOpen, onClose }) {
                     <th className="p-2.5">Age & Gender</th>
                     <th className="p-2.5">Current Height</th>
                     <th className="p-2.5">Location</th>
-                    <th className="p-2.5">UTR / Ref</th>
-                    <th className="p-2.5">Fee</th>
+                    <th className="p-2.5">Status</th>
+                    <th className="p-2.5">Registration</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -1673,10 +1547,10 @@ export function HeightAdminModal({ isOpen, onClose }) {
                         <td className="p-2.5">{r.age} ({r.gender || 'M'})</td>
                         <td className="p-2.5">{r.currentHeight}</td>
                         <td className="p-2.5">{r.city}</td>
-                        <td className="p-2.5 font-mono text-[10px] text-stone-600">{r.upiRef || '-'}</td>
+                        <td className="p-2.5 font-mono text-[10px] text-emerald-800 font-semibold">{r.status || 'Free Confirmed'}</td>
                         <td className="p-2.5">
                           <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">
-                            ₹{r.fee || 9}
+                            Free Workshop (₹0)
                           </span>
                         </td>
                       </tr>
@@ -1741,18 +1615,6 @@ export function HeightAdminModal({ isOpen, onClose }) {
 
           </div>
         )}
-
-        {/* Admin Update QR Modal */}
-        <UpdateQrModal
-          isOpen={showAdminQrModal}
-          onClose={() => setShowAdminQrModal(false)}
-          currentUpiId={adminPaymentConfig.upiId}
-          currentName={adminPaymentConfig.payeeName}
-          currentCustomQr={adminPaymentConfig.customQrImage}
-          amount={REGISTRATION_FEE}
-          authKey={activeAuthKey}
-          onSave={(cfg) => setAdminPaymentConfig(cfg)}
-        />
 
       </div>
     </div>

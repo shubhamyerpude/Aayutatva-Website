@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShieldCheck, ArrowUpRight, Menu, X, ChevronRight, ChevronDown, Home, 
   Sparkles, Flower2, Activity, Calendar, Ruler, Building2, MessageCircle,
-  Video, Lock, Phone
+  Video, Lock, Phone, Users
 } from 'lucide-react';
 import { 
   HeightCampaignPopup, 
@@ -122,6 +122,8 @@ export function SiteHeader({ breadcrumb = null }) {
   const isSpecialities = p.includes('treatment');
   const isFacilities = p.includes('facilities');
   const isHeight = p.includes('height');
+  const isAbout = p.includes('about');
+  const isBooking = p.includes('book') || p.includes('appointment');
 
   useEffect(() => {
     const handleOpenAdmin = () => setAdminOpen(true);
@@ -207,6 +209,14 @@ export function SiteHeader({ breadcrumb = null }) {
         {/* Desktop Web Navigation: Clean, button-styled options with dropdown for secondary tools */}
         <nav className="desktop-titlebar-nav" aria-label="Primary website navigation">
           <a 
+            href="/about.html" 
+            className={`nav-btn ${isAbout ? 'active' : ''}`}
+            aria-label="About Us"
+          >
+            About Us
+          </a>
+
+          <a 
             href="/treatments.html" 
             className={`nav-btn ${isSpecialities ? 'active' : ''}`}
             aria-label="Treatments"
@@ -249,6 +259,19 @@ export function SiteHeader({ breadcrumb = null }) {
 
             {dropdownOpen && (
               <div className="nav-dropdown-menu">
+                <a 
+                  href="/about.html" 
+                  onClick={() => setDropdownOpen(false)}
+                  className="nav-dropdown-item"
+                >
+                  <div className="nav-dropdown-icon bg-stone-100 text-stone-800">
+                    <Users size={16} />
+                  </div>
+                  <div>
+                    <b>About Us & Hospital Staff</b>
+                    <small>Founders, clinical doctors & care team</small>
+                  </div>
+                </a>
                 <button 
                   type="button"
                   onClick={() => {
@@ -316,14 +339,14 @@ export function SiteHeader({ breadcrumb = null }) {
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-height-masterclass', { detail: { step: 0 } }))}
             className="nav-btn-masterclass"
-            title="18 Oct Height Masterclass details & registration"
+            title="25 Oct Sunday Free Height Masterclass registration"
           >
             <span className="live-pulse-dot" />
-            <span>Live Masterclass (₹9)</span>
+            <span>Free Masterclass (25 Oct)</span>
           </button>
 
           {/* Primary CTA: Book Appointment */}
-          <a href="/#booking" className="nav-btn-primary">
+          <a href="/book-appointment.html" className={`nav-btn-primary ${isBooking ? 'active' : ''}`}>
             <span>Book Appointment</span>
             <ArrowUpRight size={14}/>
           </a>
@@ -377,6 +400,10 @@ export function SiteHeader({ breadcrumb = null }) {
           </div>
 
           <div className="mobile-drawer-body">
+            <a href="/about.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
+              <Users size={18} className="nav-item-icon" />
+              <span>About Us & Doctors</span>
+            </a>
             <a href="/treatments.html" onClick={() => setMenuOpen(false)} className="mobile-drawer-link">
               <Flower2 size={18} className="nav-item-icon" />
               <span>Our Specialities</span>
@@ -399,8 +426,8 @@ export function SiteHeader({ breadcrumb = null }) {
               className="mobile-drawer-link mobile-drawer-link-highlight"
             >
               <Video size={18} className="text-amber-700" />
-              <span>Live Masterclass (18 Oct · 7-8 PM · ₹9)</span>
-              <span className="nav-chip-badge" style={{ background: '#d4a373', color: '#17331D' }}>Live</span>
+              <span>Free Masterclass (25 Oct Sun · 7-8 PM)</span>
+              <span className="nav-chip-badge" style={{ background: '#d4a373', color: '#17331D' }}>Free</span>
             </button>
 
             <button 
@@ -427,7 +454,7 @@ export function SiteHeader({ breadcrumb = null }) {
               <span>Cashless Insurance & Mediclaim</span>
             </a>
 
-            <a href="/#booking" className="mobile-drawer-book-btn" onClick={() => setMenuOpen(false)}>
+            <a href="/book-appointment.html" className="mobile-drawer-book-btn" onClick={() => setMenuOpen(false)}>
               <Calendar size={18} />
               <span>Book Appointment</span> 
               <ArrowUpRight size={16}/>

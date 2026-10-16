@@ -108,7 +108,7 @@ export function OpdSchedulePage() {
                   </div>
 
                   <div className="opd-card-actions">
-                    <a href="/#booking" className="btn-primary" style={{ minHeight: '44px', padding: '0 18px', fontSize: '11px' }}>
+                    <a href="/book-appointment.html" className="btn-primary" style={{ minHeight: '44px', padding: '0 18px', fontSize: '11px' }}>
                       Request Appointment <ArrowUpRight size={14}/>
                     </a>
                     <a href={`tel:${phonePrimary}`} className="under-link" style={{ minHeight: '44px', fontSize: '11px' }}>
