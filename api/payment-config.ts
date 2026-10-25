@@ -12,6 +12,7 @@ export interface PaymentConfig {
   activeMode: 'universal' | 'paytm' | 'custom';
   paymentLink?: string;
   gsheetWebhookUrl?: string;
+  gsheetSpreadsheetUrl?: string;
   updatedAt: string;
 }
 
@@ -25,6 +26,7 @@ const DEFAULT_CONFIG: PaymentConfig = {
   activeMode: 'universal',
   paymentLink: '',
   gsheetWebhookUrl: process.env.GSHEET_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec',
+  gsheetSpreadsheetUrl: process.env.GSHEET_SPREADSHEET_URL || '',
   updatedAt: new Date().toISOString()
 };
 

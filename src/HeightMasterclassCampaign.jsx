@@ -100,7 +100,8 @@ export function getAllRegistrations() {
 // Convert registrations to CSV formatted for Microsoft Excel & Google Sheets
 export function exportRegistrationsToCSV(records) {
   if (!records || records.length === 0) {
-    alert('No registrations found to export yet.');
+    // Direct server download in a new tab if local records cache is empty
+    window.open(`/api/height-registrations?export=csv&auth=${encodeURIComponent(DEFAULT_COMPLEX_ADMIN_PASSWORD)}`, '_blank');
     return;
   }
 
@@ -1266,6 +1267,8 @@ export function HeightAdminModal({ isOpen, onClose }) {
   const [records, setRecords] = useState([]);
   const [webhookUrl, setWebhookUrl] = useState(localStorage.getItem('aayutatva_gsheet_webhook_url') || DEFAULT_GSHEET_WEBHOOK_URL);
   const [webhookSaved, setWebhookSaved] = useState(false);
+  const [spreadsheetUrl, setSpreadsheetUrl] = useState(localStorage.getItem('aayutatva_gsheet_spreadsheet_url') || '');
+  const [spreadsheetSaved, setSpreadsheetSaved] = useState(false);
   const [testSent, setTestSent] = useState(false);
   const [copiedNumbers, setCopiedNumbers] = useState(false);
   const [showPasswordManager, setShowPasswordManager] = useState(false);
@@ -1304,6 +1307,39 @@ export function HeightAdminModal({ isOpen, onClose }) {
       .catch((err) => {
         console.warn('Backend API auth sync note:', err);
       });
+  };
+
+  useEffect(() => {
+    // Pre-load central server configuration for webhooks and spreadsheet links
+    fetch('/api/payment-config')
+      .then(res => res.json())
+      .then(cfg => {
+        if (cfg) {
+          if (cfg.gsheetWebhookUrl && (!webhookUrl || webhookUrl === DEFAULT_GSHEET_WEBHOOK_URL)) {
+            setWebhookUrl(cfg.gsheetWebhookUrl);
+          }
+          if (cfg.gsheetSpreadsheetUrl && !spreadsheetUrl) {
+            setSpreadsheetUrl(cfg.gsheetSpreadsheetUrl);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const saveSpreadsheetUrl = async () => {
+    localStorage.setItem('aayutatva_gsheet_spreadsheet_url', spreadsheetUrl.trim());
+    try {
+      await fetch('/api/payment-config', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-staff-passcode': activeAuthKey || passcode 
+        },
+        body: JSON.stringify({ gsheetSpreadsheetUrl: spreadsheetUrl.trim() })
+      });
+    } catch (e) {}
+    setSpreadsheetSaved(true);
+    setTimeout(() => setSpreadsheetSaved(false), 2000);
   };
 
   useEffect(() => {
@@ -1577,7 +1613,57 @@ export function HeightAdminModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Direct Excel URL Banner */}
+            {/* 1. Open Google Sheet Online (Direct Cloud Spreadsheet) */}
+            <div className="bg-white border-2 border-emerald-600/30 p-4 rounded-xl mb-4 shadow-xs">
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    📊
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-stone-900 text-xs sm:text-sm flex items-center gap-1.5">
+                      <span>Live Google Sheet (Online Spreadsheet)</span>
+                    </h4>
+                    <p className="text-[11px] text-stone-500">
+                      Open your actual Google Sheet in Google Drive to view, search, and manage leads online.
+                    </p>
+                  </div>
+                </div>
+                {spreadsheetUrl && spreadsheetUrl.startsWith('http') && (
+                  <a
+                    href={spreadsheetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow"
+                  >
+                    <ExternalLink size={14} />
+                    <span>Open Google Sheet ↗</span>
+                  </a>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                <input
+                  type="url"
+                  placeholder="Paste your Google Sheet view link: https://docs.google.com/spreadsheets/d/.../edit"
+                  value={spreadsheetUrl}
+                  onChange={(e) => setSpreadsheetUrl(e.target.value)}
+                  className="flex-1 text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={saveSpreadsheetUrl}
+                  className="bg-[#1B3B22] hover:bg-[#255230] text-white text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer flex-shrink-0"
+                >
+                  {spreadsheetSaved ? 'Saved!' : 'Save Sheet Link'}
+                </button>
+              </div>
+              <p className="text-[10px] text-stone-500 mt-1.5">
+                💡 <strong>Important:</strong> Paste the URL from your Google Sheet browser tab (starts with <code>https://docs.google.com/spreadsheets/d/...</code>) so you can open it with one click anytime!
+              </p>
+            </div>
+
+            {/* 2. Direct Excel URL Banner */}
             <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl mb-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
                 <span className="font-bold text-emerald-950 block">Direct Excel / CSV Sheet Link (Authenticated):</span>
@@ -1585,14 +1671,16 @@ export function HeightAdminModal({ isOpen, onClose }) {
                   {typeof window !== 'undefined' ? window.location.origin : ''}/api/height-registrations?export=csv&auth={encodeURIComponent(activeAuthKey)}
                 </code>
                 <p className="text-[10px] text-stone-500 mt-0.5">
-                  Opening this link in any browser or Microsoft Excel downloads all registered candidates with your staff security token.
+                  Clicking "Download Live Excel" downloads the current attendee list to your device as an Excel spreadsheet.
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <a
                   href={`/api/height-registrations?export=csv&auth=${encodeURIComponent(activeAuthKey)}`}
-                  download
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1 shadow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="AayuTatva_Height_Masterclass_Attendees.csv"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1 shadow cursor-pointer"
                 >
                   <Download size={13} />
                   <span>Download Live Excel</span>
