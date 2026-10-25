@@ -1275,6 +1275,8 @@ export function HeightAdminModal({ isOpen, onClose }) {
   const [newPassword, setNewPassword] = useState('');
   const [passwordNotice, setPasswordNotice] = useState('');
   const [showAdminQrModal, setShowAdminQrModal] = useState(false);
+  const [syncingAll, setSyncingAll] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState('');
   const [adminPaymentConfig, setAdminPaymentConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('aayutatva_payment_config');
@@ -1282,6 +1284,8 @@ export function HeightAdminModal({ isOpen, onClose }) {
     } catch {}
     return { upiId: DEFAULT_UNIVERSAL_UPI_ID, payeeName: RECIPIENT_NAME, customQrImage: '' };
   });
+
+  const activeAuthKey = passcode.trim() || (typeof window !== 'undefined' ? sessionStorage.getItem('aayutatva_staff_authenticated') : null) || DEFAULT_COMPLEX_ADMIN_PASSWORD;
 
   const fetchProtectedRegistrations = (key) => {
     const local = getAllRegistrations();
@@ -1354,7 +1358,6 @@ export function HeightAdminModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -1412,8 +1415,6 @@ export function HeightAdminModal({ isOpen, onClose }) {
     setTimeout(() => setCopiedNumbers(false), 2500);
   };
 
-  const [syncingAll, setSyncingAll] = useState(false);
-  const [syncStatusMsg, setSyncStatusMsg] = useState('');
 
   const saveWebhook = async () => {
     localStorage.setItem('aayutatva_gsheet_webhook_url', webhookUrl);
@@ -1515,7 +1516,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
     }
   };
 
-  const activeAuthKey = passcode.trim() || sessionStorage.getItem('aayutatva_staff_authenticated') || DEFAULT_COMPLEX_ADMIN_PASSWORD;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
