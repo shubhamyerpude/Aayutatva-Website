@@ -1663,27 +1663,35 @@ export function HeightAdminModal({ isOpen, onClose }) {
               </p>
             </div>
 
-            {/* 2. Direct Excel URL Banner */}
-            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl mb-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            {/* 2. Direct Excel / Web Sheet Banner */}
+            <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl mb-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="font-bold text-emerald-950 block">Direct Excel / CSV Sheet Link (Authenticated):</span>
-                <code className="text-[11px] text-stone-700 bg-white px-2 py-0.5 rounded border border-stone-200 break-all select-all">
-                  {typeof window !== 'undefined' ? window.location.origin : ''}/api/height-registrations?export=csv&auth={encodeURIComponent(activeAuthKey)}
-                </code>
-                <p className="text-[10px] text-stone-500 mt-0.5">
-                  Clicking "Download Live Excel" downloads the current attendee list to your device as an Excel spreadsheet.
+                <span className="font-bold text-emerald-950 block text-xs sm:text-sm">
+                  📊 Clinic Masterclass Sheet (Web Viewer & Excel Export):
+                </span>
+                <p className="text-[11px] text-stone-600 mt-0.5">
+                  View all leads in a full-screen interactive spreadsheet in your browser, or download directly as an Excel file.
                 </p>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                 <a
-                  href={`/api/height-registrations?export=csv&auth=${encodeURIComponent(activeAuthKey)}`}
+                  href={`/api/height-registrations?auth=${encodeURIComponent(activeAuthKey)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#17331D] hover:bg-[#204929] text-[#E7C697] font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <ExternalLink size={13} />
+                  <span>View Web Sheet ↗</span>
+                </a>
+                <a
+                  href={`/api/height-registrations?export=csv&download=1&auth=${encodeURIComponent(activeAuthKey)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   download="AayuTatva_Height_Masterclass_Attendees.csv"
-                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1 shadow cursor-pointer"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Download size={13} />
-                  <span>Download Live Excel</span>
+                  <span>Download Excel (.csv)</span>
                 </a>
               </div>
             </div>
