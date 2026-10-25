@@ -61,6 +61,16 @@ export function AayuVaidyaWidget() {
     }
   }, [messages, isOpen]);
 
+  // Nielsen Heuristic #3: User Control & Freedom - Close chat widget on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     if (messages.length <= 1) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, 
-  Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video, MessageCircle 
+  Clock3, HeartPulse, Leaf, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, Video, MessageCircle, AlertCircle 
 } from 'lucide-react';
 import './subpages.css';
 import { SiteHeader, phonePrimary } from './SiteHeader.jsx';
@@ -187,6 +187,7 @@ export function HeightSessionPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
 
   function update(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -244,7 +245,7 @@ export function HeightSessionPage() {
       }, 600);
 
     } catch (err) {
-      alert('Could not update registration in sheet. Please try again.');
+      setServerError('Unable to update sheet in real-time. Please tap below to join the WhatsApp group directly.');
     } finally {
       setLoading(false);
     }
@@ -271,7 +272,7 @@ export function HeightSessionPage() {
 
         <div className="insurance-hero-actions">
           <a className="sub-cta" href="#register">
-            <Video size={16}/> Register Free Seat (25 Oct) <ArrowDownIcon/>
+            <Video size={16}/> Register Free Seat (1 Nov) <ArrowDownIcon/>
           </a>
         </div>
 
@@ -334,7 +335,7 @@ export function HeightSessionPage() {
           <div className="sub-overline">AYURVEDIC GROWTH SESSION DETAILS</div>
           <h2>Join the live session<br/><em>100% Free Workshop.</em></h2>
           <p>
-            Complimentary doctor-led guidance on <strong>Sunday, 25th October 2026 (7:00 PM – 8:00 PM IST)</strong>. 
+            Complimentary doctor-led guidance on <strong>Sunday, 1st November 2026 (6:00 PM – 7:00 PM IST)</strong>. 
             The session link (Zoom / Google Meet) will be shared directly to your WhatsApp.
           </p>
           
@@ -362,10 +363,16 @@ export function HeightSessionPage() {
           {/* STEP 1: FORM */}
           {step === 1 && (
             <>
-              <h3>Reserve your free place<br/><em>on 25th October (Sun, 7–8 PM).</em></h3>
-              <p>Enter your details below to receive the meeting link on WhatsApp 3 days before the session (by 22nd Oct).</p>
+              <h3>Reserve your free place<br/><em>on 1st November (Sun, 6–7 PM).</em></h3>
+              <p>Enter your details below to receive the meeting link on WhatsApp 3 days before the session (by 29th Oct).</p>
               
               <form onSubmit={handleStep1Submit} className="space-y-3">
+                {serverError && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-lg flex items-start gap-2">
+                    <AlertCircle size={16} className="text-amber-700 flex-shrink-0 mt-0.5" />
+                    <span>{serverError}</span>
+                  </div>
+                )}
                 <label>
                   Full Name of Attendee *
                   <input 
@@ -508,7 +515,7 @@ export function HeightSessionPage() {
                   <span>{loading ? 'Registering…' : 'Register Now'}</span>
                   <ArrowUpRight size={16}/>
                 </button>
-                <small className="form-privacy">100% Free Workshop. Meeting link sent via WhatsApp 3 days prior (by 22nd Oct).</small>
+                <small className="form-privacy">100% Free Workshop. Meeting link sent via WhatsApp 3 days prior (by 29th Oct).</small>
               </form>
             </>
           )}
@@ -520,7 +527,7 @@ export function HeightSessionPage() {
               <h3>Free Workshop Confirmed!</h3>
               <p>
                 Booking ID: <strong>{confirmedData.id}</strong><br/>
-                We have registered <strong>{confirmedData.name}</strong> for the 25th Oct Masterclass (Sun, 7:00 PM – 8:00 PM Evening).
+                We have registered <strong>{confirmedData.name}</strong> for the 1st Nov Masterclass (Sun, 6:00 PM – 7:00 PM Evening).
               </p>
               <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg text-xs my-2 text-left space-y-1">
                 <p>
@@ -534,11 +541,11 @@ export function HeightSessionPage() {
                 <a
                   href={WHATSAPP_GROUP_LINK}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="sub-cta text-center"
-                  style={{ background: '#25D366', borderColor: '#1EBE5D', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700' }}
+                  style={{ background: '#128C7E', borderColor: '#0E6251', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700', minHeight: '48px' }}
                 >
-                  <MessageCircle size={18} fill="#ffffff"/> Join Official WhatsApp Group Now
+                  <MessageCircle size={19} fill="#ffffff"/> Join Official WhatsApp Group Now
                 </a>
                 <a
                   href={`https://wa.me/917758816074?text=${encodeURIComponent([
@@ -551,7 +558,7 @@ export function HeightSessionPage() {
                     `🎂 *Age / Gender:* ${confirmedData.age} yrs, ${confirmedData.gender || 'Male'}`,
                     `📏 *Current Height:* ${confirmedData.currentHeight}`,
                     `📍 *City:* ${confirmedData.city}`,
-                    `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+                    `📅 *Session Date & Time:* Sunday, 1 Nov 2026 (Evening 6:00 PM – 7:00 PM)`,
                     `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`
                   ].join('\n'))}`}
                   target="_blank"

@@ -73,7 +73,7 @@ export function LegalCompliancePage() {
             <ul style={{ paddingLeft: '20px', listStyleType: 'disc', fontSize: '13px', lineHeight: '1.7', color: '#444' }}>
               <li><strong>Doctor OPD Consultation Fee:</strong> ₹200 (In-Clinic OPD Appointment with Dr. Manish Santosh Yerpude or Dr. Sakshi G. Sonkusare).</li>
               <li><strong>Follow-up Consultation Fee:</strong> ₹200 (Follow-up Doctor Evaluation & Review).</li>
-              <li><strong>Educational Webinars & Workshops:</strong> Specialized live health education masterclasses (such as the 25 Oct Sunday Natural Growth Masterclass) are complimentary (₹0 Free Workshop) requiring no advance payment.</li>
+              <li><strong>Educational Webinars & Workshops:</strong> Specialized live health education masterclasses (such as the 1 Nov Sunday Natural Growth Masterclass) are complimentary (₹0 Free Workshop) requiring no advance payment.</li>
             </ul>
           </div>
 

@@ -12,8 +12,8 @@ export const DEFAULT_COMPLEX_ADMIN_PASSWORD = 'DrYerpude@Aayu2026#Secure';
 export const DEFAULT_UNIVERSAL_UPI_ID = '7758816074@ybl';
 export const RECIPIENT_NAME = 'DR YERPUDES AYUTATVA';
 export const REGISTRATION_FEE = 0; // 100% Free Workshop
-export const SESSION_DATE = 'Sunday, 25th October 2026';
-export const SESSION_TIME = 'Evening 7:00 PM – 8:00 PM (IST)';
+export const SESSION_DATE = 'Sunday, 1st November 2026';
+export const SESSION_TIME = 'Evening 6:00 PM – 7:00 PM (IST)';
 export const DEFAULT_PAYMENT_LINK = '';
 export const DEFAULT_GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec';
 export const WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/F13Vq4it2tfHeucc0x12w2?s=cl&p=a&mlu=4&ilr=4';
@@ -38,7 +38,8 @@ export async function saveMasterclassRegistration(data) {
     console.error('LocalStorage write error:', e);
   }
 
-  // 2. Server API sync
+  // 2. Server API sync (Persists in clinic database & triggers server-side Google Sheet forwarder)
+  let serverEntry = null;
   try {
     const res = await fetch('/api/height-registrations', {
       method: 'POST',
@@ -47,26 +48,44 @@ export async function saveMasterclassRegistration(data) {
     });
     if (res.ok) {
       const json = await res.json();
-      if (json && json.entry) return json.entry;
+      if (json && json.entry) serverEntry = json.entry;
     }
   } catch (err) {
     console.warn('Backend sync failed, saved locally in browser:', err);
   }
 
-  // 3. Google Sheet Webhook sync (real-time automated row append)
+  // 3. Google Sheet Webhook sync: Dual-Channel Direct Sync (Always executes concurrently)
   try {
     const webhookUrl = localStorage.getItem('aayutatva_gsheet_webhook_url') || DEFAULT_GSHEET_WEBHOOK_URL;
     if (webhookUrl && webhookUrl.startsWith('http')) {
-      fetch(webhookUrl, {
+      const queryParams = new URLSearchParams({
+        id: entry.id,
+        name: entry.name,
+        whatsapp: entry.whatsapp,
+        age: String(entry.age),
+        gender: entry.gender,
+        height: entry.currentHeight,
+        currentHeight: entry.currentHeight,
+        city: entry.city,
+        email: entry.email || '',
+        goal: entry.goal || '',
+        status: entry.status,
+        submittedAt: entry.submittedAt,
+      });
+      const fullUrl = webhookUrl.includes('?') ? `${webhookUrl}&${queryParams}` : `${webhookUrl}?${queryParams}`;
+
+      fetch(fullUrl, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(entry),
-      }).catch(() => {});
+      }).catch((e) => {
+        console.warn('Direct client sheet sync error:', e);
+      });
     }
   } catch (e) {}
 
-  return entry;
+  return serverEntry || entry;
 }
 
 export function getAllRegistrations() {
@@ -116,7 +135,7 @@ export function exportRegistrationsToCSV(records) {
     `"${r.status || 'Free Workshop Confirmed'}"`,
     `"${r.fee ? '₹' + r.fee : '₹0 (Free Workshop)'}"`,
     `"${r.upiRef || 'N/A (Free)'}"`,
-    `"Zoom/Meet link will be received 3 days prior (by 22nd Oct) on WhatsApp"`
+    `"Zoom/Meet link will be received 3 days prior (by 29th Oct) on WhatsApp"`
   ]);
 
   const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\r\n');
@@ -168,7 +187,7 @@ export function UpdateQrModal({
       return;
     }
 
-    const uri = `upi://pay?pa=${encodeURIComponent(upiInput.trim() || DEFAULT_UNIVERSAL_UPI_ID)}&pn=${encodeURIComponent(nameInput.trim() || RECIPIENT_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 25 Oct')}`;
+    const uri = `upi://pay?pa=${encodeURIComponent(upiInput.trim() || DEFAULT_UNIVERSAL_UPI_ID)}&pn=${encodeURIComponent(nameInput.trim() || RECIPIENT_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 1 Nov')}`;
     QRCode.toDataURL(uri, {
       width: 260,
       margin: 1,
@@ -484,7 +503,7 @@ function _UnusedDeadCode() {
   const activeCustomImage = paymentConfig.customQrImage || '';
 
   // Standard UPI URI format accepted across all UPI apps
-  const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 25 Oct')}`;
+  const upiUri = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(activeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Height Growth Masterclass 1 Nov')}`;
   
   // Real web payment link if user explicitly configured an http URL
   const hasCustomWebLink = Boolean(paymentLink && paymentLink.trim().startsWith('http'));
@@ -639,6 +658,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -667,6 +687,18 @@ export function HeightCampaignPopup({ autoOpen = false }) {
     window.addEventListener('open-height-masterclass', handleOpen);
     return () => window.removeEventListener('open-height-masterclass', handleOpen);
   }, [autoOpen]);
+
+  // Nielsen Heuristic #3: User Control & Freedom - Close modal on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -739,7 +771,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
       }, 600);
 
     } catch (err) {
-      alert('Could not update registration in sheet. Please try again.');
+      setServerError('Unable to update sheet in real-time. Please tap below to join the WhatsApp group directly.');
     } finally {
       setLoading(false);
     }
@@ -763,32 +795,35 @@ export function HeightCampaignPopup({ autoOpen = false }) {
             type="button"
             onClick={() => { setStep(0); setIsOpen(true); }}
             className="flex items-center gap-2 px-3.5 py-2 hover:bg-[#1f4628] active:scale-95 transition-all text-xs font-bold cursor-pointer text-[#E7C697] whitespace-nowrap"
-            aria-label="Open 25 Oct Free Height Masterclass details"
+            aria-label="Open 1 Nov Free Height Masterclass details"
           >
             <span className="relative flex h-2 w-2 flex-shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Free Workshop (25 Oct Sun · 7-8 PM)</span>
+            <span>Free Workshop (1 Nov Sun · 6-7 PM)</span>
           </button>
           <button
             type="button"
             onClick={handleCloseBanner}
-            className="px-2.5 py-2 text-[#E7C697]/80 hover:text-white hover:bg-black/30 active:scale-90 transition-all border-l border-[#D4A373]/40 cursor-pointer flex items-center justify-center flex-shrink-0"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] text-[#E7C697]/80 hover:text-white hover:bg-black/30 active:scale-90 transition-all border-l border-[#D4A373]/40 cursor-pointer flex items-center justify-center flex-shrink-0"
             title="Close Live Masterclass banner"
             aria-label="Close Live Masterclass banner"
           >
-            <X size={14} strokeWidth={2.5} />
+            <X size={15} strokeWidth={2.5} />
           </button>
         </div>
       )}
 
-      {/* 2. Compact Mobile-Friendly Popup Modal */}
+      {/* 2. Compact Mobile-Friendly Popup Modal with Backdrop Dismiss */}
       {isOpen && (
         <div 
           className="fixed inset-0 z-[1000] bg-black/75 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleClose();
+          }}
         >
           {/* Card Container: Spacious, responsive, fits mobile and desktop viewports gracefully */}
           <div className="bg-[#FDFBF7] text-[#1B3B22] w-full max-w-[390px] sm:max-w-[430px] rounded-2xl shadow-2xl border-2 border-[#D4A373] overflow-hidden max-h-[88vh] sm:max-h-[90vh] flex flex-col relative animate-in zoom-in-95 duration-200 campaign-modal">
@@ -799,7 +834,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="inline-flex items-center gap-1.5 bg-[#D4A373] text-[#17331D] text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full tracking-wide shadow-xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
-                    25 OCT · 7:00 PM · FREE WORKSHOP
+                    01 NOV · 6:00 PM · FREE WORKSHOP
                   </span>
                   <span className="bg-emerald-800/80 text-emerald-200 border border-emerald-600/40 text-[9.5px] font-bold px-2 py-0.5 rounded-full">
                     100% Free Entry
@@ -813,14 +848,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                 </p>
               </div>
 
-              {/* Close Button */}
+              {/* Close Button: Meets Fitts's Law touch target minimum (>= 40px with generous tap padding) */}
               <button 
                 type="button"
                 onClick={handleClose} 
                 aria-label="Close masterclass popup"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-stone-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 mt-0.5"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-stone-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 mt-0.5"
               >
-                <X size={17} />
+                <X size={18} />
               </button>
             </div>
 
@@ -845,23 +880,25 @@ export function HeightCampaignPopup({ autoOpen = false }) {
               {/* STEP 0: ULTRA-COMPACT STREAMLINED INVITATION PITCH */}
               {step === 0 && (
                 <div className="space-y-3 text-center">
-                  {/* Doctor Row */}
+                  {/* Doctor Row - Dr. Sakshi Sonkusare with Passport Style Photograph */}
                   <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-stone-200 shadow-2xs text-left">
-                    <img 
-                      src="/media/dr-manish-yerpude.jpg" 
-                      alt="Dr. Manish Santosh Yerpude" 
-                      className="w-10 h-10 rounded-full object-cover border border-[#D4A373] flex-shrink-0"
-                    />
+                    <div className="relative w-12 h-15 rounded-md overflow-hidden border-2 border-[#D4A373] shadow-xs flex-shrink-0 bg-stone-100">
+                      <img 
+                        src="/media/dr-sakshi-passport.jpg" 
+                        alt="Dr. Sakshi Sonkusare - Passport Photograph" 
+                        className="w-full h-full object-cover object-[center_35%]"
+                      />
+                    </div>
                     <div className="leading-tight">
-                      <div className="font-bold text-stone-900 text-xs sm:text-sm">Dr. Manish Santosh Yerpude</div>
-                      <div className="text-[10px] text-stone-500">[B.A.M.S., MD (AM)] · AayuTatva Ayurvedic Hospital</div>
+                      <div className="font-bold text-stone-900 text-xs sm:text-sm">Dr. Sakshi Sonkusare</div>
+                      <div className="text-[10px] text-stone-500">[B.A.M.S., PGDCC] · AayuTatva Ayurvedic Hospital</div>
                     </div>
                   </div>
 
                   {/* Concise Highlights & Notice */}
                   <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl p-3 text-left space-y-1.5">
                     <div className="flex items-center justify-between text-[#17331D] font-bold text-[11px]">
-                      <span>📅 Sun, 25 Oct 2026 · 7:00 PM – 8:00 PM (Evening)</span>
+                      <span>📅 Sun, 1 Nov 2026 · 6:00 PM – 7:00 PM (Evening)</span>
                       <span className="bg-[#17331D] text-[#E7C697] text-[9.5px] px-2 py-0.5 rounded-full font-bold">Free Entry</span>
                     </div>
                     <p className="text-[11px] text-stone-700 leading-snug">
@@ -906,10 +943,16 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     </p>
                   </div>
 
-                  <form onSubmit={handleStep1Submit} className="space-y-2.5 text-left">
+                  <form onSubmit={handleStep1Submit} className="space-y-3 text-left">
+                    {serverError && (
+                      <div className="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-2.5 rounded-lg flex items-start gap-2">
+                        <AlertCircle size={15} className="flex-shrink-0 mt-0.5 text-amber-700" />
+                        <span>{serverError}</span>
+                      </div>
+                    )}
                     <div>
-                      <label className="block text-[11px] font-semibold text-stone-700 mb-1">
-                        Full Name *
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Full Name of Attendee *
                       </label>
                       <input
                         type="text"
@@ -917,13 +960,13 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         placeholder="e.g. Aryan Sharma"
                         value={formData.name}
                         onChange={handleChange}
-                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                        className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px]"
                       />
-                      {errors.name && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.name}</p>}
+                      {errors.name && <p className="text-[10px] text-red-600 font-semibold mt-1">{errors.name}</p>}
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-semibold text-stone-700 mb-1">
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
                         WhatsApp Number *
                       </label>
                       <input
@@ -932,14 +975,14 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         placeholder="e.g. 9876543210"
                         value={formData.whatsapp}
                         onChange={handleChange}
-                        className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                        className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px]"
                       />
-                      {errors.whatsapp && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.whatsapp}</p>}
+                      {errors.whatsapp && <p className="text-[10px] text-red-600 font-semibold mt-1">{errors.whatsapp}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
                           Age *
                         </label>
                         <input
@@ -948,20 +991,20 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                           placeholder="e.g. 18"
                           value={formData.age}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px]"
                         />
-                        {errors.age && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.age}</p>}
+                        {errors.age && <p className="text-[10px] text-red-600 font-semibold mt-1">{errors.age}</p>}
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
                           Gender
                         </label>
                         <select
                           name="gender"
                           value={formData.gender}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9 cursor-pointer"
+                          className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px] cursor-pointer"
                         >
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
@@ -971,17 +1014,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2.5">
-                      {/* Current Height with FT / CM Unit Selector */}
+                      {/* Current Height with FT / CM Unit Selector: Fitts's Law touch targets */}
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <label className="text-[11px] font-semibold text-stone-700">
+                          <label className="text-xs font-semibold text-stone-700">
                             Current Height *
                           </label>
-                          <div className="flex items-center bg-stone-200/90 rounded-md p-0.5 text-[9.5px] font-bold">
+                          <div className="flex items-center bg-stone-200 rounded-md p-0.5 text-xs font-bold">
                             <button
                               type="button"
                               onClick={() => setHeightUnit('FT')}
-                              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                              className={`px-2.5 py-1 rounded transition-all cursor-pointer min-h-[26px] ${
                                 heightUnit === 'FT' 
                                   ? 'bg-[#17331D] text-[#E7C697] shadow-xs' 
                                   : 'text-stone-600 hover:text-stone-900'
@@ -992,7 +1035,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                             <button
                               type="button"
                               onClick={() => setHeightUnit('CM')}
-                              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                              className={`px-2.5 py-1 rounded transition-all cursor-pointer min-h-[26px] ${
                                 heightUnit === 'CM' 
                                   ? 'bg-[#17331D] text-[#E7C697] shadow-xs' 
                                   : 'text-stone-600 hover:text-stone-900'
@@ -1008,17 +1051,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                           placeholder={heightUnit === 'FT' ? 'e.g. 5ft 4 in' : 'e.g. 150 CM'}
                           value={formData.currentHeight}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px]"
                         />
-                        <span className="text-[9px] text-stone-500 mt-0.5 block">
+                        <span className="text-[10px] text-stone-500 mt-1 block">
                           {heightUnit === 'FT' ? 'Example: 5ft 4 in' : 'Example: 150 CM'}
                         </span>
-                        {errors.currentHeight && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.currentHeight}</p>}
+                        {errors.currentHeight && <p className="text-[10px] text-red-600 font-semibold mt-1">{errors.currentHeight}</p>}
                       </div>
 
-                      {/* City Field (Updated Header from City/State to City) */}
+                      {/* City Field */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-stone-700 mb-1">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
                           City *
                         </label>
                         <input
@@ -1027,9 +1070,9 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                           placeholder="e.g. Bhandara"
                           value={formData.city}
                           onChange={handleChange}
-                          className="campaign-input w-full text-[13px] font-medium text-stone-800 px-3 py-2 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-[#17331D] focus:border-[#17331D] h-9"
+                          className="campaign-input w-full text-sm font-medium text-stone-800 px-3.5 py-2.5 border rounded-lg border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#17331D] focus:border-[#17331D] h-11 min-h-[44px]"
                         />
-                        {errors.city && <p className="text-[9.5px] text-red-600 mt-0.5">{errors.city}</p>}
+                        {errors.city && <p className="text-[10px] text-red-600 font-semibold mt-1">{errors.city}</p>}
                       </div>
                     </div>
 
@@ -1073,7 +1116,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                       Free Workshop Confirmed
                     </span>
                     <h3 className="text-sm sm:text-base font-serif font-bold text-[#1B3B22] mt-1">
-                      Seat Reserved for Sun, 25th Oct (7–8 PM)!
+                      Seat Reserved for Sun, 1st Nov (6–7 PM)!
                     </h3>
                   </div>
 
@@ -1110,17 +1153,17 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                     </div>
                   </div>
 
-                  {/* Primary WhatsApp Group Join CTA */}
+                  {/* Primary WhatsApp Group Join CTA: WCAG AA Compliant High Contrast */}
                   <div className="flex flex-col gap-2 pt-1">
                     <a
                       href={WHATSAPP_GROUP_LINK}
                       target="_blank"
-                      rel="noreferrer"
-                      className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-98 cursor-pointer"
+                      rel="noopener noreferrer"
+                      className="w-full bg-[#128C7E] hover:bg-[#0E6251] active:scale-[0.99] text-white text-xs sm:text-sm font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer min-h-[48px]"
                     >
-                      <MessageCircle size={18} className="fill-white flex-shrink-0" />
-                      <span>Join Official WhatsApp Group Now</span>
-                      <ArrowRight size={15} className="flex-shrink-0" />
+                      <MessageCircle size={19} className="fill-white flex-shrink-0" />
+                      <span className="tracking-wide">Join Official WhatsApp Group Now</span>
+                      <ArrowRight size={16} className="flex-shrink-0" />
                     </a>
                     
                     <a
@@ -1134,7 +1177,7 @@ export function HeightCampaignPopup({ autoOpen = false }) {
                         `🎂 *Age / Gender:* ${confirmedData.age} yrs, ${confirmedData.gender || 'Male'}`,
                         `📏 *Current Height:* ${confirmedData.currentHeight}`,
                         `📍 *City:* ${confirmedData.city}`,
-                        `📅 *Session Date & Time:* Sunday, 25 Oct 2026 (Evening 7:00 PM – 8:00 PM)`,
+                        `📅 *Session Date & Time:* Sunday, 1 Nov 2026 (Evening 6:00 PM – 7:00 PM)`,
                         `🎟️ *Registration Status:* Free Workshop Confirmed (₹0)`
                       ].join('\n'))}`}
                       target="_blank"
@@ -1194,7 +1237,7 @@ export function HeightCampaignBanner() {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
         </span>
         <span className="font-bold">Free Live Workshop:</span>
-        <span>Natural Height Growth (25 Oct Sun · 7-8 PM IST · Free Workshop)</span>
+        <span>Natural Height Growth (1 Nov Sun · 6-7 PM IST · Free Workshop)</span>
       </div>
       <button 
         type="button"
@@ -1333,35 +1376,102 @@ export function HeightAdminModal({ isOpen, onClose }) {
     setTimeout(() => setCopiedNumbers(false), 2500);
   };
 
-  const saveWebhook = () => {
+  const [syncingAll, setSyncingAll] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState('');
+
+  const saveWebhook = async () => {
     localStorage.setItem('aayutatva_gsheet_webhook_url', webhookUrl);
+    try {
+      await fetch('/api/payment-config', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-staff-passcode': activeAuthKey || passcode 
+        },
+        body: JSON.stringify({ gsheetWebhookUrl: webhookUrl.trim() })
+      });
+    } catch (e) {
+      console.warn('Could not persist webhook to server:', e);
+    }
     setWebhookSaved(true);
     setTimeout(() => setWebhookSaved(false), 2000);
+  };
+
+  const syncAllLeadsToSheet = async () => {
+    if (!webhookUrl || records.length === 0) return;
+    setSyncingAll(true);
+    setSyncStatusMsg(`Syncing ${records.length} lead(s) to Google Sheets...`);
+    let count = 0;
+    for (const rec of records) {
+      try {
+        const queryParams = new URLSearchParams({
+          id: rec.id || '',
+          name: rec.name || '',
+          whatsapp: rec.whatsapp || '',
+          age: String(rec.age || ''),
+          gender: rec.gender || 'Male',
+          height: rec.currentHeight || '',
+          currentHeight: rec.currentHeight || '',
+          city: rec.city || '',
+          email: rec.email || '',
+          goal: rec.goal || '',
+          status: rec.status || 'Free Workshop Confirmed',
+          submittedAt: rec.submittedAt || new Date().toISOString(),
+        });
+        const fullUrl = webhookUrl.includes('?') ? `${webhookUrl}&${queryParams}` : `${webhookUrl}?${queryParams}`;
+        await fetch(fullUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(rec),
+        });
+        count++;
+      } catch (err) {
+        console.warn('Sync failed for item:', rec.id, err);
+      }
+    }
+    setSyncingAll(false);
+    setSyncStatusMsg(`✅ Dispatched ${count} of ${records.length} lead(s) directly to your Google Sheet!`);
+    setTimeout(() => setSyncStatusMsg(''), 5000);
   };
 
   const sendTestPing = async () => {
     if (!webhookUrl) return;
     setTestSent(true);
     try {
-      await fetch(webhookUrl, {
+      const testData = {
+        id: 'TEST-AAYU-' + Math.floor(1000 + Math.random() * 9000),
+        name: 'Test Attendee (Dr. Yerpude)',
+        whatsapp: '917758816074',
+        age: '21',
+        gender: 'Male',
+        currentHeight: '5 ft 7 in',
+        city: 'Bhandara',
+        fee: 0,
+        upiRef: 'LIVE-SYNC-TEST',
+        status: 'Free Workshop Confirmed',
+        submittedAt: new Date().toISOString()
+      };
+      const queryParams = new URLSearchParams({
+        id: testData.id,
+        name: testData.name,
+        whatsapp: testData.whatsapp,
+        age: testData.age,
+        gender: testData.gender,
+        height: testData.currentHeight,
+        currentHeight: testData.currentHeight,
+        city: testData.city,
+        status: testData.status,
+        submittedAt: testData.submittedAt,
+      });
+      const fullUrl = webhookUrl.includes('?') ? `${webhookUrl}&${queryParams}` : `${webhookUrl}?${queryParams}`;
+      await fetch(fullUrl, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 'TEST-AAYU-' + Math.floor(1000 + Math.random() * 9000),
-          name: 'Test Attendee (Dr. Yerpude)',
-          whatsapp: '917758816074',
-          age: '21',
-          gender: 'Male',
-          currentHeight: '5 ft 7 in',
-          city: 'Bhandara',
-          fee: 9,
-          upiRef: 'LIVE-SYNC-TEST',
-          status: 'Confirmed',
-          submittedAt: new Date().toISOString()
-        })
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(testData)
       });
-      alert('✅ Test row sent to your Google Sheet! Please check your Google Sheet to verify the new row.');
+      alert('✅ Test row dispatched to your Google Sheet! Please open your Google Sheet to confirm the row.');
     } catch (e) {
       alert('Error sending test ping: ' + e);
     } finally {
@@ -1386,7 +1496,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
                 AayuTatva Height Masterclass · Staff Portal
               </h2>
               <p className="text-xs text-stone-300">
-                Attendee lead management & Excel export for 25th Oct Free Workshop
+                Attendee lead management & Excel export for 1st Nov Free Workshop
               </p>
             </div>
           </div>
@@ -1453,7 +1563,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Total Registrations</span>
                 <div className="text-2xl font-bold text-[#1B3B22] mt-0.5">{records.length}</div>
-                <span className="text-[10px] text-emerald-600">Active leads for 25 Oct session</span>
+                <span className="text-[10px] text-emerald-600">Active leads for 1 Nov session</span>
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Workshop Entry Fee</span>
@@ -1462,7 +1572,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
               </div>
               <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl">
                 <span className="text-[10px] text-stone-500 font-bold uppercase">Broadcast Date</span>
-                <div className="text-base font-bold text-stone-800 mt-0.5">22nd Oct 2026</div>
+                <div className="text-base font-bold text-stone-800 mt-0.5">29th Oct 2026</div>
                 <span className="text-[10px] text-stone-500">Send Zoom/Meet link 3 days prior</span>
               </div>
             </div>
@@ -1632,7 +1742,7 @@ export function HeightAdminModal({ isOpen, onClose }) {
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   className="flex-1 text-xs px-3 py-2 border rounded-lg border-stone-300 bg-white font-mono"
                 />
-                <div className="flex gap-2 flex-shrink-0">
+                <div className="flex gap-2 flex-shrink-0 flex-wrap">
                   <button
                     type="button"
                     onClick={saveWebhook}
@@ -1649,17 +1759,58 @@ export function HeightAdminModal({ isOpen, onClose }) {
                     <RefreshCw size={12} className={testSent ? 'animate-spin' : ''} />
                     <span>{testSent ? 'Sending...' : 'Send Test Row to Sheet'}</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={syncAllLeadsToSheet}
+                    disabled={syncingAll || records.length === 0}
+                    className="bg-[#0E6251] hover:bg-[#0B4F41] text-white text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer flex items-center gap-1 shadow-sm"
+                  >
+                    <RefreshCw size={12} className={syncingAll ? 'animate-spin' : ''} />
+                    <span>{syncingAll ? 'Syncing...' : `Sync All ${records.length} Leads to Sheet`}</span>
+                  </button>
                 </div>
               </div>
 
+              {syncStatusMsg && (
+                <div className="mt-2.5 p-2.5 bg-emerald-100 border border-emerald-300 text-emerald-950 rounded-lg text-xs font-semibold animate-in fade-in">
+                  {syncStatusMsg}
+                </div>
+              )}
+
               {/* Crucial Google Apps Script Setup Notice */}
-              <div className="mt-3 bg-white p-2.5 rounded-lg border border-stone-200 text-[11px] text-stone-600 space-y-1">
-                <div className="font-bold text-stone-800">⚠️ Quick Google Sheets Check:</div>
+              <div className="mt-3 bg-white p-3 rounded-lg border border-stone-200 text-[11px] text-stone-600 space-y-1.5">
+                <div className="font-bold text-stone-800 flex items-center gap-1.5">
+                  <span>📋 Mandatory Google Apps Script Code for your Google Sheet:</span>
+                </div>
                 <p>
-                  In your Google Apps Script, make sure under <strong>Deploy &gt; Manage deployments &gt; Edit</strong>:
-                  <br />• <strong>Execute as:</strong> <code>Me (your Google account)</code>
-                  <br />• <strong>Who has access:</strong> <code>Anyone</code> (This allows your website to write rows without requiring visitors to log in).
+                  In your Google Sheet, open <strong>Extensions &gt; Apps Script</strong>, paste the code below, and deploy:
                 </p>
+                <div className="bg-stone-900 text-emerald-300 p-2.5 rounded font-mono text-[10px] overflow-x-auto leading-relaxed select-all">
+                  {`function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = {};
+  try { data = JSON.parse(e.postData.contents); } catch(f) {}
+  var p = e.parameter || {};
+  sheet.appendRow([
+    new Date(),
+    data.id || p.id || ("AAYU-" + Date.now()),
+    data.name || p.name || "",
+    "'" + (data.whatsapp || p.whatsapp || ""),
+    data.age || p.age || "",
+    data.gender || p.gender || "Male",
+    data.currentHeight || p.currentHeight || p.height || "",
+    data.city || p.city || "",
+    data.email || p.email || "",
+    data.goal || p.goal || "",
+    data.status || p.status || "Free Workshop Confirmed"
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}`}
+                </div>
+                <div className="text-[10px] text-stone-500 pt-1">
+                  Click <strong>Deploy &gt; New deployment &gt; Select type: Web app</strong> &gt; Set <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong>. Copy that web app URL and paste it above!
+                </div>
               </div>
             </div>
 

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { loadPaymentConfig } from './payment-config.ts';
 
 interface MasterclassRegistration {
   id: string;
@@ -173,20 +174,53 @@ export default async function handler(req: any, res: any) {
 
     saveRegistrations(list);
 
-    // Forward asynchronously to Google Sheets Webhook
-    const gsheetUrl = process.env.GSHEET_WEBHOOK_URL || DEFAULT_GSHEET_WEBHOOK_URL;
+    // Forward to Google Sheets Webhook with dual compatibility (Query params + JSON body)
+    const activeConfig = loadPaymentConfig();
+    const gsheetUrl = process.env.GSHEET_WEBHOOK_URL || activeConfig.gsheetWebhookUrl || DEFAULT_GSHEET_WEBHOOK_URL;
+    let sheetForwarded = false;
+
     if (gsheetUrl && gsheetUrl.startsWith('http')) {
-      fetch(gsheetUrl, {
+      const queryParams = new URLSearchParams({
+        id: newEntry.id,
+        name: newEntry.name,
+        whatsapp: newEntry.whatsapp,
+        age: String(newEntry.age),
+        gender: newEntry.gender,
+        height: newEntry.currentHeight,
+        currentHeight: newEntry.currentHeight,
+        city: newEntry.city,
+        email: newEntry.email || '',
+        goal: newEntry.goal || '',
+        status: newEntry.status,
+        submittedAt: newEntry.submittedAt,
+      });
+
+      const fullUrl = gsheetUrl.includes('?') ? `${gsheetUrl}&${queryParams}` : `${gsheetUrl}?${queryParams}`;
+
+      fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEntry),
         redirect: 'follow',
+      }).then(async (response) => {
+        if (!response.ok) {
+          console.warn(`[GSheet Sync] Status ${response.status}: ${response.statusText}`);
+        } else {
+          console.log(`[GSheet Sync] Successfully synced registration ${newEntry.id} to Google Sheet`);
+        }
       }).catch((err) => {
-        console.warn('Google Sheet auto-forward error:', err);
+        console.warn('[GSheet Sync] Error forwarding to Google Sheet:', err?.message || err);
       });
+      sheetForwarded = true;
     }
 
-    return res.status(201).json({ success: true, entry: newEntry, count: list.length });
+    return res.status(201).json({ 
+      success: true, 
+      entry: newEntry, 
+      count: list.length,
+      sheetForwarded,
+      gsheetConfigured: Boolean(gsheetUrl && gsheetUrl.startsWith('http'))
+    });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

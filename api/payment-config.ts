@@ -11,6 +11,7 @@ export interface PaymentConfig {
   customQrImage?: string;
   activeMode: 'universal' | 'paytm' | 'custom';
   paymentLink?: string;
+  gsheetWebhookUrl?: string;
   updatedAt: string;
 }
 
@@ -23,6 +24,7 @@ const DEFAULT_CONFIG: PaymentConfig = {
   customQrImage: '',
   activeMode: 'universal',
   paymentLink: '',
+  gsheetWebhookUrl: process.env.GSHEET_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbxa4-2ZntsN5_-0X4NLcrKmIOBjuFpQn868VMxvyFkaeWBXKbvLoAjCtWUD9vOpoVzm/exec',
   updatedAt: new Date().toISOString()
 };
 

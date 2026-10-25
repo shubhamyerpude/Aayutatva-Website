@@ -339,10 +339,10 @@ export function SiteHeader({ breadcrumb = null }) {
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-height-masterclass', { detail: { step: 0 } }))}
             className="nav-btn-masterclass"
-            title="25 Oct Sunday Free Height Masterclass registration"
+            title="1 Nov Sunday Free Height Masterclass registration"
           >
             <span className="live-pulse-dot" />
-            <span>Free Masterclass (25 Oct)</span>
+            <span>Free Masterclass (1 Nov)</span>
           </button>
 
           {/* Primary CTA: Book Appointment */}
@@ -426,7 +426,7 @@ export function SiteHeader({ breadcrumb = null }) {
               className="mobile-drawer-link mobile-drawer-link-highlight"
             >
               <Video size={18} className="text-amber-700" />
-              <span>Free Masterclass (25 Oct Sun · 7-8 PM)</span>
+              <span>Free Masterclass (1 Nov Sun · 6-7 PM)</span>
               <span className="nav-chip-badge" style={{ background: '#d4a373', color: '#17331D' }}>Free</span>
             </button>
 
